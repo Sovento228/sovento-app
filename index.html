@@ -46,14 +46,13 @@
         }
         .bg-left {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            /* Прозрачность снижена до 0.007 (еле заметная) */
-            background-image: url("data:image/svg+xml,%3Csvg width='350' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='0' y='80' font-family='sans-serif' font-weight='900' font-size='50' fill='rgba(255,255,255,0.007)'%3ESOVENTO%3C/text%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='350' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='0' y='80' font-family='sans-serif' font-weight='900' font-size='50' fill='rgba(255,255,255,0.02)'%3ESOVENTO%3C/text%3E%3C/svg%3E");
             background-size: 350px 160px;
-            animation: moveLeft 80s linear infinite; /* Замедлено до 80 секунд */
+            animation: moveLeft 80s linear infinite; 
         }
         .bg-right {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            background-image: url("data:image/svg+xml,%3Csvg width='350' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='0' y='80' font-family='sans-serif' font-weight='900' font-size='50' fill='rgba(255,255,255,0.007)'%3ESOVENTO%3C/text%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='350' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='0' y='80' font-family='sans-serif' font-weight='900' font-size='50' fill='rgba(255,255,255,0.02)'%3ESOVENTO%3C/text%3E%3C/svg%3E");
             background-size: 350px 160px;
             background-position: 0 80px; 
             animation: moveRight 80s linear infinite;
@@ -133,6 +132,7 @@
         .onboarding-content {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
             padding: 30px 20px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-sizing: border-box; margin: 0 15px; /* Защита от вылезания за края */
         }
 
         /* --- ПОИСК И КАТЕГОРИИ --- */
@@ -215,7 +215,10 @@
                         </div>
                     </div>
                 </div>
-                <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden;"><div style="height: 100%; background: var(--brand-red); transition: width 0.1s linear;" :style="{ width: sliderProgress + '%' }"></div></div>
+                <!-- ПОЛОСКА ПРОГРЕССА -->
+                <div v-show="totalSlides > 1" style="width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden;">
+                    <div style="height: 100%; background: var(--brand-red); transition: width 0.1s linear;" :style="{ width: sliderProgress + '%' }"></div>
+                </div>
 
                 <div style="margin-top: 35px; text-align: center; padding: 0 10px;">
                     <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
@@ -238,9 +241,11 @@
             </div>
 
             <!-- ЭКРАН 2: АССОРТИМЕНТ (Каталог) -->
+            <!-- ЭКРАН 2: АССОРТИМЕНТ (Каталог) -->
             <div v-if="currentTab === 'catalog'" v-cloak>
-                <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 15px; letter-spacing: 0.5px;">
-                    Вас приветствует команда Sovento,<br>ниже наш склад города <b style="color:var(--text-main);">{{ currentCity }}</b>
+                <div style="text-align: center; color: var(--text-muted); font-size: 15px; margin-bottom: 20px; letter-spacing: 0.5px; line-height: 1.4;">
+                    Вас приветствует команда <b style="color:var(--brand-red);">SOVENTO</b>!<br>
+                    Ниже наш склад города <b style="color:var(--text-main); font-size: 18px;">{{ currentCity }}</b>
                 </div>
 
                 <div class="search-container">
@@ -334,7 +339,12 @@
             },
             mounted() {
                 this.generateNickname();
-                this.startSlider(); 
+                // Даем HTML долю секунды на прогрузку, чтобы сосчитать слайды
+                setTimeout(() => {
+                    const slider = document.getElementById('promo-slider');
+                    if (slider) this.totalSlides = slider.children.length;
+                    this.startSlider(); 
+                }, 100);
             },
             beforeUnmount() {
                 clearInterval(this.sliderTimer);
@@ -343,7 +353,6 @@
                 selectCity(city) {
                     this.currentCity = city;
                     this.isCityDropdownOpen = false;
-                    // Здесь бот запоминает выбор локально, а на сервер отправит при заказе
                 },
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
@@ -351,25 +360,32 @@
                 },
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
-                        if(this.currentTab !== 'home') return; // Крутим слайдер только на Главной
+                        if(this.currentTab !== 'home') return; 
+                        const slider = document.getElementById('promo-slider');
+                        // Если слайдер не найден ИЛИ слайд всего 1 — таймер ничего не делает
+                        if(!slider || this.totalSlides <= 1) return; 
+
                         this.sliderProgress += (100 / (5000 / 50)); 
                         
                         if (this.sliderProgress >= 100) {
                             this.sliderProgress = 0;
-                            this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
-                            const slider = document.getElementById('promo-slider');
-                            if(slider) {
-                                slider.scrollTo({ left: this.activeSlide * slider.clientWidth, behavior: 'smooth' });
-                            }
+                            
+                            const firstSlide = slider.children[0];
+                            const slideWidth = firstSlide.clientWidth + 15; // Ширина + отступ(gap)
+                            
+                            // 1. Плавно крутим вперед
+                            slider.scrollBy({ left: slideWidth, behavior: 'smooth' });
+                            
+                            // 2. После окончания анимации невидимо переносим первый слайд в конец
+                            setTimeout(() => {
+                                slider.appendChild(firstSlide); // Перенос в конец
+                                slider.scrollBy({ left: -slideWidth, behavior: 'auto' }); // Мгновенно возвращаем скролл
+                            }, 400); // 400мс - среднее время плавной прокрутки
                         }
                     }, 50);
                 },
                 handleScroll() {
                     this.sliderProgress = 0; 
-                    const slider = document.getElementById('promo-slider');
-                    if(slider) {
-                        this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
-                    }
                 }
             }
         }).mount('#app')
