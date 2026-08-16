@@ -104,29 +104,107 @@
             object-fit: cover; opacity: 0.3; z-index: 0;
         }
         .slide-content { position: relative; z-index: 1; }
+    
+    /* --- ВЫПАДАЮЩИЙ СПИСОК ГОРОДОВ --- */
+        .city-btn {
+            background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; 
+            font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.1); color: var(--text-main);
+        }
+        .city-dropdown {
+            position: absolute; top: 60px; right: 20px; background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 180px;
+            max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 2000; padding: 10px 0;
+        }
+        .city-dropdown-item {
+            padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s;
+        }
+        .city-dropdown-item:hover, .city-dropdown-item.active {
+            background: rgba(255, 60, 0, 0.1); color: var(--brand-red);
+        }
+
+        /* --- СТАРТОВОЕ ОКНО ВЫБОРА ГОРОДА --- */
+        .onboarding-modal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+        .onboarding-content {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            padding: 30px 20px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* --- ПОИСК И КАТЕГОРИИ --- */
+        .search-container { margin-bottom: 15px; margin-top: 10px; }
+        .search-input {
+            width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
+            padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .search-input:focus { border-color: rgba(255,60,0,0.5); }
+        
+        .category-scroll {
+            display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .cat-pill {
+            background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); padding: 8px 18px; border-radius: 20px;
+            font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted);
+        }
+        .cat-pill.active {
+            background: var(--brand-red); color: white; border-color: var(--brand-red); box-shadow: 0 4px 15px rgba(255,60,0,0.3);
+        }
+
+        /* --- СЕТКА ТОВАРОВ (2 В РЯД) --- */
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .product-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px;
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #1A1A1E; }
+        .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .product-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+        .product-price { font-size: 16px; font-weight: 900; color: var(--text-main); }
+
     </style>
 </head>
 <body>
     <div id="app">
         <!-- Фон со встречными строками -->
-        <div class="bg-animation-container">
-            <div class="bg-left"></div>
-            <div class="bg-right"></div>
+        <div class="bg-animation-container"><div class="bg-left"></div><div class="bg-right"></div></div>
+
+        <!-- СТАРТОВОЕ ОКНО (Если город не выбран) -->
+        <div class="onboarding-modal" v-if="!currentCity">
+            <div class="onboarding-content">
+                <h2 style="margin:0 0 10px 0; font-size:20px; font-weight:800;">Выберите ваш город</h2>
+                <p style="margin:0 0 20px 0; font-size:13px; color:var(--text-muted);">Чтобы мы показали актуальный склад</p>
+                <div style="display:flex; flex-direction:column; gap:10px; max-height:200px; overflow-y:auto;">
+                    <div class="city-btn" style="justify-content:center;" v-for="city in citiesList" @click="selectCity(city)">{{ city }}</div>
+                </div>
+            </div>
         </div>
 
-        <div class="app-content">
-            <!-- ЭКРАН 1: ГЛАВНАЯ СТРАНИЦА -->
-            <div v-if="currentTab === 'catalog'" v-cloak>
+        <div class="app-content" v-if="currentCity">
+            
+            <!-- ШАПКА (Одинаковая для всех экранов) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position:relative;">
+                <h1 class="logo-font" style="margin:0;">SOVENTO</h1>
                 
-                <!-- ШАПКА -->
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1 class="logo-font" style="margin:0;">SOVENTO</h1>
-                    <div style="background: rgba(255,255,255,0.05); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-                        <svg style="width:18px; height:18px; fill:var(--text-main);" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                <!-- ВЫПАДАЮЩИЙ СПИСОК ГОРОДА -->
+                <div class="city-btn" @click="isCityDropdownOpen = !isCityDropdownOpen">
+                    {{ currentCity }}
+                    <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
+                </div>
+                <div class="city-dropdown" v-if="isCityDropdownOpen">
+                    <div class="city-dropdown-item" :class="{active: currentCity === city}" v-for="city in citiesList" @click="selectCity(city)">
+                        {{ city }}
                     </div>
                 </div>
-                
-                <!-- ДОСКА ОБЪЯВЛЕНИЙ С АВТОСВАЙПОМ -->
+            </div>
+            
+            <!-- ЭКРАН 1: ГЛАВНАЯ (Home) -->
+            <div v-if="currentTab === 'home'" v-cloak>
                 <div class="slider-container" id="promo-slider" @scroll="handleScroll">
                     <div class="slide">
                         <img src="https://placehold.co/600x400/151518/FF3C00?text=NEW" class="slide-bg">
@@ -136,56 +214,67 @@
                             <p style="margin: 0; font-size: 12px; color: #ccc;">Уже доступны во всех городах!</p>
                         </div>
                     </div>
-                    <div class="slide">
-                        <img src="https://placehold.co/600x400/151518/4ade80?text=SALE" class="slide-bg">
-                        <div class="slide-content">
-                            <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
-                            <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800;">Счастливые часы</h2>
-                            <p style="margin: 0; font-size: 12px; color: #ccc;">-15% на все жидкости до 20:00.</p>
-                        </div>
-                    </div>
                 </div>
-                
-                <!-- ПОЛОСКА ПРОГРЕССА (как в сторис) -->
-                <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden; position: relative;">
-                    <div style="height: 100%; background: var(--brand-red); transition: width 0.1s linear;" :style="{ width: sliderProgress + '%' }"></div>
-                </div>
+                <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden;"><div style="height: 100%; background: var(--brand-red); transition: width 0.1s linear;" :style="{ width: sliderProgress + '%' }"></div></div>
 
-                <!-- ИНФОРМАЦИЯ О НАС (БЕЗ ПЛАШКИ) -->
                 <div style="margin-top: 35px; text-align: center; padding: 0 10px;">
                     <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">
-                        Мы — <b style="color: var(--brand-red);">SOVENTO</b>. Наша миссия — создавать жидкости, которые дарят настоящие эмоции. Идеальный баланс, премиальные ингредиенты и строгий контроль качества на каждом этапе производства.
-                    </p>
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">Мы — <b style="color: var(--brand-red);">SOVENTO</b>. Наша миссия — создавать жидкости, которые дарят настоящие эмоции. Идеальный баланс, премиальные ингредиенты и строгий контроль качества на каждом этапе производства.</p>
                 </div>
 
-                <!-- ПРЕИМУЩЕСТВА (ПЛИТКА) -->
+                <!-- Преимущества с SVG иконками вместо эмодзи -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
                     <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">⚡</div>
+                        <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                         <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Быстрая доставка</h4>
                         <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Курьер привезет заказ прямо в руки</p>
                     </div>
                     <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">🛡️</div>
+                        <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Гарантия качества</h4>
                         <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Только оригинальная продукция</p>
                     </div>
                 </div>
             </div>
-            
-            <!-- ЭКРАН 2: КОРЗИНА -->
-            <div v-if="currentTab === 'cart'" v-cloak>
-                <h1 style="margin-top:0;">Корзина</h1>
-                <div class="mock-card">
-                    <p style="color: var(--text-muted); text-align: center;">Ваша корзина пуста</p>
+
+            <!-- ЭКРАН 2: АССОРТИМЕНТ (Каталог) -->
+            <div v-if="currentTab === 'catalog'" v-cloak>
+                <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 15px; letter-spacing: 0.5px;">
+                    Вас приветствует команда Sovento,<br>ниже наш склад города <b style="color:var(--text-main);">{{ currentCity }}</b>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                </div>
+
+                <div class="category-scroll">
+                    <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                    <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                    <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                    <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                </div>
+
+                <div class="products-grid">
+                    <!-- Заглушки для примера дизайна -->
+                    <div class="product-card" v-for="i in 4">
+                        <img src="https://placehold.co/300x300/1A1A1E/FF3C00?text=VAPE" class="product-img">
+                        <div class="product-info">
+                            <div class="product-title">SOVENTO Tobacco Vanilla</div>
+                            <div class="product-price">16.90 €</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- ЭКРАН 3: ПРОФИЛЬ -->
+            <!-- ЭКРАН 3: КОРЗИНА -->
+            <div v-if="currentTab === 'cart'" v-cloak>
+                <h1 style="margin-top:0;">Корзина</h1>
+                <div class="mock-card"><p style="color: var(--text-muted); text-align: center;">Ваша корзина пуста</p></div>
+            </div>
+            
+            <!-- ЭКРАН 4: ПРОФИЛЬ -->
             <div v-if="currentTab === 'profile'" v-cloak>
                 <h1 style="margin-top:0;">Профиль</h1>
-                
                 <div class="mock-card" style="display: flex; align-items: center; gap: 15px;">
                     <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                     <div>
@@ -193,35 +282,26 @@
                         <div style="font-size: 12px; color: var(--text-muted);">Нажми, чтобы изменить</div>
                     </div>
                 </div>
-
-                <div class="mock-card">
-                    <h3 style="margin-top:0; color: var(--brand-red);">🎯 Ежедневная рулетка</h3>
-                    <p style="font-size: 13px; color: var(--text-muted);">Крути рулетку и получай скидки и баллы.</p>
-                </div>
-
-                <div class="mock-card">
-                    <h3 style="margin-top:0; color: var(--brand-red);">🏆 Квесты</h3>
-                    <p style="font-size: 13px; color: var(--text-muted);">Выполняй задания магазина.</p>
-                </div>
             </div>
         </div>
 
-        <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+        <!-- НИЖНЯЯ НАВИГАЦИЯ (4 КНОПКИ) -->
         <div class="bottom-nav">
+            <div class="nav-item" :class="{ active: currentTab === 'home' }" @click="currentTab = 'home'">
+                <!-- Иконка Дом -->
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
+            </div>
             <div class="nav-item" :class="{ active: currentTab === 'catalog' }" @click="currentTab = 'catalog'">
-                <!-- Иконка Каталога -->
-                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                Каталог
+                <!-- Иконка Каталог (Сетка) -->
+                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Ассортимент
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'">
-                <!-- Иконка Корзины -->
-                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                Корзина
+                <!-- Иконка Корзина -->
+                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> Корзина
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'profile' }" @click="currentTab = 'profile'">
-                <!-- Иконка Профиля -->
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                Профиль
+                <!-- Иконка Профиль -->
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
             </div>
         </div>
     </div>
@@ -232,11 +312,19 @@
         createApp({
             data() {
                 return {
-                    currentTab: 'catalog',
-                    sliderProgress: 0, // Полоска прогресса (от 0 до 100)
-                    activeSlide: 0,    // Текущий слайд
-                    totalSlides: 2,    // Всего слайдов
-                    sliderTimer: null, // Таймер
+                    currentTab: 'home', // Теперь старт с Главной
+                    sliderProgress: 0, 
+                    activeSlide: 0,    
+                    totalSlides: 1,    
+                    sliderTimer: null, 
+                    
+                    // Логика Городов и Поиска
+                    citiesList: ['Берлин', 'Мюнхен', 'Варшава', 'Гамбург', 'Франкфурт'], // Временно тестовые
+                    currentCity: null, 
+                    isCityDropdownOpen: false,
+                    searchQuery: '',
+                    currentCategory: 'Все',
+
                     user: {
                         realTgName: '',
                         displayName: '',
@@ -246,24 +334,29 @@
             },
             mounted() {
                 this.generateNickname();
-                this.startSlider(); // Запускаем авто-слайдер при входе
+                this.startSlider(); 
             },
             beforeUnmount() {
                 clearInterval(this.sliderTimer);
             },
             methods: {
+                selectCity(city) {
+                    this.currentCity = city;
+                    this.isCityDropdownOpen = false;
+                    // Здесь бот запоминает выбор локально, а на сервер отправит при заказе
+                },
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
                     this.user.displayName = 'user_' + randomDigits;
                 },
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
+                        if(this.currentTab !== 'home') return; // Крутим слайдер только на Главной
                         this.sliderProgress += (100 / (5000 / 50)); 
                         
                         if (this.sliderProgress >= 100) {
                             this.sliderProgress = 0;
                             this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
-                            
                             const slider = document.getElementById('promo-slider');
                             if(slider) {
                                 slider.scrollTo({ left: this.activeSlide * slider.clientWidth, behavior: 'smooth' });
