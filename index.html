@@ -233,29 +233,6 @@
             data() {
                 return {
                     currentTab: 'catalog',
-                    user: {
-                        realTgName: '',
-                        displayName: '',
-                        avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S'
-                    }
-                }
-            },
-            mounted() {
-                // Генерация случайного ника при первом входе
-                this.generateNickname();
-            },
-            methods: {
-                generateNickname() {
-                    // Генерируем 4 случайные цифры от 1000 до 9999
-                    const randomDigits = Math.floor(1000 + Math.random() * 9000);
-                    this.user.displayName = 'user_' + randomDigits;
-                }
-            }
-        }).mount('#app')
-        createApp({
-            data() {
-                return {
-                    currentTab: 'catalog',
                     sliderProgress: 0, // Полоска прогресса (от 0 до 100)
                     activeSlide: 0,    // Текущий слайд
                     totalSlides: 2,    // Всего слайдов
@@ -280,15 +257,13 @@
                     this.user.displayName = 'user_' + randomDigits;
                 },
                 startSlider() {
-                    // Таймер тикает каждые 50 миллисекунд
                     this.sliderTimer = setInterval(() => {
-                        this.sliderProgress += (100 / (5000 / 50)); // Заполняем на 100% за 5000 мс (5 сек)
+                        this.sliderProgress += (100 / (5000 / 50)); 
                         
                         if (this.sliderProgress >= 100) {
                             this.sliderProgress = 0;
                             this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
                             
-                            // Перекручиваем элемент
                             const slider = document.getElementById('promo-slider');
                             if(slider) {
                                 slider.scrollTo({ left: this.activeSlide * slider.clientWidth, behavior: 'smooth' });
@@ -297,7 +272,6 @@
                     }, 50);
                 },
                 handleScroll() {
-                    // Если пользователь сам пальцем свайпнул картинку — обнуляем прогресс, чтобы дать ему время почитать
                     this.sliderProgress = 0; 
                     const slider = document.getElementById('promo-slider');
                     if(slider) {
