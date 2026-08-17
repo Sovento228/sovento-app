@@ -177,6 +177,33 @@
             width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; 
             border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer;
         }
+
+        /* --- ТОСТ-УВЕДОМЛЕНИЕ (Успешное добавление) --- */
+        .toast-notification {
+            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%);
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+            padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer;
+            opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
+        }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast-progress {
+            position: absolute; bottom: 0; left: 0; height: 3px; background: var(--brand-red); transition: width 0.03s linear;
+        }
+
+        /* --- ЭКРАН ОФОРМЛЕНИЯ ЗАКАЗА --- */
+        .checkout-input {
+            width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+            padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px;
+        }
+        .checkout-input:focus { border-color: rgba(255,60,0,0.5); }
+        .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
+        .toggle-btn {
+            flex: 1; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+            padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .toggle-btn.active { background: rgba(255,60,0,0.15); border-color: var(--brand-red); color: var(--brand-red); }
+
     </style>
 </head>
 <body>
@@ -288,8 +315,8 @@
                             <div class="product-title">{{ item.name }}</div>
                             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
                                 <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                <!-- Кнопка Огненный Шопер -->
-                                <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                <!-- Кнопка Огненный Шопер (теперь открывает модальное окно) -->
+                                <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
                                     <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
                                 </div>
                                 <!-- Контрол количества в корзине -->
@@ -333,10 +360,46 @@
                         <span style="font-size:16px; font-weight:800; color:var(--text-muted);">Итого:</span>
                         <span style="font-size:22px; font-weight:900; color:var(--text-main);">{{ cartTotal }} €</span>
                     </div>
-                    <button style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
-                        Оформить заказ
+                    <button @click="currentTab = 'checkout'" style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
+                        Перейти к оформлению
                     </button>
                 </div>
+            </div>
+
+            <!-- ЭКРАН 5: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
+            <div v-if="currentTab === 'checkout'" v-cloak>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
+                    <div @click="currentTab = 'cart'" style="width:32px; height:32px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer;">
+                        <svg style="width:16px; height:16px; fill:var(--text-main);" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                    </div>
+                    <h1 style="margin:0;">Оформление</h1>
+                </div>
+                
+                <div class="mock-card" style="padding: 20px; margin-top: 0;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ получения</h3>
+                    <div class="toggle-group">
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'pickup'}" @click="checkout.delivery = 'pickup'">Самовывоз</div>
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="checkout.delivery = 'courier'">Доставка</div>
+                    </div>
+                    <!-- Поле адреса появляется только если выбрана доставка -->
+                    <input v-if="checkout.delivery === 'courier'" type="text" class="checkout-input" placeholder="Улица, дом, квартира...">
+                    <!-- Адрес самовывоза -->
+                    <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
+                        Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}, Центральный склад</b><br>Точный адрес будет отправлен в чат.
+                    </div>
+                </div>
+
+                <div class="mock-card" style="padding: 20px;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
+                    <div class="toggle-group">
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash'}" @click="checkout.payment = 'cash'">Наличные</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="checkout.payment = 'card'">Картой курьеру</div>
+                    </div>
+                </div>
+
+                <button style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
+                    Подтвердить заказ ({{ cartTotal }} €)
+                </button>
             </div>
 
             <!-- ЭКРАН 4: ПРОФИЛЬ -->
@@ -352,6 +415,23 @@
             </div>
             
         </div> <!-- Конец app-content -->
+
+        <!-- ТОСТ-УВЕДОМЛЕНИЕ (Добавление в корзину) -->
+        <div class="toast-notification" :class="{ show: isToastVisible }" @click="currentTab = 'cart'; isToastVisible = false; isModalOpen = false;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:24px; height:24px; background:rgba(255,60,0,0.2); border-radius:50%; display:flex; justify-content:center; align-items:center;">
+                        <svg style="width:12px; height:12px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:14px; font-weight:800; color:var(--text-main);">Товар в корзине</span>
+                        <span style="font-size:11px; font-weight:600; color:var(--brand-red);">Нажмите, чтобы перейти</span>
+                    </div>
+                </div>
+                <svg style="width:20px; height:20px; fill:var(--text-muted);" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </div>
+            <div class="toast-progress" :style="{ width: toastProgress + '%' }"></div>
+        </div>
 
         <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
         <div class="modal-overlay" :class="{ active: isModalOpen }" @click.self="closeProduct">
@@ -415,19 +495,25 @@
                     isModalOpen: false,
                     selectedProduct: null,
 
-                    // База корзины: хранит товары
-                    cart: {},
+                    // Уведомление (Тост)
+                    isToastVisible: false,
+                    toastProgress: 100,
+                    toastInterval: null,
 
-                    user: {
-                        displayName: '',
-                        avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S'
+                    // Данные оформления заказа
+                    checkout: {
+                        delivery: 'pickup',
+                        payment: 'cash'
                     },
 
+                    cart: {},
+                    user: { displayName: '', avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S' },
+
                     products: [
-                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/300x400/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
-                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/300x400/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
-                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/300x400/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
-                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/300x400/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
+                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
+                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/1200x1600/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
+                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/1200x1600/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
+                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
                     ]
                 }
             },
@@ -466,9 +552,24 @@
             },
             methods: {
                 // ЛОГИКА КОРЗИНЫ
+                showToast() {
+                    this.isToastVisible = true;
+                    this.toastProgress = 100;
+                    clearInterval(this.toastInterval);
+                    // Таймер на 3 секунды (3000 мс)
+                    this.toastInterval = setInterval(() => {
+                        this.toastProgress -= (100 / (3000 / 30)); 
+                        if (this.toastProgress <= 0) {
+                            this.isToastVisible = false;
+                            clearInterval(this.toastInterval);
+                        }
+                    }, 30);
+                },
                 addToCart(item) {
                     if (!this.cart[item.id]) {
                         this.cart[item.id] = { ...item, count: 1 };
+                        this.showToast(); // Запускаем уведомление
+                        this.closeProduct(); // Автоматически закрываем шторку товара
                     }
                 },
                 changeCartCount(id, delta) {
