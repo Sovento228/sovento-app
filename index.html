@@ -395,9 +395,9 @@
                 <div class="mock-card" style="padding: 20px;">
                     <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
                     <div class="toggle-group">
-                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="if(checkout.delivery !== 'courier') checkout.payment = 'cash'">Наличные</div>
-                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="checkout.payment = 'card'">Картой</div>
-                        <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="checkout.payment = 'crypto'">Криптой</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="setPayment('cash')">Наличные</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="setPayment('card')">Картой</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="setPayment('crypto')">Криптой</div>
                     </div>
                 </div>
 
@@ -598,9 +598,15 @@
                 },
                 setDelivery(type) {
                     this.checkout.delivery = type;
+                    // Если выбрали доставку, а стояли "Наличные" — сбрасываем на "Карту"
                     if (type === 'courier' && this.checkout.payment === 'cash') {
                         this.checkout.payment = 'card';
                     }
+                },
+                setPayment(type) {
+                    // Если выбрана доставка курьером, запрещаем переключаться на наличные
+                    if (this.checkout.delivery === 'courier' && type === 'cash') return;
+                    this.checkout.payment = type;
                 },
                 selectCity(city) {
                     this.currentCity = city;
