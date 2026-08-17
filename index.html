@@ -148,7 +148,7 @@
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px;
             overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
         }
-        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #1A1A1E; }
+        .product-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #1A1A1E; }
         .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
         .product-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
         .product-price { font-size: 16px; font-weight: 900; color: var(--text-main); }
@@ -172,7 +172,7 @@
             width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;
         }
         .close-btn svg { width: 16px; height: 16px; fill: var(--text-main); }
-        .modal-img-full { width: 100%; height: 250px; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
+        .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
         .modal-btn { 
             width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; 
             border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer;
@@ -424,10 +424,10 @@
                     },
 
                     products: [
-                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/300x300/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
-                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/300x300/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
-                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/300x300/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
-                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/300x300/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
+                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/300x400/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
+                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/300x400/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
+                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/300x400/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
+                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/300x400/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
                     ]
                 }
             },
