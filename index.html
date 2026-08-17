@@ -58,14 +58,18 @@
         @keyframes moveLeft { from { background-position: 0 0; } to { background-position: -350px 0; } }
         @keyframes moveRight { from { background-position: 0 80px; } to { background-position: 350px 80px; } }
 
-        .app-content { padding: 20px 20px 100px 20px; }
+        /* Чтобы контент не прятался за новой плавающей плашкой */
+        .app-content { padding: 20px 20px 120px 20px; }
 
-        /* ПАНЕЛЬ НАВИГАЦИИ (МАГИЯ СТЕКЛА) */
+        /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-around; align-items: center;
-            padding: 15px 0 25px 0; z-index: 1000;
+            position: fixed; bottom: 20px; left: 10%; width: 80%; /* На 20% уже и по центру */
+            background: rgba(10, 10, 12, 0.3); /* Прозрачность 30% */
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 25px;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; z-index: 1000; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -253,9 +257,9 @@
                         <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Курьер привезет заказ прямо в руки</p>
                     </div>
                     <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Гарантия качества</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Только оригинальная продукция</p>
+                        <div style="font-size: 26px; color: var(--brand-red); font-weight: 900; margin-bottom: 5px; line-height: 1;">€</div>
+                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Бонусная система</h4>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Получайте баллы за каждый заказ, 100 = 1€</p>
                     </div>
                 </div>
             </div>
@@ -403,11 +407,12 @@
             },
             mounted() {
                 this.generateNickname();
-                setTimeout(() => {
+                // Гарантированно ждем полной отрисовки интерфейса
+                this.$nextTick(() => {
                     const slider = document.getElementById('promo-slider');
                     if (slider) this.totalSlides = slider.children.length;
                     this.startSlider(); 
-                }, 100);
+                });
             },
             beforeUnmount() {
                 clearInterval(this.sliderTimer);
@@ -432,8 +437,10 @@
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
                         if(this.currentTab !== 'home') return; 
+                        
                         const slider = document.getElementById('promo-slider');
-                        if(!slider || this.totalSlides <= 1) return; 
+                        // Если слайдера нет или картинка всего ОДНА - останавливаем работу скрипта
+                        if(!slider || slider.children.length <= 1) return; 
 
                         this.sliderProgress += (100 / (5000 / 50)); 
                         
@@ -443,8 +450,10 @@
                             const firstSlide = slider.children[0];
                             const slideWidth = firstSlide.clientWidth + 15; 
                             
+                            // 1. Плавно листаем вперед
                             slider.scrollBy({ left: slideWidth, behavior: 'smooth' });
                             
+                            // 2. Незаметно переносим первую картинку в конец очереди
                             setTimeout(() => {
                                 slider.appendChild(firstSlide); 
                                 slider.scrollBy({ left: -slideWidth, behavior: 'auto' }); 
