@@ -203,7 +203,14 @@
             padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .toggle-btn.active { background: rgba(255,60,0,0.15); border-color: var(--brand-red); color: var(--brand-red); }
-
+        .toggle-btn.disabled { opacity: 0.4; pointer-events: none; } /* Стиль для недоступной оплаты наличными */
+        
+        /* Исправление нажатий на нижнюю панель */
+        .bottom-nav { z-index: 2500 !important; }
+        
+        /* Исправление скрытия Тоста (чтобы прозрачный слой не перекрывал клики) */
+        .toast-notification { pointer-events: none; }
+        .toast-notification.show { pointer-events: all; }
     </style>
 </head>
 <body>
@@ -227,7 +234,7 @@
             <!-- ШАПКА -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position:relative;">
                 <h1 class="logo-font" style="margin:0;">SOVENTO</h1>
-                <div class="city-btn" @click="isCityDropdownOpen = !isCityDropdownOpen">
+                <div class="city-btn" v-show="currentTab !== 'cart' && currentTab !== 'checkout'" @click="isCityDropdownOpen = !isCityDropdownOpen">
                     {{ currentCity }}
                     <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
                 </div>
@@ -378,22 +385,31 @@
                 <div class="mock-card" style="padding: 20px; margin-top: 0;">
                     <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ получения</h3>
                     <div class="toggle-group">
-                        <div class="toggle-btn" :class="{active: checkout.delivery === 'pickup'}" @click="checkout.delivery = 'pickup'">Самовывоз</div>
-                        <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="checkout.delivery = 'courier'">Доставка</div>
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'pickup'}" @click="setDelivery('pickup')">Самовывоз</div>
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="setDelivery('courier')">Доставка</div>
                     </div>
-                    <!-- Поле адреса появляется только если выбрана доставка -->
-                    <input v-if="checkout.delivery === 'courier'" type="text" class="checkout-input" placeholder="Улица, дом, квартира...">
-                    <!-- Адрес самовывоза -->
+                    
+                    <!-- Поля для доставки курьером -->
+                    <div v-if="checkout.delivery === 'courier'" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.address" placeholder="Адрес доставки (улица, дом / квартира)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.zip" placeholder="Почтовый индекс (например: 69000)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.city" placeholder="Город (например: Leipzig)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
+                    </div>
+
+                    <!-- Адрес самовывоза (Убрали центральный склад) -->
                     <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
-                        Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}, Центральный склад</b><br>Точный адрес будет отправлен в чат.
+                        Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
                     </div>
                 </div>
 
                 <div class="mock-card" style="padding: 20px;">
                     <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
                     <div class="toggle-group">
-                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash'}" @click="checkout.payment = 'cash'">Наличные</div>
-                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="checkout.payment = 'card'">Картой курьеру</div>
+                        <!-- Наличные блокируются, если выбрана доставка -->
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="if(checkout.delivery !== 'courier') checkout.payment = 'cash'">Наличные</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="checkout.payment = 'card'">Картой</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="checkout.payment = 'crypto'">Криптой</div>
                     </div>
                 </div>
 
@@ -433,36 +449,41 @@
             <div class="toast-progress" :style="{ width: toastProgress + '%' }"></div>
         </div>
 
-        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
+        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА (Исправлена анимация выезда снизу) -->
         <div class="modal-overlay" :class="{ active: isModalOpen }" @click.self="closeProduct">
-            <div class="modal-sheet" v-if="selectedProduct">
-                <div class="close-btn" @click="closeProduct">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            <div class="modal-sheet">
+                <div v-if="selectedProduct">
+                    <div class="close-btn" @click="closeProduct">
+                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </div>
+                    <img :src="selectedProduct.photo" class="modal-img-full">
+                    <div style="color:var(--brand-red); font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:5px;">{{ selectedProduct.category }}</div>
+                    <h2 style="margin:0 0 10px 0; font-size:22px; font-weight:800; line-height:1.2;">{{ selectedProduct.name }}</h2>
+                    <p style="margin:0 0 20px 0; font-size:14px; color:var(--text-muted); line-height:1.5;">{{ selectedProduct.desc }}</p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:26px; font-weight:900;">{{ selectedProduct.price.toFixed(2) }} €</div>
+                    </div>
+                    <button class="modal-btn" @click="addToCart(selectedProduct); closeProduct()">Добавить в корзину</button>
                 </div>
-                <img :src="selectedProduct.photo" class="modal-img-full">
-                <div style="color:var(--brand-red); font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:5px;">{{ selectedProduct.category }}</div>
-                <h2 style="margin:0 0 10px 0; font-size:22px; font-weight:800; line-height:1.2;">{{ selectedProduct.name }}</h2>
-                <p style="margin:0 0 20px 0; font-size:14px; color:var(--text-muted); line-height:1.5;">{{ selectedProduct.desc }}</p>
-                
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:26px; font-weight:900;">{{ selectedProduct.price.toFixed(2) }} €</div>
-                </div>
-                <button class="modal-btn" @click="addToCart(selectedProduct); closeProduct()">Добавить в корзину</button>
             </div>
         </div>
 
-        <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-        <div class="bottom-nav">
+        <!-- НИЖНЯЯ НАВИГАЦИЯ (Скрывается на экране Оформления) -->
+        <div class="bottom-nav" v-show="currentTab !== 'checkout'">
             <div class="nav-item" :class="{ active: currentTab === 'home' }" @click="currentTab = 'home'">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'catalog' }" @click="currentTab = 'catalog'">
-                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Ассортимент
+                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
+            </div>
+            <div class="nav-item" :class="{ active: currentTab === 'favorites' }" @click="currentTab = 'favorites'">
+                <!-- Иконка Избранное (Сердечко) -->
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> 
                 Корзина
-                <!-- Красный бейдж счетчика корзины -->
                 <div v-if="cartItemsCount > 0" style="position:absolute; top:-5px; right:12px; background:var(--brand-red); color:white; font-size:10px; font-weight:900; border-radius:10px; padding:2px 6px; border:2px solid var(--glass);">
                     {{ cartItemsCount }}
                 </div>
@@ -503,7 +524,11 @@
                     // Данные оформления заказа
                     checkout: {
                         delivery: 'pickup',
-                        payment: 'cash'
+                        payment: 'cash',
+                        address: '',
+                        zip: '',
+                        city: '',
+                        telegram: ''
                     },
 
                     cart: {},
@@ -582,6 +607,14 @@
                 },
                 removeCartItem(id) {
                     delete this.cart[id];
+                },
+
+                setDelivery(type) {
+                    this.checkout.delivery = type;
+                    // Если выбрана доставка, сбрасываем "Наличные" на "Карту"
+                    if (type === 'courier' && this.checkout.payment === 'cash') {
+                        this.checkout.payment = 'card';
+                    }
                 },
 
                 selectCity(city) {
