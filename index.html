@@ -197,11 +197,9 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ШАПКА (Одинаковая для всех экранов) -->
+            <!-- ШАПКА -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position:relative;">
                 <h1 class="logo-font" style="margin:0;">SOVENTO</h1>
-                
-                <!-- ВЫПАДАЮЩИЙ СПИСОК ГОРОДА -->
                 <div class="city-btn" @click="isCityDropdownOpen = !isCityDropdownOpen">
                     {{ currentCity }}
                     <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
@@ -250,6 +248,7 @@
                     <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
                     <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">Мы — <b style="color: var(--brand-red);">SOVENTO</b>. Наша миссия — создавать жидкости, которые дарят настоящие эмоции. Идеальный баланс, премиальные ингредиенты и строгий контроль качества на каждом этапе производства.</p>
                 </div>
+                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
                     <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
                         <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -282,21 +281,17 @@
                     <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
                 </div>
 
-                <!-- ЖИВАЯ СЕТКА ТОВАРОВ -->
                 <div class="products-grid">
                     <div class="product-card" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
                         <img :src="item.photo" class="product-img">
                         <div class="product-info">
                             <div class="product-title">{{ item.name }}</div>
-                            
                             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
                                 <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                
                                 <!-- Кнопка Огненный Шопер -->
                                 <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
                                     <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
                                 </div>
-                                
                                 <!-- Контрол количества в корзине -->
                                 <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
                                     <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
@@ -307,48 +302,37 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">
-                    Товары не найдены
-                </div>
+                <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
             </div>
+
             <!-- ЭКРАН 3: КОРЗИНА -->
             <div v-if="currentTab === 'cart'" v-cloak>
                 <h1 style="margin-top:0;">Корзина</h1>
-                
-                <!-- Пустая корзина -->
                 <div class="mock-card" v-if="Object.keys(cart).length === 0">
                     <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваша корзина пуста</p>
                 </div>
-                
-                <!-- Товары в корзине -->
                 <div v-else>
                     <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center;" v-for="(item, id) in cart" :key="id">
                         <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:cover; background:#1A1A1E;">
                         <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
                             <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
                             <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
-                            
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                                 <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 4px;">
                                     <div @click="changeCartCount(id, -1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; cursor: pointer;">-</div>
                                     <div style="font-size:14px; font-weight:bold; min-width: 16px; text-align:center;">{{ item.count }}</div>
                                     <div @click="changeCartCount(id, 1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white; cursor: pointer;">+</div>
                                 </div>
-                                
-                                <!-- Иконка удаления (Мусорка) -->
                                 <div @click="removeCartItem(id)" style="width:34px; height:34px; background:rgba(255,60,0,0.1); border-radius:10px; display:flex; justify-content:center; align-items:center; color:var(--brand-red); cursor: pointer;">
                                     <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Итог -->
                     <div class="mock-card" style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:16px; font-weight:800; color:var(--text-muted);">Итого:</span>
                         <span style="font-size:22px; font-weight:900; color:var(--text-main);">{{ cartTotal }} €</span>
                     </div>
-                    
                     <button style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
                         Оформить заказ
                     </button>
@@ -474,11 +458,8 @@
             },
             mounted() {
                 this.generateNickname();
-                this.$nextTick(() => {
-                    const slider = document.getElementById('promo-slider');
-                    if (slider) this.totalSlides = slider.children.length;
-                    this.startSlider(); 
-                });
+                // Мы убрали отсюда подсчет слайдов. Теперь при старте мы просто запускаем таймер.
+                this.startSlider(); 
             },
             beforeUnmount() {
                 clearInterval(this.sliderTimer);
@@ -505,6 +486,15 @@
                 selectCity(city) {
                     this.currentCity = city;
                     this.isCityDropdownOpen = false;
+                    
+                    // Как только город выбран, ждем долю секунды ($nextTick), 
+                    // чтобы доска объявлений успела появиться на экране, и считаем слайды:
+                    this.$nextTick(() => {
+                        const slider = document.getElementById('promo-slider');
+                        if (slider) {
+                            this.totalSlides = slider.children.length;
+                        }
+                    });
                 },
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
