@@ -218,7 +218,7 @@
         <!-- Фон со встречными строками -->
         <div class="bg-animation-container"><div class="bg-left"></div><div class="bg-right"></div></div>
 
-        <!-- СТАРТОВОЕ ОКНО (Если город не выбран) -->
+        <!-- СТАРТОВОЕ ОКНО -->
         <div class="onboarding-modal" v-if="!currentCity">
             <div class="onboarding-content">
                 <h2 style="margin:0 0 10px 0; font-size:20px; font-weight:800;">Выберите ваш город</h2>
@@ -231,7 +231,7 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ШАПКА -->
+            <!-- ШАПКА (Скрываем кнопку выбора города в Корзине и Оформлении) -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position:relative;">
                 <h1 class="logo-font" style="margin:0;">SOVENTO</h1>
                 <div class="city-btn" v-show="currentTab !== 'cart' && currentTab !== 'checkout'" @click="isCityDropdownOpen = !isCityDropdownOpen">
@@ -264,16 +264,7 @@
                             <p style="margin: 0; font-size: 12px; color: #ccc;">-15% на все жидкости до 20:00.</p>
                         </div>
                     </div>
-                    <div class="slide">
-                        <img src="https://placehold.co/600x400/151518/3b82f6?text=INFO" class="slide-bg">
-                        <div class="slide-content">
-                            <span style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Инфо</span>
-                            <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800;">График работы</h2>
-                            <p style="margin: 0; font-size: 12px; color: #ccc;">Мы доставляем заказы с 10:00 до 22:00.</p>
-                        </div>
-                    </div>
                 </div>
-                <!-- ПОЛОСКА ПРОГРЕССА СЛАЙДЕРА -->
                 <div v-show="totalSlides > 1" style="width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden;">
                     <div style="height: 100%; background: var(--brand-red); transition: width 0.1s linear;" :style="{ width: sliderProgress + '%' }"></div>
                 </div>
@@ -297,7 +288,7 @@
                 </div>
             </div>
 
-            <!-- ЭКРАН 2: АССОРТИМЕНТ (Каталог) -->
+            <!-- ЭКРАН 2: ТОВАРЫ (Каталог) -->
             <div v-if="currentTab === 'catalog'" v-cloak>
                 <div style="text-align: center; color: var(--text-muted); font-size: 15px; margin-bottom: 20px; letter-spacing: 0.5px; line-height: 1.4;">
                     Вас приветствует команда <b style="color:var(--brand-red);">SOVENTO</b>!<br>
@@ -322,11 +313,9 @@
                             <div class="product-title">{{ item.name }}</div>
                             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
                                 <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                <!-- Кнопка Огненный Шопер (теперь открывает модальное окно) -->
                                 <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
                                     <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
                                 </div>
-                                <!-- Контрол количества в корзине -->
                                 <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
                                     <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
                                     <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
@@ -373,7 +362,7 @@
                 </div>
             </div>
 
-            <!-- ЭКРАН 5: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
+            <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
             <div v-if="currentTab === 'checkout'" v-cloak>
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
                     <div @click="currentTab = 'cart'" style="width:32px; height:32px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer;">
@@ -397,7 +386,7 @@
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
                     </div>
 
-                    <!-- Адрес самовывоза (Убрали центральный склад) -->
+                    <!-- Адрес самовывоза -->
                     <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
                         Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
                     </div>
@@ -406,7 +395,6 @@
                 <div class="mock-card" style="padding: 20px;">
                     <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
                     <div class="toggle-group">
-                        <!-- Наличные блокируются, если выбрана доставка -->
                         <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="if(checkout.delivery !== 'courier') checkout.payment = 'cash'">Наличные</div>
                         <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="checkout.payment = 'card'">Картой</div>
                         <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="checkout.payment = 'crypto'">Криптой</div>
@@ -418,7 +406,15 @@
                 </button>
             </div>
 
-            <!-- ЭКРАН 4: ПРОФИЛЬ -->
+            <!-- ЭКРАН 5: ИЗБРАННОЕ -->
+            <div v-if="currentTab === 'favorites'" v-cloak>
+                <h1 style="margin-top:0;">Избранное</h1>
+                <div class="mock-card">
+                    <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваш список желаемого пуст</p>
+                </div>
+            </div>
+
+            <!-- ЭКРАН 6: ПРОФИЛЬ -->
             <div v-if="currentTab === 'profile'" v-cloak>
                 <h1 style="margin-top:0;">Профиль</h1>
                 <div class="mock-card" style="display: flex; align-items: center; gap: 15px;">
@@ -449,7 +445,7 @@
             <div class="toast-progress" :style="{ width: toastProgress + '%' }"></div>
         </div>
 
-        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА (Исправлена анимация выезда снизу) -->
+        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА (Выезжает снизу) -->
         <div class="modal-overlay" :class="{ active: isModalOpen }" @click.self="closeProduct">
             <div class="modal-sheet">
                 <div v-if="selectedProduct">
@@ -464,7 +460,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="font-size:26px; font-weight:900;">{{ selectedProduct.price.toFixed(2) }} €</div>
                     </div>
-                    <button class="modal-btn" @click="addToCart(selectedProduct); closeProduct()">Добавить в корзину</button>
+                    <button class="modal-btn" @click="addToCart(selectedProduct)">Добавить в корзину</button>
                 </div>
             </div>
         </div>
@@ -478,7 +474,6 @@
                 <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'favorites' }" @click="currentTab = 'favorites'">
-                <!-- Иконка Избранное (Сердечко) -->
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
@@ -516,15 +511,13 @@
                     isModalOpen: false,
                     selectedProduct: null,
 
-                    // Уведомление (Тост)
                     isToastVisible: false,
                     toastProgress: 100,
                     toastInterval: null,
 
-                    // Данные оформления заказа
                     checkout: {
                         delivery: 'pickup',
-                        payment: 'cash',
+                        payment: 'card',
                         address: '',
                         zip: '',
                         city: '',
@@ -550,7 +543,6 @@
                         return matchCat && matchSearch;
                     });
                 },
-                // Итоговая сумма корзины
                 cartTotal() {
                     let total = 0;
                     for (let id in this.cart) {
@@ -558,7 +550,6 @@
                     }
                     return total.toFixed(2);
                 },
-                // Количество товаров (для красного кружочка снизу)
                 cartItemsCount() {
                     let count = 0;
                     for (let id in this.cart) {
@@ -569,19 +560,16 @@
             },
             mounted() {
                 this.generateNickname();
-                // Мы убрали отсюда подсчет слайдов. Теперь при старте мы просто запускаем таймер.
                 this.startSlider(); 
             },
             beforeUnmount() {
                 clearInterval(this.sliderTimer);
             },
             methods: {
-                // ЛОГИКА КОРЗИНЫ
                 showToast() {
                     this.isToastVisible = true;
                     this.toastProgress = 100;
                     clearInterval(this.toastInterval);
-                    // Таймер на 3 секунды (3000 мс)
                     this.toastInterval = setInterval(() => {
                         this.toastProgress -= (100 / (3000 / 30)); 
                         if (this.toastProgress <= 0) {
@@ -593,8 +581,8 @@
                 addToCart(item) {
                     if (!this.cart[item.id]) {
                         this.cart[item.id] = { ...item, count: 1 };
-                        this.showToast(); // Запускаем уведомление
-                        this.closeProduct(); // Автоматически закрываем шторку товара
+                        this.showToast();
+                        this.closeProduct();
                     }
                 },
                 changeCartCount(id, delta) {
@@ -608,21 +596,15 @@
                 removeCartItem(id) {
                     delete this.cart[id];
                 },
-
                 setDelivery(type) {
                     this.checkout.delivery = type;
-                    // Если выбрана доставка, сбрасываем "Наличные" на "Карту"
                     if (type === 'courier' && this.checkout.payment === 'cash') {
                         this.checkout.payment = 'card';
                     }
                 },
-
                 selectCity(city) {
                     this.currentCity = city;
                     this.isCityDropdownOpen = false;
-                    
-                    // Как только город выбран, ждем долю секунды ($nextTick), 
-                    // чтобы доска объявлений успела появиться на экране, и считаем слайды:
                     this.$nextTick(() => {
                         const slider = document.getElementById('promo-slider');
                         if (slider) {
@@ -642,7 +624,6 @@
                     this.isModalOpen = false;
                     setTimeout(() => { this.selectedProduct = null; }, 300);
                 },
-                // ИСПРАВЛЕННЫЙ СЛАЙДЕР (Классический скролл с возвратом)
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
                         if(this.currentTab !== 'home') return; 
@@ -655,7 +636,6 @@
                             this.sliderProgress = 0;
                             this.activeSlide++;
                             
-                            // Если дошли до конца — плавно мотаем в самое начало
                             if (this.activeSlide >= this.totalSlides) {
                                 this.activeSlide = 0;
                                 slider.scrollTo({ left: 0, behavior: 'smooth' });
@@ -669,7 +649,6 @@
                     this.sliderProgress = 0; 
                     const slider = document.getElementById('promo-slider');
                     if(slider) {
-                        // Определяем, на какой картинке пользователь сейчас находится (при ручном свайпе)
                         this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
                     }
                 }
