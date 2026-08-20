@@ -326,14 +326,13 @@
                     </div>
                 </div>
                 <!-- СТРОГИЙ ЛИДЕРБОРД -->
-                <div class="mock-card" style="margin: 25px 15px 0 15px; padding: 20px;">
+                <div class="mock-card" style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
                         <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
                         <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
                     </div>
                     <div v-for="(player, idx) in leaderboard" :key="idx" class="leaderboard-item">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <!-- Строгие номера вместо смайликов -->
                             <span class="rank-num" :class="{'rank-top': idx < 3}">0{{ idx + 1 }}</span>
                             <div style="display: flex; flex-direction: column;">
                                 <span style="font-size: 14px; font-weight: 600;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
@@ -343,7 +342,6 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <!-- Баллы просто цифрой -->
                             <div style="font-size: 15px; font-weight: 800;">{{ player.amount }}</div>
                             <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
                         </div>
@@ -352,7 +350,7 @@
 
                 <div style="margin-top: 35px; text-align: center; padding: 0 10px;">
                     <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">Мы — <b style="color: var(--brand-red);">SOVENTO</b>. Наша миссия — создавать жидкости, которые дарят настоящие эмоции. Идеальный баланс, премиальные ингредиенты и строгий контроль качества на каждом этапе производства.</p>
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любых брендов, с очень хорошей системой лояльности к клиентам и множеством бонусов.</p>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
@@ -503,12 +501,18 @@
                 </div>
 
                 <!-- КАРТОЧКА ИГРОКА И ПОЛОСА XP -->
-                <div class="mock-card" style="margin-top: 0; padding: 20px;">
+                <div class="mock-card" style="margin-top: 0; padding: 20px; cursor: pointer;" @click="isLadderOpen = true">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                         <div style="flex-grow: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="font-size: 18px; font-weight: bold;">{{ user.displayName }}</div>
+                                <!-- Карандашик возле имени (Теперь нажимается) -->
+                                <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                                    {{ user.displayName }}
+                                    <div @click.stop="changeName" style="background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px; display: flex; cursor: pointer;">
+                                        <svg style="width: 14px; height: 14px; fill: var(--text-muted);" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 10.18l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                    </div>
+                                </div>
                                 <span class="level-badge">Lvl {{ user.level }}</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Ранг: <b style="color:var(--text-main);">{{ user.rankName }}</b></div>
@@ -520,6 +524,9 @@
                                 <span>{{ user.maxXp }} XP</span>
                             </div>
                         </div>
+                    </div>
+                    <div style="text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 15px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+                        Нажми, чтобы увидеть карьерную лестницу
                     </div>
                 </div>
 
@@ -620,24 +627,101 @@
             </div>
         </div>
 
-        <!-- НИЖНЯЯ НАВИГАЦИЯ (Скрывается на экране Оформления) -->
+        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
+        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
+            <div class="modal-sheet" style="padding-bottom: 20px;">
+                <div class="close-btn" @click="isLadderOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
+                
+                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
+                    <!-- Линия прогресса -->
+                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    </div>
+                    
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                            {{ lvl }}
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
+                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 7: КВЕСТЫ -->
+        <div v-if="currentTab === 'quests'" v-cloak>
+            <h1 style="margin-top:0;">Квесты</h1>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom: 20px;">Выполняйте задания, прокачивайте уровень и получайте бонусы!</p>
+            
+            <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top:0; left:0; width:4px; height:100%; background: var(--brand-red);"></div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h3 style="margin:0 0 5px 0; font-size:15px;">{{ q.title }}</h3>
+                        <p style="margin:0; font-size:12px; color:var(--text-muted);">{{ q.description }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="background:rgba(255,60,0,0.1); color:var(--brand-red); font-weight:800; font-size:11px; padding:4px 8px; border-radius:6px;">+{{ q.reward_xp }} XP</span>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; display:flex; align-items:center; gap:10px;">
+                    <div style="flex-grow:1; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                        <div style="height:100%; background:var(--brand-red);" :style="{ width: (q.progress / q.target * 100) + '%' }"></div>
+                    </div>
+                    <span style="font-size:11px; font-weight:bold; color:var(--text-muted);">{{ q.progress }} / {{ q.target }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
+        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
+            <div class="modal-sheet" style="padding-bottom: 20px;">
+                <div class="close-btn" @click="isLadderOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
+                
+                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
+                    <!-- Линия прогресса -->
+                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    </div>
+                    
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                            {{ lvl }}
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
+                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- НИЖНЯЯ НАВИГАЦИЯ С КВЕСТАМИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
             <div class="nav-item" :class="{ active: currentTab === 'home' }" @click="currentTab = 'home'">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'catalog' }" @click="currentTab = 'catalog'">
-                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
+                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg>
+            </div>
+            <div class="nav-item" :class="{ active: currentTab === 'quests' }" @click="currentTab = 'quests'">
+                <!-- Иконка квестов -->
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zm-3-7V3.5L18.5 9H13z"/></svg>
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> 
-                Корзина
-                <!-- Прыгающий бейдж -->
-                <div v-if="cartItemsCount > 0" class="bounce-badge" style="position:absolute; top:-5px; right:12px; background:var(--brand-red); color:white; font-size:10px; font-weight:900; border-radius:10px; padding:2px 6px; border:2px solid var(--glass);">
-                    {{ cartItemsCount }}
-                </div>
+                <div v-if="cartItemsCount > 0" class="bounce-badge" style="position:absolute; top:-5px; right:-5px; background:var(--brand-red); color:white; font-size:10px; font-weight:900; border-radius:10px; padding:2px 6px; border:2px solid var(--glass);">{{ cartItemsCount }}</div>
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'profile' }" @click="currentTab = 'profile'">
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
         </div>
 
@@ -650,7 +734,12 @@
                     currentTab: 'home', 
                     sliderProgress: 0, 
                     activeSlide: 0,    
-                    totalSlides: 1,    
+                    totalSlides: 2, // Фиксируем для слайдера
+                    isLadderOpen: false, // Флаг для модалки лестницы
+                    activeQuests: [
+                        { id: 1, title: 'Сделай 3 заказа', description: 'Закажите 3 любые жидкости в этом месяце.', progress: 1, target: 3, reward_xp: 150 },
+                        { id: 2, title: 'Реферал', description: 'Пригласите друга по вашему промокоду.', progress: 0, target: 1, reward_xp: 300 }
+                    ],    
                     sliderTimer: null, 
                     
                     citiesList: ['Берлин', 'Мюнхен', 'Варшава', 'Гамбург', 'Франкфурт'],
@@ -824,9 +913,20 @@
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
                     this.user.displayName = 'user_' + randomDigits;
-                    // Подставляем этот же ник в Лидерборд для строки (Вы)
                     let me = this.leaderboard.find(p => p.isMe);
                     if(me) me.name = this.user.displayName;
+                },
+                changeName() {
+                    const newName = prompt("Введите новый никнейм (до 15 символов):", this.user.displayName);
+                    if (newName && newName.trim().length > 0 && newName.trim().length <= 15) {
+                        this.user.displayName = newName.trim();
+                        // Меняем имя и в Лидерборде
+                        let me = this.leaderboard.find(p => p.isMe);
+                        if(me) me.name = this.user.displayName;
+                        alert("Никнейм успешно изменен!");
+                    } else if (newName) {
+                        alert("Никнейм должен быть от 1 до 15 символов!");
+                    }
                 },
                 openProduct(item) {
                     this.selectedProduct = item;
@@ -865,6 +965,25 @@
                     }
                 }, // <-- ЗАПЯТАЯ ЗДЕСЬ ОБЯЗАТЕЛЬНА!
 
+                getRankName(lvl) {
+                    const ranks = ['Новичок', 'Любитель', 'Вейпер', 'Свой человек', 'Проверенный', 'Знаток', 'Мастер', 'Эксперт', 'Элита', 'Амбассадор'];
+                    return ranks[lvl - 1] || 'Секретный ранг';
+                },
+                getRankPerk(lvl) {
+                    const perks = [
+                        'Списание до 50%',
+                        'Списание до 55% + 100 баллов',
+                        'Купон 50% на жидкость',
+                        'Списание до 55% + 200 баллов',
+                        'Бесплатная доставка',
+                        'Списание до 60% + Шансы рулетки UP',
+                        'Списание до 65% + 400 баллов',
+                        'Премиум жидкость',
+                        'Списание до 70% + 600 баллов',
+                        'Бокс + скидка 15% навсегда'
+                    ];
+                    return perks[lvl - 1] || 'Нет данных';
+                },
                 // === ЛОГИКА РУЛЕТКИ ===
                 setupRoulette() {
                     // Шансы под 4+ уровень: Пусто(20%), 100 баллов(35%), 200 баллов(25%), Скидка 25%(13%), Товар недели(7%)
