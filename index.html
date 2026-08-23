@@ -79,11 +79,6 @@
         .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(255, 60, 0, 0.4); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
-        .mock-card {
-            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-top: 20px;
-            border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
         /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
         .slider-container {
             display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
@@ -248,8 +243,22 @@
         .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
         .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+
+        /* --- СТРОГИЕ КАРТОЧКИ (CRM STYLE) --- */
+        .mock-card {
+            background: #151518; border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .border-left-brand { border-left: 4px solid var(--brand-red); }
+        .border-left-green { border-left: 4px solid #10B981; }
+        .border-left-orange { border-left: 4px solid #F59E0B; }
         
-        .roulette-card { background: linear-gradient(135deg, rgba(255,60,0,0.1), rgba(255,60,0,0.02)); border: 1px solid rgba(255,60,0,0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .roulette-card { 
+            background: linear-gradient(135deg, rgba(248,143,34,0.1), rgba(248,143,34,0.02)); 
+            border: 1px solid rgba(248,143,34,0.3); border-radius: 12px; padding: 15px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
+            cursor: pointer; transition: 0.2s; border-left: 4px solid var(--brand-red);
+        }
         .roulette-card:active { transform: scale(0.98); }
         
         .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -326,7 +335,7 @@
                     </div>
                 </div>
                 <!-- СТРОГИЙ ЛИДЕРБОРД -->
-                <div class="mock-card" style="padding: 20px;">
+                <div class="mock-card border-left-brand" style="margin: 0 15px 15px 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
                         <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
                         <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
@@ -348,21 +357,21 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 35px; text-align: center; padding: 0 10px;">
-                    <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                <div style="margin-top: 25px; text-align: center; padding: 0 15px;">
+                    <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
                     <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любых брендов, с очень хорошей системой лояльности к клиентам и множеством бонусов.</p>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
-                    <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Быстрая доставка</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 15px 15px 15px;">
+                    <div class="mock-card border-left-green" style="margin: 0; padding: 15px;">
+                        <svg style="width:24px; height:24px; fill:none; stroke:#10B981; stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800; color: var(--text-main);">Быстрая доставка</h4>
                         <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Курьер привезет заказ прямо в руки</p>
                     </div>
-                    <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <div style="font-size: 26px; color: var(--brand-red); font-weight: 900; margin-bottom: 5px; line-height: 1;">€</div>
-                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Бонусная система</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Получайте баллы за каждый заказ, 100 = 1€</p>
+                    <div class="mock-card border-left-orange" style="margin: 0; padding: 15px;">
+                        <div style="font-size: 24px; color: #F59E0B; font-weight: 900; margin-bottom: 5px; line-height: 1;">€</div>
+                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800; color: var(--text-main);">Бонусная система</h4>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">100 баллов = 1€</p>
                     </div>
                 </div>
             </div>
@@ -415,8 +424,10 @@
             <!-- ЭКРАН 3: КОРЗИНА -->
             <div v-if="currentTab === 'cart'" v-cloak>
                 <h1 style="margin-top:0;">Корзина</h1>
-                <div class="mock-card" v-if="Object.keys(cart).length === 0">
-                    <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваша корзина пуста</p>
+                <div class="mock-card" v-if="Object.keys(cart).length === 0" style="text-align: center; padding: 40px 20px;">
+                    <svg style="width: 48px; height: 48px; fill: var(--text-muted); margin-bottom: 15px;" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <h3 style="margin: 0 0 5px 0; color: var(--text-main);">Ваша корзина пуста</h3>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 0;">Перейдите в каталог, чтобы добавить товары</p>
                 </div>
                 <div v-else>
                     <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center;" v-for="(item, id) in cart" :key="id">
@@ -501,8 +512,7 @@
                 </div>
 
                 <!-- КАРТОЧКА ИГРОКА И ПОЛОСА XP -->
-                <div class="mock-card" style="margin-top: 0; padding: 20px; cursor: pointer;" @click="isLadderOpen = true">
-                    <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="mock-card border-left-brand" style="margin-top: 0; cursor: pointer;" @click="isLadderOpen = true">                    <div style="display: flex; align-items: center; gap: 15px;">
                         <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                         <div style="flex-grow: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -540,8 +550,7 @@
 
                 <div style="margin-top: 25px;">
                     <h2 style="margin: 0 0 15px 0; font-size: 18px;">Активные квесты</h2>
-                    <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden;">
-                        <div style="position: absolute; top:0; left:0; width:4px; height:100%; background: var(--brand-red);"></div>
+                    <div v-for="q in activeQuests" :key="q.id" class="mock-card border-left-brand" style="margin-top:0; margin-bottom:15px; padding:15px; overflow: hidden;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div>
                                 <h3 style="margin:0 0 5px 0; font-size:15px;">{{ q.title }}</h3>
