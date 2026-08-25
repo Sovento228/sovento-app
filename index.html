@@ -60,8 +60,29 @@
             margin: 25px 0;
         }
 
-        /* Чтобы контент не прятался за новой плавающей плашкой */
-        .app-content { padding: 20px 20px 120px 20px; }
+        /* Убираем черную полосу сверху и оставляем отступ только снизу */
+        .app-content { padding: 0 0 120px 0; }
+
+        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
+        .slider-container {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            gap: 15px; padding-bottom: 10px; margin-top: 15px; scrollbar-width: none;
+        }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slide {
+            flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px;
+            height: 220px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;
+        }
+        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; z-index: 0; }
+        .slide-content { position: relative; z-index: 1; }
+        
+        .slider-progress-bar {
+            height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden;
+        }
+        .slider-progress-fill {
+            height: 100%; background: var(--brand-red); transition: width 0.1s linear;
+        }
 
         /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
         .bottom-nav {
@@ -296,35 +317,36 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ПЛАВАЮЩИЙ ВЫБОР ГОРОДА -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 5px; position:relative; z-index: 50;">
-                <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: var(--card-bg);">
+            <!-- ЛИПКИЙ ВЫБОР ГОРОДА (Всегда сверху) -->
+            <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 50%, transparent);">
+                <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: var(--card-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                     {{ currentCity }}
                     <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
                 </div>
-                <div class="city-dropdown" v-if="isCityDropdownOpen">
+                <div class="city-dropdown" v-if="isCityDropdownOpen" style="top: 60px; right: 20px;">
                     <div class="city-dropdown-item" :class="{active: currentCity === city}" v-for="city in citiesList" @click="selectCity(city)">
                         {{ city }}
                     </div>
                 </div>
             </div>
 
-            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
+            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ) -->
             <div v-show="currentTab === 'main'" v-cloak>
                 
-                <!-- ВЕРХНИЙ БЛОК: С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
-                <div id="home-section" style="position: relative; padding: 20px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px;">
-                    <!-- Ограниченное свечение только внутри этого блока -->
-                    <div style="position: absolute; top: -50px; left: 0; width: 100%; height: 130%; background: radial-gradient(circle at 50% 10%, rgba(248, 143, 34, 0.2) 0%, transparent 60%); z-index: -1; pointer-events: none;"></div>
+                <!-- ПЕРВЫЙ ЭКРАН (100vh): С УСИЛЕННЫМ ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
+                <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -70px;">
+                    <!-- Усиленное оранжевое свечение -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 40%, rgba(248, 143, 34, 0.4) 0%, rgba(248, 143, 34, 0.15) 35%, transparent 70%); z-index: -1; pointer-events: none;"></div>
                     
-                    <h1 class="logo-font">SOVENTO</h1>
+                    <h1 class="logo-font" style="margin-bottom: 50px; font-size: 54px;">SOVENTO</h1>
 
-                    <!-- БЛОК "О НАС" (Белый текст, суженные иконки) -->
-                    <div style="text-align: center; margin-top: 35px; margin-bottom: 30px;">
+                    <!-- БЛОК "О НАС" -->
+                    <div style="text-align: center; margin-bottom: 35px;">
                         <h3 style="margin:0 0 10px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
                         <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и множеством бонусов.</p>
                     </div>
                     
+                    <!-- ПРЕИМУЩЕСТВА -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
                             <svg style="width:24px; height:24px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -341,8 +363,68 @@
 
                 <div class="divider"></div>
 
-                <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
-                <div id="catalog-section" style="padding-top: 10px;">
+                <!-- ВТОРОЙ БЛОК: НОВОСТИ, ЛИДЕРБОРД И КАТАЛОГ -->
+                <div style="padding: 0 20px;">
+                    
+                    <!-- СЛАЙДЕР НОВИНОК -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                        <div class="slider-container" id="promo-slider" @scroll="handleScroll">
+                            <div class="slide">
+                                <img src="https://placehold.co/600x400/151518/F88F22?text=NEW" class="slide-bg">
+                                <div class="slide-content">
+                                    <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
+                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Уже доступны во всех городах!</p>
+                                </div>
+                            </div>
+                            <div class="slide">
+                                <img src="https://placehold.co/600x400/151518/4ade80?text=SALE" class="slide-bg">
+                                <div class="slide-content">
+                                    <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
+                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">-15% на все жидкости до 20:00.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ползунок слайдера -->
+                        <div class="slider-progress-bar">
+                            <div class="slider-progress-fill" :style="{ width: sliderProgress + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <!-- ЛИДЕРБОРД -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
+                            <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
+                        </div>
+                        <div v-for="(player, idx) in leaderboard" :key="idx" class="leaderboard-item" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 14px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
+                                        {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
+                                    </span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 15px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
+                                <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
+                    <div id="catalog-anchor" style="padding-top: 10px;">
+                        <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
+                            Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
+                        </div>
+                    </div>
+
                     <div class="search-container" style="margin-top: 0;">
                         <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
                     </div>
@@ -357,7 +439,6 @@
 
                     <div class="products-grid">
                         <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
-                            <!-- Избранное -->
                             <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
                                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                             </div>
@@ -380,32 +461,6 @@
                     </div>
                     <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
                 </div>
-
-                <div class="divider"></div>
-
-                <!-- ЛИДЕРБОРД (В самом низу, на всю ширину) -->
-                <div style="padding-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
-                        <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
-                    </div>
-                    <div v-for="(player, idx) in leaderboard" :key="idx" class="leaderboard-item" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 14px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
-                                    {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
-                                </span>
-                                <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 15px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
-                            <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             <!-- ЭКРАН 3: КОРЗИНА -->
@@ -724,7 +779,11 @@
                 return {
                     currentTab: 'main', 
                     activeScrollSection: 'home',
-                    isLadderOpen: false, // Флаг для модалки лестницы
+                    sliderProgress: 0, 
+                    activeSlide: 0,    
+                    totalSlides: 2, 
+                    sliderTimer: null,
+                    isLadderOpen: false,
                     activeQuests: [
                         { id: 1, title: 'Сделай 3 заказа', description: 'Закажите 3 любые жидкости в этом месяце.', progress: 1, target: 3, reward_xp: 150 },
                         { id: 2, title: 'Реферал', description: 'Пригласите друга по вашему промокоду.', progress: 0, target: 1, reward_xp: 300 }
@@ -822,9 +881,11 @@
             mounted() {
                 this.generateNickname();
                 window.addEventListener('scroll', this.trackScrollPosition);
+                this.startSlider();
             },
             beforeUnmount() {
                 window.removeEventListener('scroll', this.trackScrollPosition);
+                clearInterval(this.sliderTimer);
             },
             methods: {
                 showFavToast() {
@@ -940,6 +1001,34 @@
                             }
                         }
                     });
+                },
+                startSlider() {
+                    this.sliderTimer = setInterval(() => {
+                        if(this.currentTab !== 'main') return; 
+                        const slider = document.getElementById('promo-slider');
+                        if(!slider || this.totalSlides <= 1) return; 
+
+                        this.sliderProgress += (100 / (5000 / 50)); 
+                        
+                        if (this.sliderProgress >= 100) {
+                            this.sliderProgress = 0;
+                            this.activeSlide++;
+                            
+                            if (this.activeSlide >= this.totalSlides) {
+                                this.activeSlide = 0;
+                                slider.scrollTo({ left: 0, behavior: 'smooth' });
+                            } else {
+                                slider.scrollTo({ left: this.activeSlide * slider.clientWidth, behavior: 'smooth' });
+                            }
+                        }
+                    }, 50);
+                },
+                handleScroll() {
+                    this.sliderProgress = 0; 
+                    const slider = document.getElementById('promo-slider');
+                    if(slider) {
+                        this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
+                    }
                 },
                 trackScrollPosition() {
                     if (this.currentTab !== 'main') return;
