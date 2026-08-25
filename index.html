@@ -9,15 +9,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Ультра-жирный геометрический шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        /* ПРЕМИАЛЬНАЯ ПАЛИТРА */
         :root {
-            --dark: #05060A; /* Тотальный черный с микро-каплей синего */
-            --card-bg: #111216; /* Чуть светлее для карточек */
-            --brand-red: #F88F22; /* Фирменный оранжевый SOVENTO */
-            --text-main: #FFFFFF;
+            --dark: #07090F; /* Черный с едва уловимой каплей синего */
+            --card-bg: rgba(21, 21, 24, 0.8); 
+            --brand-red: rgba(248, 143, 34, 0.7); /* Оранжевый 30% прозрачности */
+            --brand-red-glow: rgba(248, 143, 34, 0.25);
+            --text-main: #F5F5F5;
             --text-muted: #888888;
-            --glass: rgba(5, 6, 10, 0.85);
+            --glass: rgba(7, 9, 15, 0.85);
         }
 
         body { 
@@ -30,24 +35,26 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ФИРМЕННЫЙ ШРИФТ ЛОГОТИПА (Массивный, сжатый) */
+        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (Как в референсе) */
         .logo-font {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
-            font-size: 44px;
-            letter-spacing: -2.5px;
-            color: var(--text-main);
+            font-size: 46px; /* Крупный размер */
+            letter-spacing: -2.5px; /* Сжатый, как в Moon Shop */
+            color: #FFFFFF;
             text-align: center;
             text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
         }
 
-        /* ЧЕРНЫЙ ФОН БЕЗ АНИМАЦИЙ */
+        /* ТОТАЛЬНО ЧЕРНЫЙ ФОН */
         .bg-animation-container {
-            position: fixed; top:0; left:0; width:100vw; height:100vh; z-index:-1;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background-color: var(--dark);
         }
 
-        /* РАЗДЕЛИТЕЛЬНАЯ ЛИНИЯ */
+        /* ЛИНИЯ РАЗДЕЛИТЕЛЯ */
         .divider {
             width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08);
             margin: 25px 0;
@@ -289,8 +296,8 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ПЛАВАЮЩАЯ КНОПКА ВЫБОРА ГОРОДА -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; position:relative;">
+            <!-- ПЛАВАЮЩИЙ ВЫБОР ГОРОДА -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 5px; position:relative; z-index: 50;">
                 <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: var(--card-bg);">
                     {{ currentCity }}
                     <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
@@ -302,18 +309,82 @@
                 </div>
             </div>
 
-            <!-- ЕДИНЫЙ ЭКРАН (ГЛАВНАЯ + КАТАЛОГ) -->
+            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
             <div v-show="currentTab === 'main'" v-cloak>
                 
-                <!-- ГИГАНТСКИЙ ЛОГОТИП -->
-                <div style="padding-top: 10px; padding-bottom: 10px;">
+                <!-- ВЕРХНИЙ БЛОК: С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
+                <div id="home-section" style="position: relative; padding: 20px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px;">
+                    <!-- Ограниченное свечение только внутри этого блока -->
+                    <div style="position: absolute; top: -50px; left: 0; width: 100%; height: 130%; background: radial-gradient(circle at 50% 10%, rgba(248, 143, 34, 0.2) 0%, transparent 60%); z-index: -1; pointer-events: none;"></div>
+                    
                     <h1 class="logo-font">SOVENTO</h1>
+
+                    <!-- БЛОК "О НАС" (Белый текст, суженные иконки) -->
+                    <div style="text-align: center; margin-top: 35px; margin-bottom: 30px;">
+                        <h3 style="margin:0 0 10px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                        <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и множеством бонусов.</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                            <svg style="width:24px; height:24px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
+                        </div>
+                        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                            <div style="font-size: 24px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
+                            <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="divider"></div>
 
-                <!-- ЛИДЕРБОРД (На всю ширину) -->
-                <div style="padding: 0 10px;">
+                <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
+                <div id="catalog-section" style="padding-top: 10px;">
+                    <div class="search-container" style="margin-top: 0;">
+                        <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                    </div>
+
+                    <div class="category-scroll">
+                        <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                    </div>
+
+                    <div class="products-grid">
+                        <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
+                            <!-- Избранное -->
+                            <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
+                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+                            <img :src="item.photo" class="product-img">
+                            <div class="product-info">
+                                <div class="product-title">{{ item.name }}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
+                                    <div class="product-price">{{ item.price.toFixed(2) }} €</div>
+                                    <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                        <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
+                                    </div>
+                                    <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
+                                        <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
+                                        <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
+                                        <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- ЛИДЕРБОРД (В самом низу, на всю ширину) -->
+                <div style="padding-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
                         <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
@@ -335,73 +406,6 @@
                     </div>
                 </div>
 
-                <div class="divider"></div>
-
-                <!-- БЛОК "О НАС" (Белый текст) -->
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <h3 style="margin:0 0 10px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                    <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
-                </div>
-                
-                <!-- ПРЕИМУЩЕСТВА (Суженные иконки) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                        <svg style="width:22px; height:22px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
-                        <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
-                    </div>
-                    <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                        <div style="font-size: 22px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
-                        <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
-                        <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <!-- ЯКОРЬ ДЛЯ КАТАЛОГА ТОВАРОВ -->
-                <div id="catalog-anchor" style="padding-top: 10px;">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
-                        Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
-                    </div>
-                </div>
-
-                <div class="search-container">
-                    <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
-                </div>
-
-                <div class="category-scroll">
-                    <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
-                    <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
-                    <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
-                    <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
-                    <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
-                </div>
-
-                <div class="products-grid">
-                    <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
-                        <!-- Кнопка добавления в избранное -->
-                        <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </div>
-                        <img :src="item.photo" class="product-img">
-                        <div class="product-info">
-                            <div class="product-title">{{ item.name }}</div>
-                            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
-                                <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
-                                    <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
-                                </div>
-                                <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
-                                    <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
-                                    <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
-                                    <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
             </div>
 
             <!-- ЭКРАН 3: КОРЗИНА -->
@@ -692,13 +696,16 @@
             </div>
         </div>
 
+        <!-- ПАНЕЛЬ НАВИГАЦИИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
+            <!-- Умные якоря -->
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'catalog' }" @click="scrollToSection('catalog')">
                 <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
             </div>
+            
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> 
                 Корзина
@@ -919,25 +926,27 @@
                     setTimeout(() => { this.selectedProduct = null; }, 300);
                 },
                 scrollToSection(section) {
-                    if(this.currentTab !== 'main') this.currentTab = 'main';
+                    if (this.currentTab !== 'main') this.currentTab = 'main';
+                    
                     this.$nextTick(() => {
-                        if(section === 'home') {
+                        if (section === 'home') {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else if(section === 'catalog') {
-                            const el = document.getElementById('catalog-anchor');
-                            if(el) {
-                                const y = el.getBoundingClientRect().top + window.pageYOffset - 10;
+                        } else if (section === 'catalog') {
+                            const el = document.getElementById('catalog-section');
+                            if (el) {
+                                // Плавный скролл к началу каталога (чуть выше строки поиска)
+                                const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
                                 window.scrollTo({ top: y, behavior: 'smooth' });
                             }
                         }
                     });
                 },
                 trackScrollPosition() {
-                    if(this.currentTab !== 'main') return;
-                    const el = document.getElementById('catalog-anchor');
-                    if(el) {
-                        // Если якорь каталога поднялся выше середины экрана, считаем что мы в Товарах
-                        if(el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        // Если якорь каталога поднялся выше 40% экрана, считаем что мы в зоне Товаров
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
                             this.activeScrollSection = 'catalog';
                         } else {
                             this.activeScrollSection = 'home';
