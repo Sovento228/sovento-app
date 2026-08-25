@@ -10,11 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        /* ПРЕМИАЛЬНАЯ ПАЛИТРА */
+        /* ПРЕМИАЛЬНАЯ ПАЛИТРА С ЭФФЕКТОМ СТЕКЛА */
         :root {
             --dark: #0A0A0C; 
-            --card-bg: #151518; 
-            --brand-red: #F88F22; /* Фирменный оранжевый SOVENTO */
+            --card-bg: rgba(21, 21, 24, 0.65); /* Полупрозрачный фон для карточек */
+            --brand-red: rgba(255, 60, 0, 0.7); /* Огненный цвет с 30% прозрачностью */
+            --brand-red-glow: rgba(255, 60, 0, 0.25); /* Легкое свечение для рамок */
             --text-main: #F5F5F5;
             --text-muted: #888888;
             --glass: rgba(10, 10, 12, 0.85);
@@ -63,13 +64,13 @@
 
         /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
         .bottom-nav {
-            position: fixed; bottom: 20px; left: 10%; width: 80%; /* На 20% уже и по центру */
-            background: rgba(10, 10, 12, 0.3); /* Прозрачность 30% */
+            position: fixed; bottom: 20px; left: 10%; width: 80%;
+            background: rgba(10, 10, 12, 0.4);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 25px;
+            border: 1px solid var(--brand-red-glow); border-radius: 25px;
             display: flex; justify-content: space-around; align-items: center;
             padding: 12px 0; z-index: 1000; box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(255, 60, 0, 0.05);
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -79,9 +80,12 @@
         .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(255, 60, 0, 0.4); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
+        /* СТЕКЛЯННЫЕ КАРТОЧКИ (Glassmorphism) */
         .mock-card {
             background: var(--card-bg); border-radius: 16px; padding: 20px; margin-top: 20px;
-            border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--brand-red-glow); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 60, 0, 0.05);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
 
         /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
@@ -246,7 +250,7 @@
         .checkout-back-btn:active { background: rgba(255,60,0,0.2); transform: scale(0.95); }
     /* --- ПРОФИЛЬ И ГЕЙМИФИКАЦИЯ --- */
         .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #ff7b00); transition: width 0.5s ease-out; }
         .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         
         .roulette-card { background: linear-gradient(135deg, rgba(255,60,0,0.1), rgba(255,60,0,0.02)); border: 1px solid rgba(255,60,0,0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
