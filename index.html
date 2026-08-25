@@ -310,65 +310,33 @@
             </div>
             
             <!-- ЭКРАН 1: ГЛАВНАЯ (Home) -->
-            <div v-if="currentTab === 'home'" v-cloak>
-                <div class="slider-container" id="promo-slider" @scroll="handleScroll">
-                    <div class="slide">
-                        <img src="https://placehold.co/600x400/151518/FF3C00?text=NEW" class="slide-bg">
-                        <div class="slide-content">
-                            <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
-                            <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800;">Новая поставка XROS</h2>
-                            <p style="margin: 0; font-size: 12px; color: #ccc;">Уже доступны во всех городах!</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <img src="https://placehold.co/600x400/151518/4ade80?text=SALE" class="slide-bg">
-                        <div class="slide-content">
-                            <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
-                            <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800;">Счастливые часы</h2>
-                            <p style="margin: 0; font-size: 12px; color: #ccc;">-15% на все жидкости до 20:00.</p>
-                        </div>
-                    </div>
+            <div v-if="currentTab === 'home'" v-cloak style="display: flex; flex-direction: column; justify-content: center; min-height: 70vh;">
+                
+                <!-- СТЕКЛЯННАЯ КАПЕЛЬКА -->
+                <div class="sovento-pill">
+                    <h1 class="logo-font" style="margin: 0; font-size: 32px; color: #FFFFFF; letter-spacing: 3px;">SOVENTO</h1>
                 </div>
-                <!-- СТРОГИЙ ЛИДЕРБОРД -->
-                <div class="mock-card" style="padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
-                        <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
-                        <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
+
+                <!-- БЛОК "О НАС" БЕЗ РАМОК, ТОЛЬКО БЕЛЫЙ ТЕКСТ -->
+                <div style="text-align: center; padding: 0 15px; margin-bottom: 40px;">
+                    <h3 style="margin:0 0 12px 0; color: #FFFFFF; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с очень хорошей системой лояльности к клиентам и множеством бонусов.</p>
+                </div>
+                
+                <!-- ПРЕИМУЩЕСТВА БЕЗ РАМОК (ПРОСТО ТЕКСТ И ИКОНКИ) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px;">
+                    <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                        <svg style="width:32px; height:32px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:12px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
+                        <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Курьер привезет заказ прямо в руки</p>
                     </div>
-                    <div v-for="(player, idx) in leaderboard" :key="idx" class="leaderboard-item">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="rank-num" :class="{'rank-top': idx < 3}">0{{ idx + 1 }}</span>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 14px; font-weight: 600;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
-                                    {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
-                                </span>
-                                <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 15px; font-weight: 800;">{{ player.amount }}</div>
-                            <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
-                        </div>
+                    <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                        <div style="font-size: 32px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
+                        <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Получайте баллы за каждый заказ, 100 = 1€</p>
                     </div>
                 </div>
 
-                <div style="margin-top: 35px; text-align: center; padding: 0 10px;">
-                    <h3 style="margin:0 0 10px 0; color: var(--text-main); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любых брендов, с очень хорошей системой лояльности к клиентам и множеством бонусов.</p>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
-                    <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <svg style="width:28px; height:28px; fill:none; stroke:var(--brand-red); stroke-width:2; margin-bottom:10px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Быстрая доставка</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Курьер привезет заказ прямо в руки</p>
-                    </div>
-                    <div class="mock-card" style="margin-top: 0; padding: 15px; text-align: center;">
-                        <div style="font-size: 26px; color: var(--brand-red); font-weight: 900; margin-bottom: 5px; line-height: 1;">€</div>
-                        <h4 style="margin: 0 0 5px 0; font-size: 13px; font-weight: 800;">Бонусная система</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--text-muted);">Получайте баллы за каждый заказ, 100 = 1€</p>
-                    </div>
-                </div>
             </div>
 
             <!-- ЭКРАН 2: ТОВАРЫ (Каталог) -->
