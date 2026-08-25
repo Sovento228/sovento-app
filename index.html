@@ -16,13 +16,13 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            --dark: #07090F; /* Черный с едва уловимой каплей синего */
-            --card-bg: rgba(21, 21, 24, 0.8); 
-            --brand-red: rgba(248, 143, 34, 0.7); /* Оранжевый 30% прозрачности */
+            --dark: #05060A; /* Глубокий черный с каплей синего */
+            --card-bg: rgba(21, 21, 24, 0.7); 
+            --brand-red: #F88F22; 
             --brand-red-glow: rgba(248, 143, 34, 0.25);
-            --text-main: #F5F5F5;
+            --text-main: #FFFFFF;
             --text-muted: #888888;
-            --glass: rgba(7, 9, 15, 0.85);
+            --glass: rgba(5, 6, 10, 0.85);
         }
 
         body { 
@@ -35,12 +35,12 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (Как в референсе) */
+        /* ФИРМЕННЫЙ ШРИФТ ЛОГОТИПА (MOON SHOP STYLE) */
         .logo-font {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
-            font-size: 46px; /* Крупный размер */
-            letter-spacing: -2.5px; /* Сжатый, как в Moon Shop */
+            font-size: 52px; /* Огромный размер */
+            letter-spacing: -3px; /* Сжатый интервал */
             color: #FFFFFF;
             text-align: center;
             text-transform: uppercase;
@@ -54,28 +54,41 @@
             background-color: var(--dark);
         }
 
-        /* ЛИНИЯ РАЗДЕЛИТЕЛЯ */
-        .divider {
-            width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08);
-            margin: 25px 0;
-        }
+        /* РАЗДЕЛИТЕЛЬ */
+        .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 30px 0; }
 
-        /* Убираем черную полосу сверху и оставляем отступ только снизу */
+        /* ИСПРАВЛЕНИЕ ЧЕРНОЙ ПОЛОСЫ СВЕРХУ */
         .app-content { padding: 0 0 120px 0; }
 
+        /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 10%; width: 80%;
+            background: rgba(10, 10, 12, 0.4);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--brand-red-glow); border-radius: 25px;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; z-index: 2500; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(248, 143, 34, 0.05);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; cursor: pointer; }
+        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(248, 143, 34, 0.4); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+
+        .mock-card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-top: 20px;
+            border: 1px solid var(--brand-red-glow); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(248, 143, 34, 0.05);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+
         /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
-        .slider-container {
-            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-            gap: 15px; padding-bottom: 10px; margin-top: 15px; scrollbar-width: none;
-        }
+        .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 10px; margin-top: 10px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
-        .slide {
-            flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px;
-            height: 220px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
-            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;
-        }
-        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; z-index: 0; }
+        .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; z-index: 0; }
         .slide-content { position: relative; z-index: 1; }
+        .slider-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+        .slider-progress-fill { height: 100%; background: var(--brand-red); transition: width 0.1s linear; }
         
         .slider-progress-bar {
             height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden;
@@ -101,14 +114,6 @@
         }
         .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(255, 60, 0, 0.4); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-
-        /* СТЕКЛЯННЫЕ КАРТОЧКИ (Glassmorphism) */
-        .mock-card {
-            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-top: 20px;
-            border: 1px solid var(--brand-red-glow); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 60, 0, 0.05);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        }
 
         /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
         .slider-container {
@@ -317,44 +322,42 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ЛИПКИЙ ВЫБОР ГОРОДА (Всегда сверху) -->
-            <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 50%, transparent);">
-                <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: var(--card-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            <!-- ЛИПКАЯ КНОПКА ГОРОДА (Всегда на виду сверху) -->
+            <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 40%, transparent);">
+                <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: rgba(21, 21, 24, 0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                     {{ currentCity }}
                     <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
                 </div>
                 <div class="city-dropdown" v-if="isCityDropdownOpen" style="top: 60px; right: 20px;">
-                    <div class="city-dropdown-item" :class="{active: currentCity === city}" v-for="city in citiesList" @click="selectCity(city)">
-                        {{ city }}
-                    </div>
+                    <div class="city-dropdown-item" :class="{active: currentCity === city}" v-for="city in citiesList" @click="selectCity(city)">{{ city }}</div>
                 </div>
             </div>
 
-            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ) -->
+            <!-- ЕДИНЫЙ ЭКРАН (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
             <div v-show="currentTab === 'main'" v-cloak>
                 
-                <!-- ПЕРВЫЙ ЭКРАН (100vh): С УСИЛЕННЫМ ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
-                <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -70px;">
-                    <!-- Усиленное оранжевое свечение -->
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 40%, rgba(248, 143, 34, 0.4) 0%, rgba(248, 143, 34, 0.15) 35%, transparent 70%); z-index: -1; pointer-events: none;"></div>
+                <!-- ПЕРВЫЙ ЭКРАН (100vh): С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
+                <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
+                    <!-- Усиленное оранжевое свечение (строго до разделителя) -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 40%, rgba(248, 143, 34, 0.45) 0%, rgba(248, 143, 34, 0.15) 40%, transparent 75%); z-index: -1; pointer-events: none;"></div>
                     
-                    <h1 class="logo-font" style="margin-bottom: 50px; font-size: 54px;">SOVENTO</h1>
+                    <h1 class="logo-font" style="margin-bottom: 45px;">SOVENTO</h1>
 
-                    <!-- БЛОК "О НАС" -->
+                    <!-- БЛОК "О НАС" (Белый текст, без рамок) -->
                     <div style="text-align: center; margin-bottom: 35px;">
                         <h3 style="margin:0 0 10px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                        <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и множеством бонусов.</p>
+                        <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
                     </div>
                     
-                    <!-- ПРЕИМУЩЕСТВА -->
+                    <!-- ПРЕИМУЩЕСТВА (Суженные иконки) -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                            <svg style="width:24px; height:24px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <svg style="width:22px; height:22px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                             <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
                             <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
                         </div>
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                            <div style="font-size: 24px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
+                            <div style="font-size: 22px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
                             <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
                             <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
                         </div>
@@ -363,15 +366,15 @@
 
                 <div class="divider"></div>
 
-                <!-- ВТОРОЙ БЛОК: НОВОСТИ, ЛИДЕРБОРД И КАТАЛОГ -->
+                <!-- ВТОРОЙ БЛОК: НОВОСТИ, КАТАЛОГ И ЛИДЕРБОРД -->
                 <div style="padding: 0 20px;">
                     
                     <!-- СЛАЙДЕР НОВИНОК -->
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                    <div style="margin-bottom: 35px;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
                         <div class="slider-container" id="promo-slider" @scroll="handleScroll">
                             <div class="slide">
-                                <img src="https://placehold.co/600x400/151518/F88F22?text=NEW" class="slide-bg">
+                                <img src="https://placehold.co/600x400/111216/F88F22?text=NEW" class="slide-bg">
                                 <div class="slide-content">
                                     <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
                                     <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
@@ -379,7 +382,7 @@
                                 </div>
                             </div>
                             <div class="slide">
-                                <img src="https://placehold.co/600x400/151518/4ade80?text=SALE" class="slide-bg">
+                                <img src="https://placehold.co/600x400/111216/4ade80?text=SALE" class="slide-bg">
                                 <div class="slide-content">
                                     <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
                                     <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
@@ -393,74 +396,77 @@
                         </div>
                     </div>
 
-                    <!-- ЛИДЕРБОРД -->
-                    <div style="margin-bottom: 30px;">
+                    <div class="divider"></div>
+
+                    <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
+                    <div id="catalog-section" style="padding-top: 10px;">
+                        <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
+                            Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
+                        </div>
+
+                        <div class="search-container" style="margin-top: 0;">
+                            <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                        </div>
+
+                        <div class="category-scroll">
+                            <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                        </div>
+
+                        <div class="products-grid">
+                            <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
+                                <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                </div>
+                                <img :src="item.photo" class="product-img">
+                                <div class="product-info">
+                                    <div class="product-title">{{ item.name }}</div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
+                                        <div class="product-price">{{ item.price.toFixed(2) }} €</div>
+                                        <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                            <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
+                                        </div>
+                                        <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
+                                            <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
+                                            <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
+                                            <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- ЛИДЕРБОРД (На всю ширину, в самом низу) -->
+                    <div style="padding-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
                             <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
                         </div>
-                        <div v-for="(player, idx) in leaderboard" :key="idx" class="leaderboard-item" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0;">
+                        <div v-for="(player, idx) in leaderboard" :key="idx" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0;">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
                                 <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 14px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
+                                    <span style="font-size: 15px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
                                         {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
                                     </span>
                                     <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
                                 </div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 15px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
+                                <div style="font-size: 16px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
                                 <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="divider"></div>
-
-                    <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
-                    <div id="catalog-anchor" style="padding-top: 10px;">
-                        <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
-                            Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
-                        </div>
-                    </div>
-
-                    <div class="search-container" style="margin-top: 0;">
-                        <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
-                    </div>
-
-                    <div class="category-scroll">
-                        <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
-                        <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
-                        <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
-                        <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
-                        <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
-                    </div>
-
-                    <div class="products-grid">
-                        <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
-                            <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
-                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            </div>
-                            <img :src="item.photo" class="product-img">
-                            <div class="product-info">
-                                <div class="product-title">{{ item.name }}</div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
-                                    <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                    <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
-                                        <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
-                                    </div>
-                                    <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
-                                        <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
-                                        <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
-                                        <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
-                </div>
+                </div> <!-- Конец Второго Блока -->
             </div>
 
             <!-- ЭКРАН 3: КОРЗИНА -->
@@ -881,13 +887,41 @@
             mounted() {
                 this.generateNickname();
                 window.addEventListener('scroll', this.trackScrollPosition);
-                this.startSlider();
+                this.startSlider(); 
             },
             beforeUnmount() {
                 window.removeEventListener('scroll', this.trackScrollPosition);
                 clearInterval(this.sliderTimer);
             },
             methods: {
+                scrollToSection(section) {
+                    if (this.currentTab !== 'main') this.currentTab = 'main';
+                    
+                    this.$nextTick(() => {
+                        if (section === 'home') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else if (section === 'catalog') {
+                            const el = document.getElementById('catalog-section');
+                            if (el) {
+                                // Плавный скролл к началу каталога
+                                const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
+                                window.scrollTo({ top: y, behavior: 'smooth' });
+                            }
+                        }
+                    });
+                },
+                trackScrollPosition() {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        // Если якорь каталога поднялся выше 40% экрана, считаем что мы в Товарах
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                            this.activeScrollSection = 'catalog';
+                        } else {
+                            this.activeScrollSection = 'home';
+                        }
+                    }
+                },
                 showFavToast() {
                     this.isFavToastVisible = true;
                     this.favToastProgress = 100;
