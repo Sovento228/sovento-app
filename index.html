@@ -160,6 +160,23 @@
         .roulette-item.rare { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.1); }
         .roulette-item.epic { border-color: var(--brand-red); color: var(--brand-red); box-shadow: 0 0 15px rgba(248, 143, 34, 0.2); }
         .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: var(--brand-red); z-index: 10; border-radius: 2px; box-shadow: 0 0 10px var(--brand-red); }
+    /* АНИМАЦИИ ДЛЯ ИСТОЧНИКОВ СВЕТА */
+        @keyframes floatLight1 {
+            0% { transform: translate(0px, 0px) scale(1); }
+            50% { transform: translate(15px, -15px) scale(1.05); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes floatLight2 {
+            0% { transform: translate(0px, 0px) scale(1); }
+            50% { transform: translate(-15px, 20px) scale(0.95); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .ambient-light-1 {
+            animation: floatLight1 12s ease-in-out infinite;
+        }
+        .ambient-light-2 {
+            animation: floatLight2 15s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -197,14 +214,17 @@
 <!-- ПЕРВЫЙ ЭКРАН (100vh): ТЕПЛЫЙ АМБИЕНТНЫЙ СВЕТ И ВОЗДУХ -->
                 <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
                     
-                    <!-- Размытый светлый фон с яркими оранжевыми свечениями по бокам -->
+                    <!-- Размытый фон с цветами из картинки и анимированными источниками света -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; background-color: #05060A;">
-                        <!-- Левое яркое свечение -->
-                        <div style="position: absolute; top: 20%; left: -20%; width: 350px; height: 350px; background: rgba(248, 143, 34, 0.25); filter: blur(90px); border-radius: 50%;"></div>
-                        <!-- Правое яркое свечение -->
-                        <div style="position: absolute; top: 40%; right: -20%; width: 350px; height: 350px; background: rgba(248, 143, 34, 0.25); filter: blur(90px); border-radius: 50%;"></div>
-                        <!-- Центральный заполняющий свет (чтобы контент читался отлично) -->
-                        <div style="position: absolute; top: 30%; left: 50%; transform: translateX(-50%); width: 90%; height: 300px; background: rgba(248, 143, 34, 0.1); filter: blur(80px); border-radius: 50%;"></div>
+                        <!-- Левое свечение (Темно-оранжевый/Терракотовый из левой части фото) -->
+                        <div class="ambient-light-1" style="position: absolute; top: 10%; left: -20%; width: 450px; height: 450px; background: rgba(227, 94, 23, 0.22); filter: blur(100px); border-radius: 50%;"></div>
+                        
+                        <!-- Правое свечение (Желто-золотой из правой части фото) -->
+                        <div class="ambient-light-2" style="position: absolute; top: 40%; right: -20%; width: 400px; height: 400px; background: rgba(248, 185, 42, 0.18); filter: blur(100px); border-radius: 50%;"></div>
+                        
+                        <!-- Центральный заполняющий свет (Ярко-оранжевый из центра фото) для баланса -->
+                        <div style="position: absolute; top: 30%; left: 50%; transform: translateX(-50%); width: 80%; height: 350px; background: rgba(245, 147, 30, 0.10); filter: blur(90px); border-radius: 50%;"></div>
+                        
                         <!-- Плавное затухание в черный перед разделителем -->
                         <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, var(--dark), transparent);"></div>
                     </div>
