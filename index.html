@@ -332,39 +332,10 @@
                         <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
                     </div>
 
-                </div> <!-- Конец Второго Блока -->
-            </div>
-
-                    <div class="divider"></div>
-
-                    <!-- ЛИДЕРБОРД (На всю ширину, в самом низу) -->
-                    <div style="padding-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Лидерборд Сезона</h3>
-                            <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
-                        </div>
-                        <div v-for="(player, idx) in leaderboard" :key="idx" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 15px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
-                                        {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
-                                    </span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 16px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
-                                <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
-                            <!-- Твой текущий код (строки 444-450) -->
-                        </div>
-                    </div>
-
-                </div> <!-- Конец Второго Блока -->
-            </div><!-- ЗДЕСЬ ДОЛЖЕН БЫТЬ ЗАКРЫВАЮЩИЙ </div> ДЛЯ ЛЕНТЫ "main" -->
+                </div> <!-- Конец Второго Блока (Новости, Лидерборд, Каталог) -->
+            </div> <!-- Конец ЕДИНОЙ ЛЕНТЫ main -->
 
             <!-- ЭКРАН 3: КОРЗИНА -->
-            <div v-if="currentTab === 'cart'" v-cloak>
             <div v-if="currentTab === 'cart'" v-cloak>
                 <h1 style="margin-top:0;">Корзина</h1>
                 <div class="mock-card" v-if="Object.keys(cart).length === 0">
@@ -846,6 +817,7 @@
             mounted() {
                 this.generateNickname();
                 window.addEventListener('scroll', this.trackScrollPosition);
+                this.startSlider(); // <-- ВОТ ЭТА СТРОКА ОЖИВЛЯЕТ СЛАЙДЕР!
                 
                 // ЧТЕНИЕ ПАРАМЕТРОВ ОТ БОТА
                 const urlParams = new URLSearchParams(window.location.search);
