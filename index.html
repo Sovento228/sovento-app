@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SOVENTO Store</title>
+    <!-- Ультра-жирный геометрический шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
@@ -29,12 +30,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (MOON SHOP) */
+        [v-cloak] { display: none; } /* Скрывает элементы до загрузки Vue */
+
+        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (MOON SHOP STYLE) */
         .logo-font {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
-            font-size: 56px;
-            letter-spacing: -3px;
+            font-size: 52px;
+            letter-spacing: -3px; 
             color: #FFFFFF;
             text-align: center;
             text-transform: uppercase;
@@ -49,12 +52,10 @@
             pointer-events: none;
         }
 
-        /* РАЗДЕЛИТЕЛЬ */
         .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 30px 0; }
-
-        /* ИСПРАВЛЕНИЕ ЧЕРНОЙ ПОЛОСЫ СВЕРХУ */
         .app-content { padding: 0 0 120px 0; }
 
+        /* ПАНЕЛЬ НАВИГАЦИИ */
         .bottom-nav {
             position: fixed; bottom: 20px; left: 10%; width: 80%;
             background: rgba(10, 10, 12, 0.4);
@@ -75,7 +76,7 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
 
-        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
+        /* --- СЛАЙДЕР --- */
         .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 10px; margin-top: 10px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
         .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
@@ -112,7 +113,7 @@
         .modal-overlay.active { opacity:1; pointer-events:all; }
         .modal-sheet { background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; box-sizing:border-box; transform:translateY(100%); transition:0.3s; border-top:1px solid rgba(255,255,255,0.1); position: relative; }
         .modal-overlay.active .modal-sheet { transform:translateY(0); }
-        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index: 50;}
         .close-btn svg { width: 16px; height: 16px; fill: var(--text-main); }
         .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
         .modal-btn { width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer; }
@@ -128,8 +129,8 @@
         .toggle-btn.active { background: rgba(248, 143, 34, 0.15); border-color: var(--brand-red); color: var(--brand-red); }
         .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
         
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .app-content > div[v-cloak] { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
         .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
@@ -144,7 +145,7 @@
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
         .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         
-        .roulette-card { background: linear-gradient(135deg, rgba(248, 143, 34, 0.1), rgba(248, 143, 34, 0.02)); border: 1px solid rgba(248, 143, 34, 0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .roulette-card { background: linear-gradient(135deg, rgba(248, 143, 34, 0.1), rgba(248, 143, 34, 0.02)); border: 1px solid rgba(248, 143, 34, 0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .roulette-card:active { transform: scale(0.98); }
         
         .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -163,12 +164,13 @@
     </style>
 </head>
 <body>
+    <!-- ГЛАВНЫЙ КОНТЕЙНЕР VUE -->
     <div id="app">
-        <!-- Фон со встречными строками -->
-        <div class="bg-animation-container"><div class="bg-left"></div><div class="bg-right"></div></div>
+        
+        <div class="bg-animation-container"></div>
 
         <!-- СТАРТОВОЕ ОКНО -->
-        <div class="onboarding-modal" v-if="!currentCity">
+        <div class="onboarding-modal" v-if="!currentCity" v-cloak>
             <div class="onboarding-content">
                 <h2 style="margin:0 0 10px 0; font-size:20px; font-weight:800;">Выберите ваш город</h2>
                 <p style="margin:0 0 20px 0; font-size:13px; color:var(--text-muted);">Чтобы мы показали актуальный склад</p>
@@ -178,9 +180,9 @@
             </div>
         </div>
 
-        <div class="app-content" v-if="currentCity">
+        <div class="app-content" v-if="currentCity" v-cloak>
             
-            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА (Всегда сверху справа) -->
+            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА -->
             <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 40%, transparent);">
                 <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: rgba(21, 21, 24, 0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                     {{ currentCity }}
@@ -192,24 +194,19 @@
             </div>
 
             <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
-            <div v-show="currentTab === 'main'" v-cloak>
+            <div v-show="currentTab === 'main'">
                 
-<!-- ПЕРВЫЙ ЭКРАН (100vh): ТЕПЛЫЙ АМБИЕНТНЫЙ СВЕТ И ВОЗДУХ -->
+                <!-- ПЕРВЫЙ ЭКРАН (100vh): ТЕПЛЫЙ АМБИЕНТНЫЙ СВЕТ И ВОЗДУХ -->
                 <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
                     
-                    <!-- Несколько источников мягкого, неконтрастного оранжевого освещения -->
+                    <!-- Несколько источников мягкого оранжевого освещения -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; background-color: #080605;">
-                        <!-- Центральный широкий блик (основной теплый свет) -->
                         <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 350px; background: rgba(248, 143, 34, 0.12); filter: blur(80px); border-radius: 50%;"></div>
-                        <!-- Верхний левый блик -->
                         <div style="position: absolute; top: 15%; left: -10%; width: 250px; height: 250px; background: rgba(248, 143, 34, 0.08); filter: blur(60px); border-radius: 50%;"></div>
-                        <!-- Нижний правый блик -->
                         <div style="position: absolute; top: 65%; right: -10%; width: 250px; height: 250px; background: rgba(200, 80, 20, 0.08); filter: blur(60px); border-radius: 50%;"></div>
-                        <!-- Плавное затухание в черный снизу, чтобы скрыть переход -->
                         <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #05060A, transparent);"></div>
                     </div>
                     
-                    <!-- УВЕЛИЧЕННЫЕ ОТСТУПЫ МЕЖДУ БЛОКАМИ -->
                     <h1 class="logo-font" style="margin-bottom: 110px; position: relative;">SOVENTO</h1>
 
                     <div style="text-align: center; margin-bottom: 80px; position: relative;">
@@ -264,7 +261,7 @@
 
                     <div class="divider"></div>
 
-                    <!-- ЛИДЕРБОРД (Один, сразу после новостей) -->
+                    <!-- ЛИДЕРБОРД -->
                     <div style="padding-bottom: 10px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <h3 style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Лидерборд Сезона</h3>
@@ -331,15 +328,16 @@
                         </div>
                         <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
                     </div>
-
-                </div> <!-- Конец Второго Блока (Новости, Лидерборд, Каталог) -->
-            </div> <!-- Конец ЕДИНОЙ ЛЕНТЫ main -->
+                </div> <!-- Конец Второго Блока -->
+            </div> <!-- Конец ЕДИНОЙ ЛЕНТЫ -->
 
             <!-- ЭКРАН 3: КОРЗИНА -->
-            <div v-if="currentTab === 'cart'" v-cloak>
+            <div v-if="currentTab === 'cart'">
                 <h1 style="margin-top:0;">Корзина</h1>
-                <div class="mock-card" v-if="Object.keys(cart).length === 0">
-                    <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваша корзина пуста</p>
+                <div class="mock-card" v-if="Object.keys(cart).length === 0" style="text-align: center; padding: 40px 20px;">
+                    <svg style="width: 48px; height: 48px; fill: var(--text-muted); margin-bottom: 15px;" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <h3 style="margin: 0 0 5px 0; color: var(--text-main);">Ваша корзина пуста</h3>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 0;">Перейдите в каталог, чтобы добавить товары</p>
                 </div>
                 <div v-else>
                     <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center;" v-for="(item, id) in cart" :key="id">
@@ -369,8 +367,8 @@
                 </div>
             </div>
 
-            <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
-            <div v-if="currentTab === 'checkout'" v-cloak>
+            <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА -->
+            <div v-if="currentTab === 'checkout'">
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
                     <div class="checkout-back-btn" @click="currentTab = 'cart'">
                         <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -385,7 +383,6 @@
                         <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="setDelivery('courier')">Доставка</div>
                     </div>
                     
-                    <!-- Поля для доставки курьером -->
                     <div v-if="checkout.delivery === 'courier'" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.address" placeholder="Адрес доставки (улица, дом / квартира)">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.zip" placeholder="Почтовый индекс (например: 69000)">
@@ -393,7 +390,6 @@
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
                     </div>
 
-                    <!-- Адрес самовывоза -->
                     <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
                         Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
                     </div>
@@ -413,23 +409,20 @@
                 </button>
             </div>
 
-            <!-- ЭКРАН 6: ПРОФИЛЬ (ГЕЙМИФИКАЦИЯ) -->
-            <div v-if="currentTab === 'profile'" v-cloak>
+            <!-- ЭКРАН 6: ПРОФИЛЬ -->
+            <div v-if="currentTab === 'profile'">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 style="margin:0;">Профиль</h1>
-                    <!-- Баланс баллов просто цифрой -->
                     <div style="background: rgba(248, 143, 34, 0.1); border: 1px solid var(--brand-red); padding: 5px 15px; border-radius: 12px; font-weight: 900; color: var(--brand-red); font-size: 15px;">
                         {{ user.balance }}
                     </div>
                 </div>
 
-                <!-- КАРТОЧКА ИГРОКА И ПОЛОСА XP -->
                 <div class="mock-card" style="margin-top: 0; padding: 20px; cursor: pointer;" @click="isLadderOpen = true">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                         <div style="flex-grow: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <!-- Карандашик возле имени -->
                                 <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
                                     {{ user.displayName }}
                                     <div @click.stop="changeName" style="background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px; display: flex; cursor: pointer;">
@@ -453,17 +446,14 @@
                     </div>
                 </div>
 
-                <!-- МИНИ-ИГРЫ (Рулетка и Crash 50/50) -->
+                <!-- МИНИ-ИГРЫ -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                    
-                    <!-- Рулетка -->
                     <div class="roulette-card" style="margin:0; flex-direction:column; align-items:flex-start; padding: 15px;" @click="openRoulette">
                         <svg style="width: 28px; height: 28px; fill: var(--brand-red); margin-bottom: 10px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zM14.28 16H13v-3c0-.55-.45-1-1-1H9V9l3.5-3.5c1.45.69 2.59 1.83 3.28 3.28L13 11.53c0 .55.45 1 1 1h2.82c.12.47.18.97.18 1.47 0 2.91-1.72 5.42-4.22 6.5l1.5-1.5z"/></svg>
                         <h3 style="margin: 0 0 5px 0; font-size: 14px; color: var(--brand-red);">Рулетка</h3>
                         <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">Ежедневные<br>подарки</p>
                     </div>
 
-                    <!-- CRASH -->
                     <div class="roulette-card" style="margin:0; border-left-color: #8B5CF6; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02)); border: 1px solid rgba(139,92,246,0.3); flex-direction:column; align-items:flex-start; padding: 15px;" @click="openCrashGame">
                         <div style="font-size: 26px; margin-bottom: 8px;">🚀</div>
                         <h3 style="margin: 0 0 5px 0; font-size: 14px; color: #8B5CF6;">Краш-игра</h3>
@@ -471,7 +461,7 @@
                     </div>
                 </div>
 
-                <!-- АКТИВНЫЕ КВЕСТЫ (Теперь они ВНУТРИ профиля) -->
+                <!-- АКТИВНЫЕ КВЕСТЫ -->
                 <div style="margin-top: 25px;">
                     <h2 style="margin: 0 0 15px 0; font-size: 18px;">Активные квесты</h2>
                     <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden;">
@@ -498,8 +488,8 @@
             
         </div> <!-- Конец app-content -->
 
-        <!-- ТОСТ-УВЕДОМЛЕНИЕ (Избранное) -->
-        <div class="toast-notification" :class="{ show: isFavToastVisible }" @click="currentTab = 'catalog'; currentCategory = 'Избранное'; isFavToastVisible = false;">
+        <!-- ТОСТЫ И МОДАЛКИ (Не трогаем) -->
+        <div class="toast-notification" :class="{ show: isFavToastVisible }" @click="currentTab = 'main'; scrollToSection('catalog'); currentCategory = 'Избранное'; isFavToastVisible = false;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:24px; height:24px; background:rgba(255,60,0,0.2); border-radius:50%; display:flex; justify-content:center; align-items:center;">
@@ -515,7 +505,6 @@
             <div class="toast-progress" :style="{ width: favToastProgress + '%' }"></div>
         </div>
 
-        <!-- ТОСТ-УВЕДОМЛЕНИЕ (Добавление в корзину) -->
         <div class="toast-notification" :class="{ show: isToastVisible }" @click="currentTab = 'cart'; isToastVisible = false; isModalOpen = false;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -532,7 +521,6 @@
             <div class="toast-progress" :style="{ width: toastProgress + '%' }"></div>
         </div>
 
-        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА (Выезжает снизу) -->
         <div class="modal-overlay" :class="{ active: isModalOpen }" @click.self="closeProduct">
             <div class="modal-sheet">
                 <div v-if="selectedProduct">
@@ -552,7 +540,6 @@
             </div>
         </div>
 
-        <!-- АНИМИРОВАННАЯ РУЛЕТКА -->
         <div class="roulette-overlay" :class="{ active: isRouletteOpen }" @click.self="closeRoulette">
             <h2 style="margin:0 0 25px 0; font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing: 1px;">Колесо Фортуны</h2>
             
@@ -565,11 +552,10 @@
                 </div>
             </div>
 
-            <button class="modal-btn" style="width: 80%; max-width: 300px; margin-top: 0; box-shadow: 0 5px 20px rgba(255,60,0,0.3);" @click="spinRoulette" :disabled="isSpinning">
+            <button class="modal-btn" style="width: 80%; max-width: 300px; margin-top: 0; box-shadow: 0 5px 20px rgba(248,143,34,0.3);" @click="spinRoulette" :disabled="isSpinning">
                 {{ isSpinning ? 'Крутим...' : 'Испытать удачу' }}
             </button>
 
-            <!-- Блок под выигрыш -->
             <div style="height: 60px; margin-top: 20px; text-align: center;">
                 <div v-if="rouletteResult" style="font-size: 13px; font-weight: bold; color: var(--text-muted); animation: fadeUp 0.5s;">
                     Ваш выигрыш:<br>
@@ -582,58 +568,6 @@
             </div>
         </div>
 
-        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
-        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
-            <div class="modal-sheet" style="padding-bottom: 20px;">
-                <div class="close-btn" @click="isLadderOpen = false">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </div>
-                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
-                
-                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
-                    <!-- Линия прогресса -->
-                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
-                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
-                    </div>
-                    
-                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
-                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
-                            {{ lvl }}
-                        </div>
-                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
-                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
-        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
-            <div class="modal-sheet" style="padding-bottom: 20px;">
-                <div class="close-btn" @click="isLadderOpen = false">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </div>
-                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
-                
-                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
-                    <!-- Линия прогресса -->
-                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
-                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
-                    </div>
-                    
-                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
-                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
-                            {{ lvl }}
-                        </div>
-                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
-                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- МОДАЛКА CRASH ИГРЫ -->
         <div class="modal-overlay" :class="{ active: isCrashOpen }" @click.self="isCrashOpen = false; if(isCrashRunning) cashOut();">
             <div class="modal-sheet" style="padding-bottom: 20px; background: #0A0A0C;">
                 <div class="close-btn" @click="if(!isCrashRunning) isCrashOpen = false">
@@ -644,9 +578,7 @@
                     <div style="color: var(--brand-red); font-weight:bold;">{{ user.balance }} баллов</div>
                 </div>
 
-                <!-- ЭКРАН ИГРЫ -->
                 <div style="height: 200px; background: #111216; border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 20px; position:relative; overflow:hidden;">
-                    <!-- Анимация графика -->
                     <div v-if="isCrashRunning" style="position:absolute; bottom:0; left:0; width:100%; height:4px; background:#8B5CF6; opacity:0.5;"></div>
                     
                     <div style="font-size: 64px; font-weight: 900; line-height: 1;" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFF') }">
@@ -660,7 +592,6 @@
                     </div>
                 </div>
 
-                <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
                 <div style="display:flex; gap:10px; margin-bottom: 15px;">
                     <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 18px; font-weight:bold; text-align:center;" :disabled="isCrashRunning" placeholder="Ставка">
                     <button class="toggle-btn" style="flex:0.5;" @click="crashBet = Math.floor(user.balance / 2)" :disabled="isCrashRunning">1/2</button>
@@ -675,6 +606,31 @@
                 </button>
             </div>
         </div>
+
+        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
+            <div class="modal-sheet" style="padding-bottom: 20px;">
+                <div class="close-btn" @click="isLadderOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
+                
+                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
+                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    </div>
+                    
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(248, 143, 34, 0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                            {{ lvl }}
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
+                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ПАНЕЛЬ НАВИГАЦИИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
@@ -693,6 +649,8 @@
             </div>
         </div>
 
+    </div> <!-- Конец #app -->
+
     <script>
         const { createApp } = Vue;
 
@@ -708,6 +666,7 @@
                     crashTarget: 1.00,
                     crashTimer: null,
                     crashWinAmount: 0,
+
                     currentTab: 'main', 
                     activeScrollSection: 'home',
                     sliderProgress: 0, 
@@ -715,11 +674,11 @@
                     totalSlides: 2, 
                     sliderTimer: null,
                     isLadderOpen: false,
+
                     activeQuests: [
                         { id: 1, title: 'Сделай 3 заказа', description: 'Закажите 3 любые жидкости в этом месяце.', progress: 1, target: 3, reward_xp: 150 },
                         { id: 2, title: 'Реферал', description: 'Пригласите друга по вашему промокоду.', progress: 0, target: 1, reward_xp: 300 }
                     ],    
-                    sliderTimer: null, 
                     
                     citiesList: ['Берлин', 'Мюнхен', 'Варшава', 'Гамбург', 'Франкфурт'],
                     currentCity: null, 
@@ -753,7 +712,7 @@
                     favorites: {}, // Хранилище лайкнутых товаров
                     user: { 
                         displayName: '', 
-                        avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S',
+                        avatar: 'https://placehold.co/100x100/151518/F88F22?text=S',
                         level: 4,
                         rankName: 'Свой человек',
                         xp: 450,
@@ -775,17 +734,16 @@
                     rouletteStrip: [],
 
                     products: [
-                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
+                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/F88F22?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
                         { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/1200x1600/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
                         { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/1200x1600/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
-                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
+                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/F88F22?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
                     ]
                 }
             },
             computed: {
                 filteredProducts() {
                     return this.products.filter(p => {
-                        // Если выбрана категория Избранное — показываем только лайкнутые товары
                         if (this.currentCategory === 'Избранное') {
                             return this.favorites[p.id] && p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
                         }
@@ -812,9 +770,8 @@
             mounted() {
                 this.generateNickname();
                 window.addEventListener('scroll', this.trackScrollPosition);
-                this.startSlider(); // <-- ВОТ ЭТА СТРОКА ОЖИВЛЯЕТ СЛАЙДЕР!
+                this.startSlider(); 
                 
-                // ЧТЕНИЕ ПАРАМЕТРОВ ОТ БОТА
                 const urlParams = new URLSearchParams(window.location.search);
                 const tab = urlParams.get('tab');
                 
@@ -825,7 +782,6 @@
                     this.currentTab = 'cart';
                 } else if (tab === 'profile') {
                     this.currentTab = 'profile';
-                    // Если просили рулетку, сразу открываем
                     setTimeout(() => this.openRoulette(), 600);
                 }
             },
@@ -835,20 +791,18 @@
             },
             methods: {
                 scrollToSection(section) {
-                    // Принудительно включаем главную ленту
-                    this.currentTab = 'main';
+                    if (this.currentTab !== 'main') {
+                        this.currentTab = 'main';
+                    }
                     
                     this.$nextTick(() => {
-                        // Даем микро-задержку, чтобы Vue успел отрисовать экран
                         setTimeout(() => {
                             if (section === 'home') {
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             } else if (section === 'catalog') {
                                 const el = document.getElementById('catalog-section');
                                 if (el) {
-                                    // Скроллим так, чтобы каталог был чуть ниже липкой кнопки города
-                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                 }
                             }
                         }, 50);
@@ -942,13 +896,11 @@
                 },
                 setDelivery(type) {
                     this.checkout.delivery = type;
-                    // Если выбрали доставку, а стояли "Наличные" — сбрасываем на "Карту"
                     if (type === 'courier' && this.checkout.payment === 'cash') {
                         this.checkout.payment = 'card';
                     }
                 },
                 setPayment(type) {
-                    // Если выбрана доставка курьером, запрещаем переключаться на наличные
                     if (this.checkout.delivery === 'courier' && type === 'cash') return;
                     this.checkout.payment = type;
                 },
@@ -972,7 +924,6 @@
                     const newName = prompt("Введите новый никнейм (до 15 символов):", this.user.displayName);
                     if (newName && newName.trim().length > 0 && newName.trim().length <= 15) {
                         this.user.displayName = newName.trim();
-                        // Меняем имя и в Лидерборде
                         let me = this.leaderboard.find(p => p.isMe);
                         if(me) me.name = this.user.displayName;
                         alert("Никнейм успешно изменен!");
@@ -988,45 +939,6 @@
                     this.isModalOpen = false;
                     setTimeout(() => { this.selectedProduct = null; }, 300);
                 },
-                scrollToSection(section) {
-                    if (this.currentTab !== 'main') this.currentTab = 'main';
-                    
-                    this.$nextTick(() => {
-                        if (section === 'home') {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else if (section === 'catalog') {
-                            const el = document.getElementById('catalog-section');
-                            if (el) {
-                                const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
-                                window.scrollTo({ top: y, behavior: 'smooth' });
-                            }
-                        }
-                    });
-                },
-                trackScrollPosition() {
-                    if (this.currentTab !== 'main') return;
-                    const el = document.getElementById('catalog-section');
-                    if (el) {
-                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-                            this.activeScrollSection = 'catalog';
-                        } else {
-                            this.activeScrollSection = 'home';
-                        }
-                    }
-                },
-                trackScrollPosition() {
-                    if (this.currentTab !== 'main') return;
-                    const el = document.getElementById('catalog-section');
-                    if (el) {
-                        // Если якорь каталога поднялся выше 40% экрана, считаем что мы в зоне Товаров
-                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-                            this.activeScrollSection = 'catalog';
-                        } else {
-                            this.activeScrollSection = 'home';
-                        }
-                    }
-                },
-
                 getRankName(lvl) {
                     const ranks = ['Новичок', 'Любитель', 'Вейпер', 'Свой человек', 'Проверенный', 'Знаток', 'Мастер', 'Эксперт', 'Элита', 'Амбассадор'];
                     return ranks[lvl - 1] || 'Секретный ранг';
@@ -1046,9 +958,7 @@
                     ];
                     return perks[lvl - 1] || 'Нет данных';
                 },
-                // === ЛОГИКА РУЛЕТКИ ===
                 setupRoulette() {
-                    // Шансы под 4+ уровень: Пусто(20%), 100 баллов(35%), 200 баллов(25%), Скидка 25%(13%), Товар недели(7%)
                     const pool = [
                         { name: 'Пусто', type: 'empty' }, { name: 'Пусто', type: 'empty' },
                         { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' },
@@ -1056,14 +966,12 @@
                         { name: 'Скидка 25%', type: 'rare' }, { name: 'Скидка 25%', type: 'rare' },
                         { name: 'Товар Недели', type: 'epic' }
                     ];
-                    // Генерируем ленту из 60 элементов
                     let strip = [];
                     for(let i = 0; i < 60; i++) {
                         strip.push(pool[Math.floor(Math.random() * pool.length)]);
                     }
                     this.rouletteStrip = strip;
                 },
-                // === LОГИКА CRASH ИГРЫ ===
                 openCrashGame() {
                     this.isCrashOpen = true;
                     this.crashMultiplier = 1.00;
@@ -1074,33 +982,26 @@
                 startCrash() {
                     if(this.crashBet <= 0 || this.crashBet > this.user.balance) return alert("Неверная сумма ставки!");
                     
-                    this.user.balance -= this.crashBet; // Снимаем ставку
+                    this.user.balance -= this.crashBet; 
                     this.isCrashRunning = true;
                     this.crashCrashed = false;
                     this.crashMultiplier = 1.00;
                     this.crashWinAmount = 0;
 
-                    // МАТЕМАТИКА КАЗИНО (House Edge ~6%)
-                    // 6% шанс, что крашнет сразу на 1.00x
                     if (Math.random() < 0.06) {
                         this.crashTarget = 1.00;
                     } else {
-                        // Математика честного краша (Inverse Transform): e = 1 / (1 - random)
-                        // Умножаем на 0.94, чтобы казино было в микро-плюсе
                         let r = Math.random();
                         this.crashTarget = (0.94 / (1 - r));
                         if(this.crashTarget < 1.01) this.crashTarget = 1.01;
                     }
 
-                    // Анимация роста
                     let tick = 0;
                     this.crashTimer = setInterval(() => {
                         tick += 1;
-                        // Функция роста (ускоряется со временем)
                         this.crashMultiplier = Math.pow(1.01, tick); 
 
                         if (this.crashMultiplier >= this.crashTarget) {
-                            // КРАШ!
                             this.crashMultiplier = this.crashTarget;
                             this.isCrashRunning = false;
                             this.crashCrashed = true;
@@ -1114,7 +1015,7 @@
                     this.isCrashRunning = false;
                     
                     this.crashWinAmount = Math.floor(this.crashBet * this.crashMultiplier);
-                    this.user.balance += this.crashWinAmount; // Выдаем выигрыш
+                    this.user.balance += this.crashWinAmount; 
                 },
                 openRoulette() {
                     if(!this.rouletteStrip.length) this.setupRoulette();
@@ -1131,29 +1032,21 @@
                     this.isSpinning = true;
                     this.rouletteResult = null;
                     
-                    // Элемент имеет ширину 80px + отступ 10px = 90px
                     const itemWidth = 90; 
-                    // Выбираем выигрышный индекс в конце ленты (от 40 до 50)
                     const winIndex = Math.floor(Math.random() * 10) + 40; 
-                    
-                    // Легкий рандомный сдвиг, чтобы указатель не стоял ровно по центру карточки
                     const randomJitter = Math.floor(Math.random() * 50) - 25; 
                     const targetOffset = -(winIndex * itemWidth) + randomJitter;
                     
-                    // Сбрасываем позицию
                     this.rouletteTransition = 'none';
                     this.rouletteOffset = 0;
                     
                     setTimeout(() => {
-                        // Запускаем анимацию кручения (4 секунды)
                         this.rouletteTransition = 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)';
                         this.rouletteOffset = targetOffset;
                         
                         setTimeout(() => {
                             this.isSpinning = false;
                             this.rouletteResult = this.rouletteStrip[winIndex];
-                            
-                            // Авто-начисление (визуальное)
                             if(this.rouletteResult.type !== 'empty' && this.rouletteResult.name.includes('Баллов')) {
                                 const pts = parseInt(this.rouletteResult.name);
                                 this.user.balance += pts;
@@ -1161,7 +1054,7 @@
                         }, 4000);
                     }, 50);
                 }
-            } // Конец блока methods
+            } 
         }).mount('#app')
     </script>
 </body>
