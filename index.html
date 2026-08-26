@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            --dark: #05060A; 
+            --dark: #05060A; /* Глубокий черный с каплей синего */
             --card-bg: rgba(21, 21, 24, 0.7); 
             --brand-red: #F88F22; 
             --brand-red-glow: rgba(248, 143, 34, 0.25);
@@ -53,7 +53,6 @@
         .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 30px 0; }
         .app-content { padding: 0 0 120px 0; }
 
-        /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
         .bottom-nav {
             position: fixed; bottom: 20px; left: 10%; width: 80%;
             background: rgba(10, 10, 12, 0.4);
@@ -74,7 +73,7 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
 
-        /* --- СЛАЙДЕР --- */
+        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
         .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 10px; margin-top: 10px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
         .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
@@ -162,7 +161,9 @@
     </style>
 </head>
 <body>
+    <!-- ГЛАВНЫЙ КОНТЕЙНЕР VUE (Он должен закрываться только перед <script>) -->
     <div id="app">
+        
         <div class="bg-animation-container"></div>
 
         <!-- СТАРТОВОЕ ОКНО -->
@@ -178,7 +179,7 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА (Всегда сверху справа) -->
+            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА -->
             <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 40%, transparent);">
                 <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: rgba(21, 21, 24, 0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                     {{ currentCity }}
@@ -197,17 +198,12 @@
                     
                     <!-- Несколько источников мягкого оранжевого освещения -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; background-color: #080605;">
-                        <!-- Центральный широкий блик -->
                         <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 350px; background: rgba(248, 143, 34, 0.12); filter: blur(80px); border-radius: 50%;"></div>
-                        <!-- Верхний левый блик -->
                         <div style="position: absolute; top: 15%; left: -10%; width: 250px; height: 250px; background: rgba(248, 143, 34, 0.08); filter: blur(60px); border-radius: 50%;"></div>
-                        <!-- Нижний правый блик -->
                         <div style="position: absolute; top: 65%; right: -10%; width: 250px; height: 250px; background: rgba(200, 80, 20, 0.08); filter: blur(60px); border-radius: 50%;"></div>
-                        <!-- Плавное затухание в черный снизу -->
                         <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #05060A, transparent);"></div>
                     </div>
                     
-                    <!-- УВЕЛИЧЕННЫЕ ОТСТУПЫ МЕЖДУ БЛОКАМИ -->
                     <h1 class="logo-font" style="margin-bottom: 110px; position: relative;">SOVENTO</h1>
 
                     <div style="text-align: center; margin-bottom: 80px; position: relative;">
@@ -330,7 +326,7 @@
                         </div>
                     </div>
 
-                </div> <!-- Конец Второго Блока -->
+                </div>
             </div>
 
             <!-- ЭКРАН 3: КОРЗИНА -->
@@ -385,7 +381,6 @@
                         <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="setDelivery('courier')">Доставка</div>
                     </div>
                     
-                    <!-- Поля для доставки курьером -->
                     <div v-if="checkout.delivery === 'courier'" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.address" placeholder="Адрес доставки (улица, дом / квартира)">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.zip" placeholder="Почтовый индекс (например: 69000)">
@@ -393,7 +388,6 @@
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
                     </div>
 
-                    <!-- Адрес самовывоза -->
                     <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
                         Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
                     </div>
@@ -413,17 +407,17 @@
                 </button>
             </div>
 
-            <!-- ЭКРАН 6: ПРОФИЛЬ (ГЕЙМИФИКАЦИЯ) -->
+            <!-- ЭКРАН 6: ПРОФИЛЬ И ИГРЫ -->
             <div v-if="currentTab === 'profile'" v-cloak>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 style="margin:0;">Профиль</h1>
                     <div style="background: rgba(255,60,0,0.1); border: 1px solid var(--brand-red); padding: 5px 15px; border-radius: 12px; font-weight: 900; color: var(--brand-red); font-size: 15px;">
-                        {{ user.balance }}
+                        {{ user.balance }} баллов
                     </div>
                 </div>
 
                 <!-- КАРТОЧКА ИГРОКА И ПОЛОСА XP -->
-                <div class="mock-card border-left-brand" style="margin-top: 0; cursor: pointer;" @click="isLadderOpen = true">
+                <div class="mock-card" style="margin-top: 0; padding: 20px; cursor: pointer; border-left: 4px solid var(--brand-red);" @click="isLadderOpen = true">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                         <div style="flex-grow: 1;">
@@ -451,6 +445,7 @@
                     </div>
                 </div>
 
+                <!-- КНОПКА РУЛЕТКИ -->
                 <div class="roulette-card" @click="openRoulette">
                     <div>
                         <h3 style="margin: 0 0 5px 0; font-size: 15px; color: var(--brand-red);">Ежедневная рулетка</h3>
@@ -470,7 +465,7 @@
 
                 <div style="margin-top: 25px;">
                     <h2 style="margin: 0 0 15px 0; font-size: 18px;">Активные квесты</h2>
-                    <div v-for="q in activeQuests" :key="q.id" class="mock-card border-left-brand" style="margin-top:0; margin-bottom:15px; padding:15px; overflow: hidden;">
+                    <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden; border-left: 4px solid var(--brand-red);">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div>
                                 <h3 style="margin:0 0 5px 0; font-size:15px;">{{ q.title }}</h3>
@@ -563,7 +558,6 @@
                 {{ isSpinning ? 'Крутим...' : 'Испытать удачу' }}
             </button>
 
-            <!-- Блок под выигрыш -->
             <div style="height: 60px; margin-top: 20px; text-align: center;">
                 <div v-if="rouletteResult" style="font-size: 13px; font-weight: bold; color: var(--text-muted); animation: fadeUp 0.5s;">
                     Ваш выигрыш:<br>
@@ -587,9 +581,7 @@
                     <div style="color: var(--brand-red); font-weight:bold;">{{ user.balance }} баллов</div>
                 </div>
 
-                <!-- ЭКРАН ИГРЫ -->
                 <div style="height: 200px; background: #111216; border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 20px; position:relative; overflow:hidden;">
-                    <!-- Анимация графика -->
                     <div v-if="isCrashRunning" style="position:absolute; bottom:0; left:0; width:100%; height:4px; background:#8B5CF6; opacity:0.5;"></div>
                     
                     <div style="font-size: 64px; font-weight: 900; line-height: 1;" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFF') }">
@@ -603,7 +595,6 @@
                     </div>
                 </div>
 
-                <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
                 <div style="display:flex; gap:10px; margin-bottom: 15px;">
                     <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 18px; font-weight:bold; text-align:center;" :disabled="isCrashRunning" placeholder="Ставка">
                     <button class="toggle-btn" style="flex:0.5;" @click="crashBet = Math.floor(user.balance / 2)" :disabled="isCrashRunning">1/2</button>
@@ -628,7 +619,6 @@
                 <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
                 
                 <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
-                    <!-- Линия прогресса -->
                     <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
                         <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
                     </div>
@@ -662,6 +652,8 @@
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
             </div>
         </div>
+
+    </div> <!-- Конец #app -->
 
     <script>
         const { createApp } = Vue;
@@ -756,6 +748,7 @@
             computed: {
                 filteredProducts() {
                     return this.products.filter(p => {
+                        // Если выбрана категория Избранное — показываем только лайкнутые товары
                         if (this.currentCategory === 'Избранное') {
                             return this.favorites[p.id] && p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
                         }
@@ -794,6 +787,7 @@
                     this.currentTab = 'cart';
                 } else if (tab === 'profile') {
                     this.currentTab = 'profile';
+                    // Если просили рулетку, сразу открываем
                     setTimeout(() => this.openRoulette(), 600);
                 }
             },
@@ -895,6 +889,12 @@
                 selectCity(city) {
                     this.currentCity = city;
                     this.isCityDropdownOpen = false;
+                    this.$nextTick(() => {
+                        const slider = document.getElementById('promo-slider');
+                        if (slider) {
+                            this.totalSlides = slider.children.length;
+                        }
+                    });
                 },
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
