@@ -547,7 +547,16 @@
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="font-size:26px; font-weight:900;">{{ selectedProduct.price.toFixed(2) }} €</div>
                     </div>
-                    <button class="modal-btn" @click="addToCart(selectedProduct)">Добавить в корзину</button>
+                    
+                    <!-- Умная кнопка корзины -->
+                    <button v-if="!cart[selectedProduct.id]" class="modal-btn" @click="addToCart(selectedProduct)">
+                        Добавить в корзину
+                    </button>
+                    <div v-else style="display:flex; justify-content:space-between; align-items:center; margin-top: 20px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div @click="changeCartCount(selectedProduct.id, -1)" style="width:44px; height:44px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:12px; font-size:20px; font-weight:bold; color:var(--text-main); cursor:pointer;">-</div>
+                        <div style="font-size:16px; font-weight:bold;">В корзине: {{ cart[selectedProduct.id].count }} шт.</div>
+                        <div @click="changeCartCount(selectedProduct.id, 1)" style="width:44px; height:44px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:12px; font-size:20px; font-weight:bold; color:white; cursor:pointer;">+</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -579,32 +588,6 @@
 
             <div style="margin-top: 10px; color: var(--text-muted); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;" @click="closeRoulette" v-if="!isSpinning">
                 Закрыть рулетку
-            </div>
-        </div>
-
-        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
-        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
-            <div class="modal-sheet" style="padding-bottom: 20px;">
-                <div class="close-btn" @click="isLadderOpen = false">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </div>
-                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
-                
-                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
-                    <!-- Линия прогресса -->
-                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
-                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
-                    </div>
-                    
-                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
-                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
-                            {{ lvl }}
-                        </div>
-                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
-                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -712,8 +695,7 @@
                     activeScrollSection: 'home',
                     sliderProgress: 0, 
                     activeSlide: 0,    
-                    totalSlides: 2, 
-                    sliderTimer: null,
+                    totalSlides: 2,
                     isLadderOpen: false,
                     activeQuests: [
                         { id: 1, title: 'Сделай 3 заказа', description: 'Закажите 3 любые жидкости в этом месяце.', progress: 1, target: 3, reward_xp: 150 },
@@ -992,27 +974,18 @@
                     if (this.currentTab !== 'main') this.currentTab = 'main';
                     
                     this.$nextTick(() => {
-                        if (section === 'home') {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else if (section === 'catalog') {
-                            const el = document.getElementById('catalog-section');
-                            if (el) {
-                                const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
-                                window.scrollTo({ top: y, behavior: 'smooth' });
+                        setTimeout(() => {
+                            if (section === 'home') {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else if (section === 'catalog') {
+                                const el = document.getElementById('catalog-section');
+                                if (el) {
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                }
                             }
-                        }
+                        }, 50);
                     });
-                },
-                trackScrollPosition() {
-                    if (this.currentTab !== 'main') return;
-                    const el = document.getElementById('catalog-section');
-                    if (el) {
-                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-                            this.activeScrollSection = 'catalog';
-                        } else {
-                            this.activeScrollSection = 'home';
-                        }
-                    }
                 },
                 trackScrollPosition() {
                     if (this.currentTab !== 'main') return;
