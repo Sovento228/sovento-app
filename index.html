@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SOVENTO Store</title>
-    <!-- Ультра-жирный шрифт (Стиль MOON SHOP) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- Ультра-жирный геометрический шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
@@ -35,12 +29,12 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ФИРМЕННЫЙ ШРИФТ ЛОГОТИПА (MOON SHOP STYLE) */
+        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (MOON SHOP) */
         .logo-font {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
-            font-size: 52px; /* Огромный размер */
-            letter-spacing: -3px; /* Сжатый интервал */
+            font-size: 56px;
+            letter-spacing: -3px;
             color: #FFFFFF;
             text-align: center;
             text-transform: uppercase;
@@ -60,7 +54,6 @@
         /* ИСПРАВЛЕНИЕ ЧЕРНОЙ ПОЛОСЫ СВЕРХУ */
         .app-content { padding: 0 0 120px 0; }
 
-        /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
         .bottom-nav {
             position: fixed; bottom: 20px; left: 10%; width: 80%;
             background: rgba(10, 10, 12, 0.4);
@@ -75,7 +68,7 @@
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
         .mock-card {
-            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-top: 20px;
+            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
             border: 1px solid var(--brand-red-glow); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(248, 143, 34, 0.05);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -89,218 +82,82 @@
         .slide-content { position: relative; z-index: 1; }
         .slider-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden; }
         .slider-progress-fill { height: 100%; background: var(--brand-red); transition: width 0.1s linear; }
-        
-        .slider-progress-bar {
-            height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden;
-        }
-        .slider-progress-fill {
-            height: 100%; background: var(--brand-red); transition: width 0.1s linear;
-        }
 
-        /* ПАНЕЛЬ НАВИГАЦИИ (ПЛАВАЮЩАЯ ПЛАШКА) */
-        .bottom-nav {
-            position: fixed; bottom: 20px; left: 10%; width: 80%;
-            background: rgba(10, 10, 12, 0.4);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--brand-red-glow); border-radius: 25px;
-            display: flex; justify-content: space-around; align-items: center;
-            padding: 12px 0; z-index: 1000; box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(255, 60, 0, 0.05);
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
-            color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-            transition: 0.3s; cursor: pointer;
-        }
-        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(255, 60, 0, 0.4); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-
-        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
-        .slider-container {
-            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-            gap: 15px; padding-bottom: 10px; margin-top: 20px; scrollbar-width: none;
-        }
-        .slider-container::-webkit-scrollbar { display: none; }
-        .slide {
-            flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 20px;
-            height: 25vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
-            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.03); position: relative; overflow: hidden;
-        }
-        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; z-index: 0; }
-        .slide-content { position: relative; z-index: 1; }
-
-        /* --- ВЫПАДАЮЩИЙ СПИСОК ГОРОДОВ --- */
-        .city-btn {
-            background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; 
-            font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
-            border: 1px solid rgba(255,255,255,0.1); color: var(--text-main);
-        }
-        .city-dropdown {
-            position: absolute; top: 60px; right: 20px; background: var(--card-bg); 
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 180px;
-            max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            z-index: 2000; padding: 10px 0;
-        }
+        .city-btn { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); }
+        .city-dropdown { position: absolute; top: 60px; right: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 2000; padding: 10px 0; }
         .city-dropdown-item { padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .city-dropdown-item:hover, .city-dropdown-item.active { background: rgba(255, 60, 0, 0.1); color: var(--brand-red); }
 
-        /* --- ИСПРАВЛЕННОЕ СТАРТОВОЕ ОКНО ВЫБОРА ГОРОДА --- */
-        .onboarding-modal {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--glass);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            z-index: 9999; display: flex; justify-content: center; align-items: center; 
-            padding: 20px; box-sizing: border-box; 
-        }
-        .onboarding-content {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
-            padding: 30px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            box-sizing: border-box; margin: 0;
-        }
+        .onboarding-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .onboarding-content { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); box-sizing: border-box; margin: 0; }
 
-        /* --- ПОИСК И КАТЕГОРИИ --- */
         .search-container { margin-bottom: 15px; margin-top: 10px; }
-        .search-input {
-            width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
-            padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; transition: 0.3s;
-        }
-        .search-input:focus { border-color: rgba(255,60,0,0.5); }
+        .search-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; transition: 0.3s; }
+        .search-input:focus { border-color: rgba(248, 143, 34, 0.5); }
         
         .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .cat-pill {
-            background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); padding: 8px 18px; border-radius: 20px;
-            font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted);
-        }
-        .cat-pill.active { background: var(--brand-red); color: white; border-color: var(--brand-red); box-shadow: 0 4px 15px rgba(255,60,0,0.3); }
+        .cat-pill { background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
+        .cat-pill.active { background: var(--brand-red); color: white; border-color: var(--brand-red); box-shadow: 0 4px 15px rgba(248, 143, 34, 0.3); }
 
-        /* --- СЕТКА ТОВАРОВ (2 В РЯД) --- */
         .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .product-card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px;
-            overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
-        }
+        .product-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
         .product-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #1A1A1E; }
         .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
         .product-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
         .product-price { font-size: 16px; font-weight: 900; color: var(--text-main); }
 
-        /* --- МОДАЛЬНОЕ ОКНО ТОВАРА (ШТОРКА СНИЗУ) --- */
-        .modal-overlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; background:var(--glass); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 3000; 
-            display:flex; flex-direction:column; justify-content:flex-end; 
-            opacity:0; pointer-events:none; transition:0.3s;
-        }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 3000; display:flex; flex-direction:column; justify-content:flex-end; opacity:0; pointer-events:none; transition:0.3s; }
         .modal-overlay.active { opacity:1; pointer-events:all; }
-        .modal-sheet { 
-            background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; 
-            box-sizing:border-box; transform:translateY(100%); transition:0.3s; 
-            border-top:1px solid rgba(255,255,255,0.1); position: relative;
-        }
+        .modal-sheet { background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; box-sizing:border-box; transform:translateY(100%); transition:0.3s; border-top:1px solid rgba(255,255,255,0.1); position: relative; }
         .modal-overlay.active .modal-sheet { transform:translateY(0); }
-        .close-btn { 
-            position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); 
-            width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;
-        }
+        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .close-btn svg { width: 16px; height: 16px; fill: var(--text-main); }
         .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
-        .modal-btn { 
-            width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; 
-            border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer;
-        }
+        .modal-btn { width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer; }
 
-        /* --- ТОСТ-УВЕДОМЛЕНИЕ (Успешное добавление) --- */
-        .toast-notification {
-            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%);
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
-            padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer;
-            opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
-        }
-        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .toast-progress {
-            position: absolute; bottom: 0; left: 0; height: 3px; background: var(--brand-red); transition: width 0.03s linear;
-        }
+        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; pointer-events: none; }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--brand-red); transition: width 0.03s linear; }
 
-        /* --- ЭКРАН ОФОРМЛЕНИЯ ЗАКАЗА --- */
-        .checkout-input {
-            width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
-            padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px;
-        }
-        .checkout-input:focus { border-color: rgba(255,60,0,0.5); }
+        .checkout-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px; }
+        .checkout-input:focus { border-color: rgba(248, 143, 34, 0.5); }
         .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
-        .toggle-btn {
-            flex: 1; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
-            padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        .toggle-btn.active { background: rgba(255,60,0,0.15); border-color: var(--brand-red); color: var(--brand-red); }
-        .toggle-btn.disabled { opacity: 0.4; pointer-events: none; } /* Стиль для недоступной оплаты наличными */
+        .toggle-btn { flex: 1; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .toggle-btn.active { background: rgba(248, 143, 34, 0.15); border-color: var(--brand-red); color: var(--brand-red); }
+        .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
         
-        /* Исправление нажатий на нижнюю панель */
-        .bottom-nav { z-index: 2500 !important; }
-        
-        /* Исправление скрытия Тоста (чтобы прозрачный слой не перекрывал клики) */
-        .toast-notification { pointer-events: none; }
-        .toast-notification.show { pointer-events: all; }
-
-        /* --- АНИМАЦИИ (Плавное появление) --- */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Применяем плавный выезд ко всем экранам при их загрузке */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .app-content > div[v-cloak] { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        /* --- ПРЫГАЮЩИЙ БЕЙДЖ КОРЗИНЫ --- */
-        @keyframes badgeBounce {
-            0%, 90%, 100% { transform: translateY(0); }
-            95% { transform: translateY(-4px); }
-        }
+        @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
         .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
-        /* --- КНОПКА ИЗБРАННОЕ НА КАРТОЧКЕ --- */
-        .fav-btn {
-            position: absolute; top: 10px; right: 10px; width: 32px; height: 32px;
-            background: rgba(10,10,12,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; z-index: 10; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1);
-        }
+        .fav-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(10,10,12,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .fav-btn svg { width: 18px; height: 18px; fill: transparent; stroke: var(--text-main); stroke-width: 2px; transition: 0.2s; }
         .fav-btn.active svg { fill: var(--brand-red); stroke: var(--brand-red); }
 
-        /* --- ЗАМЕТНАЯ КНОПКА НАЗАД В ОФОРМЛЕНИИ --- */
-        .checkout-back-btn {
-            width: 44px; height: 44px; background: rgba(255,60,0,0.1); border-radius: 12px;
-            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;
-            border: 1px solid rgba(255,60,0,0.3); color: var(--brand-red);
-        }
-        .checkout-back-btn:active { background: rgba(255,60,0,0.2); transform: scale(0.95); }
-        /* --- ПРОФИЛЬ И ГЕЙМИФИКАЦИЯ --- */
+        .checkout-back-btn { width: 44px; height: 44px; background: rgba(248, 143, 34, 0.1); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(248, 143, 34, 0.3); color: var(--brand-red); }
+        .checkout-back-btn:active { background: rgba(248, 143, 34, 0.2); transform: scale(0.95); }
+        
         .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #ff7b00); transition: width 0.5s ease-out; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
         .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         
-        .roulette-card { background: linear-gradient(135deg, rgba(255,60,0,0.1), rgba(255,60,0,0.02)); border: 1px solid rgba(255,60,0,0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .roulette-card { background: linear-gradient(135deg, rgba(248, 143, 34, 0.1), rgba(248, 143, 34, 0.02)); border: 1px solid rgba(248, 143, 34, 0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
         .roulette-card:active { transform: scale(0.98); }
         
         .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .leaderboard-item:last-child { border-bottom: none; }
-        .rank-1 { font-size: 20px; text-align: center; }
-        .rank-2 { font-size: 20px; text-align: center; }
-        .rank-3 { font-size: 20px; text-align: center; }
-        .rank-other { font-size: 14px; font-weight: 900; color: var(--text-muted); text-align: center; width: 24px; }
-        /* --- СТРОГИЙ ЛИДЕРБОРД --- */
         .rank-num { font-size: 14px; font-weight: 900; color: var(--text-muted); text-align: center; width: 28px; }
         .rank-top { color: var(--text-main); font-size: 16px; }
 
-        /* --- АНИМИРОВАННАЯ РУЛЕТКА --- */
         .roulette-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--glass); z-index: 4000; display:flex; flex-direction:column; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:0.3s; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); }
         .roulette-overlay.active { opacity:1; pointer-events:all; }
         .roulette-window { width: 90%; max-width: 350px; height: 110px; background: #111113; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 25px; display: flex; align-items: center; box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), inset -20px 0 30px rgba(0,0,0,0.9); }
-        .roulette-strip { display: flex; align-items: center; gap: 10px; padding-left: calc(50% - 45px); /* Центруем первый элемент (90px/2) */ }
+        .roulette-strip { display: flex; align-items: center; gap: 10px; padding-left: calc(50% - 45px); }
         .roulette-item { width: 80px; height: 80px; flex-shrink: 0; background: #1A1A1E; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-main); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 5px; box-sizing: border-box; }
         .roulette-item.rare { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.1); }
-        .roulette-item.epic { border-color: var(--brand-red); color: var(--brand-red); box-shadow: 0 0 15px rgba(255,60,0,0.2); }
+        .roulette-item.epic { border-color: var(--brand-red); color: var(--brand-red); box-shadow: 0 0 15px rgba(248, 143, 34, 0.2); }
         .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: var(--brand-red); z-index: 10; border-radius: 2px; box-shadow: 0 0 10px var(--brand-red); }
     </style>
 </head>
@@ -322,7 +179,7 @@
 
         <div class="app-content" v-if="currentCity">
             
-            <!-- ЛИПКАЯ КНОПКА ГОРОДА (Всегда на виду сверху) -->
+            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА (Всегда сверху справа) -->
             <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 40%, transparent);">
                 <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: rgba(21, 21, 24, 0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                     {{ currentCity }}
@@ -333,33 +190,33 @@
                 </div>
             </div>
 
-            <!-- ЕДИНЫЙ ЭКРАН (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
+            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
             <div v-show="currentTab === 'main'" v-cloak>
                 
-                <!-- ПЕРВЫЙ ЭКРАН (100vh): С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
+                <!-- ПЕРВЫЙ ЭКРАН (100vh) С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
                 <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
-                    <!-- Усиленное оранжевое свечение (строго до разделителя) -->
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 40%, rgba(248, 143, 34, 0.45) 0%, rgba(248, 143, 34, 0.15) 40%, transparent 75%); z-index: -1; pointer-events: none;"></div>
+                    <!-- Оранжевое свечение только внутри этого блока -->
+                    <div style="position: absolute; top: -10%; left: 0; width: 100%; height: 110%; background: radial-gradient(circle at 50% 30%, rgba(248, 143, 34, 0.4) 0%, rgba(248, 143, 34, 0.15) 40%, transparent 75%); z-index: -1; pointer-events: none;"></div>
                     
-                    <h1 class="logo-font" style="margin-bottom: 45px;">SOVENTO</h1>
+                    <h1 class="logo-font" style="margin-bottom: 70px;">SOVENTO</h1>
 
-                    <!-- БЛОК "О НАС" (Белый текст, без рамок) -->
-                    <div style="text-align: center; margin-bottom: 35px;">
-                        <h3 style="margin:0 0 10px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                    <!-- БЛОК "О НАС" -->
+                    <div style="text-align: center; margin-bottom: 50px;">
+                        <h3 style="margin:0 0 15px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
                         <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
                     </div>
                     
-                    <!-- ПРЕИМУЩЕСТВА (Суженные иконки) -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <!-- ПРЕИМУЩЕСТВА -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                            <svg style="width:22px; height:22px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:8px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                            <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
-                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
+                            <svg style="width:28px; height:28px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:12px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
+                            <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
                         </div>
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                            <div style="font-size: 22px; color: #FFFFFF; font-weight: 900; margin-bottom: 8px; line-height: 1;">€</div>
-                            <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
-                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
+                            <div style="font-size: 28px; color: #FFFFFF; font-weight: 900; margin-bottom: 12px; line-height: 1;">€</div>
+                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
+                            <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
                         </div>
                     </div>
                 </div>
@@ -370,8 +227,8 @@
                 <div style="padding: 0 20px;">
                     
                     <!-- СЛАЙДЕР НОВИНОК -->
-                    <div style="margin-bottom: 35px;">
-                        <h3 style="margin: 0 0 5px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
                         <div class="slider-container" id="promo-slider" @scroll="handleScroll">
                             <div class="slide">
                                 <img src="https://placehold.co/600x400/111216/F88F22?text=NEW" class="slide-bg">
@@ -390,13 +247,10 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Ползунок слайдера -->
                         <div class="slider-progress-bar">
                             <div class="slider-progress-fill" :style="{ width: sliderProgress + '%' }"></div>
                         </div>
                     </div>
-
-                    <div class="divider"></div>
 
                     <!-- КАТАЛОГ ТОВАРОВ (Якорь) -->
                     <div id="catalog-section" style="padding-top: 10px;">
@@ -426,7 +280,8 @@
                                     <div class="product-title">{{ item.name }}</div>
                                     <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
                                         <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                        <div v-if="!cart[item.id]" @click.stop="openProduct(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                        <!-- ИСПРАВЛЕНА КНОПКА ДОБАВЛЕНИЯ В КОРЗИНУ -->
+                                        <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(248, 143, 34, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
                                             <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
                                         </div>
                                         <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
@@ -440,6 +295,34 @@
                         </div>
                         <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
                     </div>
+
+                    <div class="divider"></div>
+
+                    <!-- ЛИДЕРБОРД (В самом низу ленты) -->
+                    <div style="padding-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Лидерборд Сезона</h3>
+                            <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
+                        </div>
+                        <div v-for="(player, idx) in leaderboard" :key="idx" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 15px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
+                                        {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
+                                    </span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 16px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
+                                <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- Конец Второго Блока -->
+            </div>
 
                     <div class="divider"></div>
 
@@ -588,6 +471,14 @@
                 </div>
 
                 <div class="roulette-card" @click="openRoulette">
+                <!-- КНОПКА CRASH -->
+                <div class="roulette-card" style="margin-top: 15px; border-left-color: #8B5CF6; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02));" @click="openCrashGame">
+                    <div>
+                        <h3 style="margin: 0 0 5px 0; font-size: 15px; color: #8B5CF6;">Краш-игра (Бета)</h3>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Умножь свои баллы. Вовремя забери!</p>
+                    </div>
+                    <div style="font-size: 24px;"></div>
+                </div>    
                     <div>
                         <h3 style="margin: 0 0 5px 0; font-size: 15px; color: var(--brand-red);">Ежедневная рулетка</h3>
                         <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Крути колесо и забирай скидки</p>
@@ -756,17 +647,56 @@
                 </div>
             </div>
         </div>
+        <!-- МОДАЛКА CRASH ИГРЫ -->
+        <div class="modal-overlay" :class="{ active: isCrashOpen }" @click.self="isCrashOpen = false; if(isCrashRunning) cashOut();">
+            <div class="modal-sheet" style="padding-bottom: 20px; background: #0A0A0C;">
+                <div class="close-btn" @click="if(!isCrashRunning) isCrashOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-size:22px; font-weight:900; color:#8B5CF6;">SOVENTO CRASH</h2>
+                    <div style="color: var(--brand-red); font-weight:bold;">{{ user.balance }} баллов</div>
+                </div>
 
+                <!-- ЭКРАН ИГРЫ -->
+                <div style="height: 200px; background: #111216; border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 20px; position:relative; overflow:hidden;">
+                    <!-- Анимация графика -->
+                    <div v-if="isCrashRunning" style="position:absolute; bottom:0; left:0; width:100%; height:4px; background:#8B5CF6; opacity:0.5;"></div>
+                    
+                    <div style="font-size: 64px; font-weight: 900; line-height: 1;" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFF') }">
+                        {{ crashMultiplier.toFixed(2) }}x
+                    </div>
+                    <div v-if="crashCrashed" style="color: #EF3E2C; font-weight: bold; margin-top: 10px; font-size: 18px; text-transform: uppercase;">
+                        Crashed!
+                    </div>
+                    <div v-if="crashWinAmount > 0" style="color: #4ade80; font-weight: bold; margin-top: 10px; font-size: 18px;">
+                        Вы забрали: +{{ crashWinAmount }}
+                    </div>
+                </div>
+
+                <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
+                <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                    <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 18px; font-weight:bold; text-align:center;" :disabled="isCrashRunning" placeholder="Ставка">
+                    <button class="toggle-btn" style="flex:0.5;" @click="crashBet = Math.floor(user.balance / 2)" :disabled="isCrashRunning">1/2</button>
+                    <button class="toggle-btn" style="flex:0.5;" @click="crashBet = user.balance" :disabled="isCrashRunning">ALL</button>
+                </div>
+
+                <button style="width: 100%; padding: 18px; border: none; border-radius: 16px; font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase; transition: 0.2s;"
+                        :style="isCrashRunning ? 'background:#F59E0B; color:white;' : 'background:#8B5CF6; color:white;'"
+                        @click="isCrashRunning ? cashOut() : startCrash()"
+                        :disabled="crashCrashed && isCrashRunning">
+                    {{ isCrashRunning ? 'ЗАБРАТЬ ' + Math.floor(crashBet * crashMultiplier) : 'ИГРАТЬ' }}
+                </button>
+            </div>
+        </div>
         <!-- ПАНЕЛЬ НАВИГАЦИИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
-            <!-- Умные якоря -->
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
             </div>
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'catalog' }" @click="scrollToSection('catalog')">
                 <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
             </div>
-            
             <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> 
                 Корзина
@@ -783,6 +713,15 @@
         createApp({
             data() {
                 return {
+                    // Crash Game
+                    isCrashOpen: false,
+                    isCrashRunning: false,
+                    crashCrashed: false,
+                    crashMultiplier: 1.00,
+                    crashBet: 10,
+                    crashTarget: 1.00,
+                    crashTimer: null,
+                    crashWinAmount: 0,
                     currentTab: 'main', 
                     activeScrollSection: 'home',
                     sliderProgress: 0, 
@@ -887,7 +826,21 @@
             mounted() {
                 this.generateNickname();
                 window.addEventListener('scroll', this.trackScrollPosition);
-                this.startSlider(); 
+                
+                // ЧТЕНИЕ ПАРАМЕТРОВ ОТ БОТА
+                const urlParams = new URLSearchParams(window.location.search);
+                const tab = urlParams.get('tab');
+                
+                if (tab === 'catalog') {
+                    this.currentTab = 'main';
+                    setTimeout(() => this.scrollToSection('catalog'), 500);
+                } else if (tab === 'cart') {
+                    this.currentTab = 'cart';
+                } else if (tab === 'profile') {
+                    this.currentTab = 'profile';
+                    // Если просили рулетку, сразу открываем
+                    setTimeout(() => this.openRoulette(), 600);
+                }
             },
             beforeUnmount() {
                 window.removeEventListener('scroll', this.trackScrollPosition);
@@ -1029,12 +982,22 @@
                         } else if (section === 'catalog') {
                             const el = document.getElementById('catalog-section');
                             if (el) {
-                                // Плавный скролл к началу каталога (чуть выше строки поиска)
                                 const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
                                 window.scrollTo({ top: y, behavior: 'smooth' });
                             }
                         }
                     });
+                },
+                trackScrollPosition() {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                            this.activeScrollSection = 'catalog';
+                        } else {
+                            this.activeScrollSection = 'home';
+                        }
+                    }
                 },
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
@@ -1112,6 +1075,59 @@
                         strip.push(pool[Math.floor(Math.random() * pool.length)]);
                     }
                     this.rouletteStrip = strip;
+                },
+                // === LОГИКА CRASH ИГРЫ ===
+                openCrashGame() {
+                    this.isCrashOpen = true;
+                    this.crashMultiplier = 1.00;
+                    this.crashCrashed = false;
+                    this.crashWinAmount = 0;
+                    if(this.crashBet > this.user.balance) this.crashBet = this.user.balance;
+                },
+                startCrash() {
+                    if(this.crashBet <= 0 || this.crashBet > this.user.balance) return alert("Неверная сумма ставки!");
+                    
+                    this.user.balance -= this.crashBet; // Снимаем ставку
+                    this.isCrashRunning = true;
+                    this.crashCrashed = false;
+                    this.crashMultiplier = 1.00;
+                    this.crashWinAmount = 0;
+
+                    // МАТЕМАТИКА КАЗИНО (House Edge ~6%)
+                    // 6% шанс, что крашнет сразу на 1.00x
+                    if (Math.random() < 0.06) {
+                        this.crashTarget = 1.00;
+                    } else {
+                        // Математика честного краша (Inverse Transform): e = 1 / (1 - random)
+                        // Умножаем на 0.94, чтобы казино было в микро-плюсе
+                        let r = Math.random();
+                        this.crashTarget = (0.94 / (1 - r));
+                        if(this.crashTarget < 1.01) this.crashTarget = 1.01;
+                    }
+
+                    // Анимация роста
+                    let tick = 0;
+                    this.crashTimer = setInterval(() => {
+                        tick += 1;
+                        // Функция роста (ускоряется со временем)
+                        this.crashMultiplier = Math.pow(1.01, tick); 
+
+                        if (this.crashMultiplier >= this.crashTarget) {
+                            // КРАШ!
+                            this.crashMultiplier = this.crashTarget;
+                            this.isCrashRunning = false;
+                            this.crashCrashed = true;
+                            clearInterval(this.crashTimer);
+                        }
+                    }, 50);
+                },
+                cashOut() {
+                    if(!this.isCrashRunning) return;
+                    clearInterval(this.crashTimer);
+                    this.isCrashRunning = false;
+                    
+                    this.crashWinAmount = Math.floor(this.crashBet * this.crashMultiplier);
+                    this.user.balance += this.crashWinAmount; // Выдаем выигрыш
                 },
                 openRoulette() {
                     if(!this.rouletteStrip.length) this.setupRoulette();
