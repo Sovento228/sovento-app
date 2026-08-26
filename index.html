@@ -418,7 +418,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 style="margin:0;">Профиль</h1>
                     <!-- Баланс баллов просто цифрой -->
-                    <div style="background: rgba(255,60,0,0.1); border: 1px solid var(--brand-red); padding: 5px 15px; border-radius: 12px; font-weight: 900; color: var(--brand-red); font-size: 15px;">
+                    <div style="background: rgba(248, 143, 34, 0.1); border: 1px solid var(--brand-red); padding: 5px 15px; border-radius: 12px; font-weight: 900; color: var(--brand-red); font-size: 15px;">
                         {{ user.balance }}
                     </div>
                 </div>
@@ -429,7 +429,7 @@
                         <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
                         <div style="flex-grow: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <!-- Карандашик возле имени (Теперь нажимается) -->
+                                <!-- Карандашик возле имени -->
                                 <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
                                     {{ user.displayName }}
                                     <div @click.stop="changeName" style="background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px; display: flex; cursor: pointer;">
@@ -467,16 +467,11 @@
                     <div class="roulette-card" style="margin:0; border-left-color: #8B5CF6; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02)); border: 1px solid rgba(139,92,246,0.3); flex-direction:column; align-items:flex-start; padding: 15px;" @click="openCrashGame">
                         <div style="font-size: 26px; margin-bottom: 8px;">🚀</div>
                         <h3 style="margin: 0 0 5px 0; font-size: 14px; color: #8B5CF6;">Краш-игра</h3>
-                        <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">Умножай<br>баллы (Бета)</p>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">Умножай<br>баллы</p>
                     </div>
-                </div>   
-                    <div>
-                        <h3 style="margin: 0 0 5px 0; font-size: 15px; color: var(--brand-red);">Ежедневная рулетка</h3>
-                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Крути колесо и забирай скидки</p>
-                    </div>
-                    <svg style="width: 28px; height: 28px; fill: var(--brand-red);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zM14.28 16H13v-3c0-.55-.45-1-1-1H9V9l3.5-3.5c1.45.69 2.59 1.83 3.28 3.28L13 11.53c0 .55.45 1 1 1h2.82c.12.47.18.97.18 1.47 0 2.91-1.72 5.42-4.22 6.5l1.5-1.5z"/></svg>
                 </div>
 
+                <!-- АКТИВНЫЕ КВЕСТЫ (Теперь они ВНУТРИ профиля) -->
                 <div style="margin-top: 25px;">
                     <h2 style="margin: 0 0 15px 0; font-size: 18px;">Активные квесты</h2>
                     <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden;">
@@ -487,7 +482,7 @@
                                 <p style="margin:0; font-size:12px; color:var(--text-muted);">{{ q.description }}</p>
                             </div>
                             <div style="text-align: right;">
-                                <span style="background:rgba(255,60,0,0.1); color:var(--brand-red); font-weight:800; font-size:11px; padding:4px 8px; border-radius:6px;">+{{ q.reward_xp }} XP</span>
+                                <span style="background:rgba(248, 143, 34, 0.1); color:var(--brand-red); font-weight:800; font-size:11px; padding:4px 8px; border-radius:6px;">+{{ q.reward_xp }} XP</span>
                             </div>
                         </div>
                         <div style="margin-top: 15px; display:flex; align-items:center; gap:10px;">
@@ -499,7 +494,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> <!-- КОНЕЦ ЭКРАНА ПРОФИЛЯ -->
             
         </div> <!-- Конец app-content -->
 
