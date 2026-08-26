@@ -1,560 +1,1168 @@
-import os
-import sys
-import asyncio
-import logging
-import hmac
-import hashlib
-
-from urllib.parse import parse_qsl
-from fastapi import HTTPException
-from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command, CommandStart, CommandObject
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
-from sqlalchemy import Column, Integer, String, Float, Boolean, JSON, BigInteger
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
-
-from app.models import Base, Product, Courier, Quest, Promocode, Order, Supply, Role, City, TgUser
-from sqlalchemy.future import select
-from sqlalchemy.exc import IntegrityError
-
-# ==========================================
-# БЛОК 1: НАСТРОЙКИ И ПОДКЛЮЧЕНИЯ
-# ==========================================
-load_dotenv('/var/www/sovento_store/.env')
-
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-DATABASE_URL = os.getenv("DATABASE_URL")
-OWNER_IDS = [int(id_str) for id_str in os.getenv("OWNER_IDS", "").split(",") if id_str]
-
-app = FastAPI(title="SOVENTO CORE API", version="1.0")
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
-
-engine = create_async_engine(DATABASE_URL, echo=False)
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-# ==========================================
-# БЛОК 2: ЖИЗНЕННЫЙ ЦИКЛ ПРИЛОЖЕНИЯ
-# ==========================================
-@app.on_event("startup")
-async def on_startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all) 
-    
-    asyncio.create_task(dp.start_polling(bot))
-    logging.warning("🚀 SOVENTO API и Бот успешно запущены!")
-
-    # Включаем кнопку "Miniapp" слева от поля ввода текста
-    web_app_url = "https://sovento228.github.io/sovento-app/index.html"
-    await bot.set_chat_menu_button(
-        menu_button=types.MenuButtonWebApp(text="Miniapp", web_app=types.WebAppInfo(url=web_app_url))
-    )
-
-@app.on_event("shutdown")
-async def on_shutdown():
-    await bot.session.close()
-
-# ==========================================
-# БЛОК 3: ЛОГИКА TELEGRAM БОТА
-# ==========================================
-@dp.message(CommandStart())
-async def cmd_start(message: types.Message, command: CommandObject):
-    user_id = message.from_user.id
-    ref_id_raw = command.args # Считываем реферальный ID
-    referrer_id = None
-    if ref_id_raw and ref_id_raw.isdigit():
-        referrer_id = int(ref_id_raw)
-
-    async with async_session() as session:
-        # 1. ЗАПИСЫВАЕМ ПОЛЬЗОВАТЕЛЯ И ЕГО РЕФЕРЕРА
-        result = await session.execute(select(TgUser).where(TgUser.tg_id == user_id))
-        existing_user = result.scalar_one_or_none()
-        if not existing_user:
-            new_user = TgUser(
-                tg_id=user_id, 
-                name=message.from_user.full_name, 
-                username=f"@{message.from_user.username}" if message.from_user.username else "Нет юзернейма",
-                referrer_id=referrer_id if referrer_id != user_id else None
-            )
-            session.add(new_user)
-            try:
-                await session.commit()
-            except IntegrityError:
-                await session.rollback()
-
-        # 2. ПРОВЕРЯЕМ ПРАВА
-        res_courier = await session.execute(select(Courier).where(Courier.tg_id == user_id))
-        is_courier = res_courier.scalar_one_or_none()
-        
-        res_role = await session.execute(select(Role).where(Role.tg_id == user_id))
-        user_role = res_role.scalar_one_or_none()
-
-    crm_url = "http://45.131.215.135:8000/crm"
-    courier_url = "http://45.131.215.135:8000/courier"
-    web_app_url = "https://sovento228.github.io/sovento-app/index.html"
-    
-    is_owner = user_id in OWNER_IDS or (user_role and user_role.role in ["Владелец", "Совладелец", "Зритель"])
-    
-    # 3. ФОРМИРУЕМ НИЖНЮЮ КЛАВИАТУРУ (Только HTTPS ссылки!)
-    kb_list = [
-        [KeyboardButton(text="🛍 ТОВАРЫ", web_app=WebAppInfo(url=f"{web_app_url}?tab=catalog"))],
-        [
-            KeyboardButton(text="🛒 КОРЗИНА", web_app=WebAppInfo(url=f"{web_app_url}?tab=cart")),
-            KeyboardButton(text="🎁 ПРОФИЛЬ И ИГРЫ", web_app=WebAppInfo(url=f"{web_app_url}?tab=profile"))
-        ],
-        [KeyboardButton(text="🔗 Реферальная система")]
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard=kb_list, resize_keyboard=True)
-
-    # 4. ФОРМИРУЕМ ИНЛАЙН КЛАВИАТУРУ ДЛЯ РАБОТНИКОВ (Сюда можно HTTP)
-    inline_btns = []
-    if is_owner:
-        inline_btns.append([types.InlineKeyboardButton(text="⚙️ ERP (Система Управления)", url=crm_url)])
-    if is_courier:
-        inline_btns.append([types.InlineKeyboardButton(text="🚚 Панель Курьера", url=courier_url)])
-    
-    inline_markup = types.InlineKeyboardMarkup(inline_keyboard=inline_btns) if inline_btns else None
-
-    # ОТПРАВЛЯЕМ СООБЩЕНИЯ
-    await message.answer(
-        f"🔥 <b>Добро пожаловать в SOVENTO!</b>\n\nИспользуйте меню внизу для покупок:",
-        reply_markup=reply_markup, 
-        parse_mode="HTML"
-    )
-    if inline_markup:
-        await message.answer("🔑 <b>Ваши рабочие доступы:</b>", reply_markup=inline_markup, parse_mode="HTML")
-        
-# Обработчик кнопки Реферальной системы
-@dp.message(lambda message: message.text == "🔗 Реферальная система")
-async def process_referral_btn(message: types.Message):
-    bot_info = await bot.get_me()
-    ref_link = f"https://t.me/{bot_info.username}?start={message.from_user.id}"
-    await message.answer(
-        f"🤝 <b>Твоя реферальная программа</b>\n\n"
-        f"Приглашай друзей и получай баллы на счет за их первые заказы!\n\n"
-        f"🔗 Твоя ссылка:\n<code>{ref_link}</code>",
-        parse_mode="HTML"
-    )
-
-# ==========================================
-# БЕСПАРОЛЬНАЯ АВТОРИЗАЦИЯ TELEGRAM WEBAPP
-# ==========================================
-def validate_webapp_data(init_data: str) -> bool:
-    """Функция проверки криптографической подписи Telegram"""
-    try:
-        parsed_data = dict(parse_qsl(init_data))
-        hash_val = parsed_data.pop('hash')
-        data_check_string = "\n".join(f"{k}={v}" for k, v in sorted(parsed_data.items()))
-        secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode(), hashlib.sha256).digest()
-        calculated_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-        return calculated_hash == hash_val
-    except Exception:
-        return False
-
-@app.post("/api/auth/verify")
-async def verify_user(request: Request):
-    """Маршрут беспарольной авторизации Telegram WebApp"""
-    try:
-        data = await request.json()
-        user_id_raw = data.get("user_id")
-        if not user_id_raw:
-            raise HTTPException(status_code=400, detail="User ID missing")
-        
-        user_id = int(user_id_raw) # Принудительное приведение к числу
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid data format")
-
-    async with async_session() as session:
-        # Проверяем роль
-        res_role = await session.execute(select(Role).where(Role.tg_id == user_id))
-        user_role = res_role.scalar_one_or_none()
-        
-        # Ищем курьера
-        res_courier = await session.execute(select(Courier).where(Courier.tg_id == user_id))
-        courier_obj = res_courier.scalar_one_or_none()
-
-        is_owner = user_id in OWNER_IDS or (user_role and user_role.role in ["Владелец", "Совладелец"])
-        is_viewer = bool(user_role and user_role.role == "Зритель")
-
-        return {
-            "status": "ok",
-            "is_owner": is_owner,
-            "is_viewer": is_viewer,
-            "is_courier": bool(courier_obj),
-            "courier_data": row_to_dict(courier_obj) if courier_obj else None
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVENTO Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        :root {
+            --dark: #05060A; /* Глубокий черный с каплей синего */
+            --card-bg: rgba(21, 21, 24, 0.7); 
+            --brand-red: #F88F22; 
+            --brand-red-glow: rgba(248, 143, 34, 0.25);
+            --text-main: #FFFFFF;
+            --text-muted: #888888;
+            --glass: rgba(5, 6, 10, 0.85);
         }
 
-# ==========================================
-# СЕКРЕТНАЯ КОМАНДА ДЛЯ ПОЛНОГО СБРОСА БАЗЫ
-# ==========================================
-@dp.message(Command("hard_reset_db"))
-async def cmd_hard_reset_db(message: types.Message):
-    if message.from_user.id in OWNER_IDS:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-            await conn.run_sync(Base.metadata.create_all)
-        await message.answer("✅ База данных физически удалена и пересоздана!\nВсе колонки обновлены до BigInteger. Теперь бот переварит любые ID.")
-    else:
-        await message.answer("❌ У вас нет прав на эту операцию.")
-    
-# ==========================================
-# Вспомогательная функция (перевод из БД в JSON)
-# ==========================================
-def row_to_dict(row):
-    d = dict(row.__dict__)
-    d.pop('_sa_instance_state', None)
-    return d
+        body { 
+            margin: 0; padding: 0; 
+            background-color: var(--dark); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            overflow-x: hidden; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent;
+        }
 
-# ==========================================
-# БЛОК 4: API ДЛЯ ЧТЕНИЯ ИЗ БАЗЫ ДАННЫХ
-# ==========================================
-@app.get("/api/crm/products")
-async def get_products():
-    async with async_session() as session:
-        result = await session.execute(select(Product).order_by(Product.id.desc()))
-        return [row_to_dict(p) for p in result.scalars().all()]
+        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (MOON SHOP) */
+        .logo-font {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 56px;
+            letter-spacing: -3px;
+            color: #FFFFFF;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+        }
 
-@app.get("/api/crm/couriers")
-async def get_couriers():
-    async with async_session() as session:
-        result = await session.execute(select(Courier).order_by(Courier.id.desc()))
-        return [row_to_dict(c) for c in result.scalars().all()]
+        /* ТОТАЛЬНО ЧЕРНЫЙ ФОН */
+        .bg-animation-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-color: var(--dark);
+            pointer-events: none;
+        }
 
-@app.get("/api/crm/quests")
-async def get_quests():
-    async with async_session() as session:
-        result = await session.execute(select(Quest).order_by(Quest.id.desc()))
-        return [row_to_dict(q) for q in result.scalars().all()]
+        /* РАЗДЕЛИТЕЛЬ */
+        .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 30px 0; }
 
-@app.get("/api/crm/promocodes")
-async def get_promocodes():
-    async with async_session() as session:
-        result = await session.execute(select(Promocode).order_by(Promocode.id.desc()))
-        return [row_to_dict(p) for p in result.scalars().all()]
+        /* ИСПРАВЛЕНИЕ ЧЕРНОЙ ПОЛОСЫ СВЕРХУ */
+        .app-content { padding: 0 0 120px 0; }
 
-@app.get("/api/crm/orders")
-async def get_orders():
-    async with async_session() as session:
-        result = await session.execute(select(Order).order_by(Order.id.desc()))
-        return [row_to_dict(o) for o in result.scalars().all()]
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 10%; width: 80%;
+            background: rgba(10, 10, 12, 0.4);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--brand-red-glow); border-radius: 25px;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; z-index: 2500; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(248, 143, 34, 0.05);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; cursor: pointer; }
+        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(248, 143, 34, 0.4); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
-@app.get("/api/crm/supplies")
-async def get_supplies():
-    async with async_session() as session:
-        result = await session.execute(select(Supply).order_by(Supply.id.desc()))
-        return [row_to_dict(s) for s in result.scalars().all()]
+        .mock-card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            border: 1px solid var(--brand-red-glow); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(248, 143, 34, 0.05);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
 
-@app.get("/api/crm/cities")
-async def get_cities():
-    async with async_session() as session:
-        result = await session.execute(select(City).order_by(City.id.asc()))
-        return [row_to_dict(c) for c in result.scalars().all()]
+        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
+        .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 10px; margin-top: 10px; scrollbar-width: none; }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; z-index: 0; }
+        .slide-content { position: relative; z-index: 1; }
+        .slider-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+        .slider-progress-fill { height: 100%; background: var(--brand-red); transition: width 0.1s linear; }
 
-@app.get("/api/crm/roles")
-async def get_roles():
-    async with async_session() as session:
-        result = await session.execute(select(Role).order_by(Role.id.desc()))
-        return [row_to_dict(r) for r in result.scalars().all()]
+        .city-btn { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); }
+        .city-dropdown { position: absolute; top: 60px; right: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 2000; padding: 10px 0; }
+        .city-dropdown-item { padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .city-dropdown-item:hover, .city-dropdown-item.active { background: rgba(255, 60, 0, 0.1); color: var(--brand-red); }
 
-@app.get("/api/crm/stats")
-async def get_crm_stats():
-    return {
-        "total_revenue": 0, "total_profit": 0, "courier_costs": 0, "active_couriers": 0,
-        "courier_performance": { "names": [], "orders": [] }
-    }
+        .onboarding-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .onboarding-content { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); box-sizing: border-box; margin: 0; }
 
-@app.get("/api/crm/tg_users")
-async def get_tg_users():
-    async with async_session() as session:
-        result = await session.execute(select(TgUser).order_by(TgUser.id.desc()))
-        return [row_to_dict(u) for u in result.scalars().all()]
+        .search-container { margin-bottom: 15px; margin-top: 10px; }
+        .search-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; transition: 0.3s; }
+        .search-input:focus { border-color: rgba(248, 143, 34, 0.5); }
+        
+        .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .cat-pill { background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
+        .cat-pill.active { background: var(--brand-red); color: white; border-color: var(--brand-red); box-shadow: 0 4px 15px rgba(248, 143, 34, 0.3); }
 
-# ==========================================
-# БЛОК 4.1: СБРОС БАЗЫ ДАННЫХ (КНОПКА ВЛАДЕЛЬЦА)
-# ==========================================
-@app.post("/api/crm/wipe_db")
-async def wipe_database():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-    return {"status": "success", "message": "База данных полностью обнулена!"}
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .product-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
+        .product-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #1A1A1E; }
+        .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .product-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+        .product-price { font-size: 16px; font-weight: 900; color: var(--text-main); }
 
-# ==========================================
-# БЛОК 4.3: ЗАПИСЬ И УДАЛЕНИЕ В БАЗУ ДАННЫХ
-# ==========================================
-@app.post("/api/crm/products")
-async def create_product(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        data.pop("id", None)
-        new_prod = Product(**data)
-        session.add(new_prod)
-        await session.commit()
-        return {"status": "ok"}
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 3000; display:flex; flex-direction:column; justify-content:flex-end; opacity:0; pointer-events:none; transition:0.3s; }
+        .modal-overlay.active { opacity:1; pointer-events:all; }
+        .modal-sheet { background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; box-sizing:border-box; transform:translateY(100%); transition:0.3s; border-top:1px solid rgba(255,255,255,0.1); position: relative; }
+        .modal-overlay.active .modal-sheet { transform:translateY(0); }
+        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .close-btn svg { width: 16px; height: 16px; fill: var(--text-main); }
+        .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
+        .modal-btn { width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer; }
 
-@app.post("/api/crm/products/update")
-async def update_product(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        prod = await session.get(Product, data["id"])
-        if prod:
-            for key in ["name", "description", "buy_price", "price", "stock", "city_stocks", "status", "sale_end"]:
-                if key in data:
-                    setattr(prod, key, data[key])
-        await session.commit()
-        return {"status": "ok"}
+        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; pointer-events: none; }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--brand-red); transition: width 0.03s linear; }
 
-@app.delete("/api/crm/products/{product_id}")
-async def delete_product(product_id: int):
-    async with async_session() as session:
-        prod = await session.get(Product, product_id)
-        if prod:
-            await session.delete(prod)
-            await session.commit()
-        return {"status": "ok"}
+        .checkout-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px; }
+        .checkout-input:focus { border-color: rgba(248, 143, 34, 0.5); }
+        .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
+        .toggle-btn { flex: 1; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .toggle-btn.active { background: rgba(248, 143, 34, 0.15); border-color: var(--brand-red); color: var(--brand-red); }
+        .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
+        
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .app-content > div[v-cloak] { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
+        .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
-@app.post("/api/crm/cities")
-async def create_city(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        data.pop("id", None)
-        new_city = City(**data)
-        session.add(new_city)
-        await session.commit()
-        return {"status": "ok"}
+        .fav-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(10,10,12,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .fav-btn svg { width: 18px; height: 18px; fill: transparent; stroke: var(--text-main); stroke-width: 2px; transition: 0.2s; }
+        .fav-btn.active svg { fill: var(--brand-red); stroke: var(--brand-red); }
 
-@app.post("/api/crm/cities/update")
-async def update_city(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        city = await session.get(City, data["id"])
-        if city:
-            city.name = data.get("name", city.name)
-            city.tg_group_id = data.get("tg_group_id", city.tg_group_id)
-        await session.commit()
-        return {"status": "ok"}
+        .checkout-back-btn { width: 44px; height: 44px; background: rgba(248, 143, 34, 0.1); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(248, 143, 34, 0.3); color: var(--brand-red); }
+        .checkout-back-btn:active { background: rgba(248, 143, 34, 0.2); transform: scale(0.95); }
+        
+        .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
+        .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        
+        .roulette-card { background: linear-gradient(135deg, rgba(248, 143, 34, 0.1), rgba(248, 143, 34, 0.02)); border: 1px solid rgba(248, 143, 34, 0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .roulette-card:active { transform: scale(0.98); }
+        
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-item:last-child { border-bottom: none; }
+        .rank-num { font-size: 14px; font-weight: 900; color: var(--text-muted); text-align: center; width: 28px; }
+        .rank-top { color: var(--text-main); font-size: 16px; }
 
-@app.delete("/api/crm/cities/{city_id}")
-async def delete_city(city_id: int):
-    async with async_session() as session:
-        city = await session.get(City, city_id)
-        if city:
-            await session.delete(city)
-            await session.commit()
-        return {"status": "ok"}
+        .roulette-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--glass); z-index: 4000; display:flex; flex-direction:column; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:0.3s; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); }
+        .roulette-overlay.active { opacity:1; pointer-events:all; }
+        .roulette-window { width: 90%; max-width: 350px; height: 110px; background: #111113; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 25px; display: flex; align-items: center; box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), inset -20px 0 30px rgba(0,0,0,0.9); }
+        .roulette-strip { display: flex; align-items: center; gap: 10px; padding-left: calc(50% - 45px); }
+        .roulette-item { width: 80px; height: 80px; flex-shrink: 0; background: #1A1A1E; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-main); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 5px; box-sizing: border-box; }
+        .roulette-item.rare { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.1); }
+        .roulette-item.epic { border-color: var(--brand-red); color: var(--brand-red); box-shadow: 0 0 15px rgba(248, 143, 34, 0.2); }
+        .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: var(--brand-red); z-index: 10; border-radius: 2px; box-shadow: 0 0 10px var(--brand-red); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Фон со встречными строками -->
+        <div class="bg-animation-container"><div class="bg-left"></div><div class="bg-right"></div></div>
 
-@app.post("/api/crm/couriers")
-async def hire_courier(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        new_c = Courier(
-            tg_id=data.get("tg_id"), name=data.get("name"), username=data.get("username"),
-            city="Не указан", hire_date=data.get("hire_date")
-        )
-        session.add(new_c)
-        await session.commit()
-        return {"status": "ok"}
+        <!-- СТАРТОВОЕ ОКНО -->
+        <div class="onboarding-modal" v-if="!currentCity">
+            <div class="onboarding-content">
+                <h2 style="margin:0 0 10px 0; font-size:20px; font-weight:800;">Выберите ваш город</h2>
+                <p style="margin:0 0 20px 0; font-size:13px; color:var(--text-muted);">Чтобы мы показали актуальный склад</p>
+                <div style="display:flex; flex-direction:column; gap:10px; max-height:200px; overflow-y:auto;">
+                    <div class="city-btn" style="justify-content:center;" v-for="city in citiesList" @click="selectCity(city)">{{ city }}</div>
+                </div>
+            </div>
+        </div>
 
-@app.post("/api/crm/couriers/update")
-async def update_couriers(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        for c_data in data:
-            c = await session.get(Courier, c_data["id"])
-            if c:
-                for key in ["name", "city", "level", "xp", "norm", "delivered", "extra_items", "mentor_refs", "fine", "bonus", "held_cash", "mentor_id", "hire_date"]:
-                    if key in c_data:
-                        setattr(c, key, c_data[key])
-        await session.commit()
-        return {"status": "ok"}
+        <div class="app-content" v-if="currentCity">
+            
+            <!-- ЛИПКАЯ КНОПКА ВЫБОРА ГОРОДА (Всегда сверху справа) -->
+            <div style="position: sticky; top: 0; z-index: 1100; padding: 15px 20px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, var(--dark) 40%, transparent);">
+                <div class="city-btn" v-show="currentTab === 'main'" @click="isCityDropdownOpen = !isCityDropdownOpen" style="background: rgba(21, 21, 24, 0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    {{ currentCity }}
+                    <svg style="width:12px; height:12px; fill:currentColor;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
+                </div>
+                <div class="city-dropdown" v-if="isCityDropdownOpen" style="top: 60px; right: 20px;">
+                    <div class="city-dropdown-item" :class="{active: currentCity === city}" v-for="city in citiesList" @click="selectCity(city)">{{ city }}</div>
+                </div>
+            </div>
 
-@app.delete("/api/crm/couriers/{tg_id}")
-async def fire_courier(tg_id: int):
-    async with async_session() as session:
-        result = await session.execute(select(Courier).where(Courier.tg_id == tg_id))
-        c = result.scalar_one_or_none()
-        if c:
-            await session.delete(c)
-            await session.commit()
-        return {"status": "ok"}
+            <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
+            <div v-show="currentTab === 'main'" v-cloak>
+                
+<!-- ПЕРВЫЙ ЭКРАН (100vh): ТЕПЛЫЙ АМБИЕНТНЫЙ СВЕТ И ВОЗДУХ -->
+                <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
+                    
+                    <!-- Несколько источников мягкого, неконтрастного оранжевого освещения -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; background-color: #080605;">
+                        <!-- Центральный широкий блик (основной теплый свет) -->
+                        <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 350px; background: rgba(248, 143, 34, 0.12); filter: blur(80px); border-radius: 50%;"></div>
+                        <!-- Верхний левый блик -->
+                        <div style="position: absolute; top: 15%; left: -10%; width: 250px; height: 250px; background: rgba(248, 143, 34, 0.08); filter: blur(60px); border-radius: 50%;"></div>
+                        <!-- Нижний правый блик -->
+                        <div style="position: absolute; top: 65%; right: -10%; width: 250px; height: 250px; background: rgba(200, 80, 20, 0.08); filter: blur(60px); border-radius: 50%;"></div>
+                        <!-- Плавное затухание в черный снизу, чтобы скрыть переход -->
+                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #05060A, transparent);"></div>
+                    </div>
+                    
+                    <!-- УВЕЛИЧЕННЫЕ ОТСТУПЫ МЕЖДУ БЛОКАМИ -->
+                    <h1 class="logo-font" style="margin-bottom: 110px; position: relative;">SOVENTO</h1>
 
-@app.post("/api/crm/roles")
-async def add_role(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        role = Role(tg_id=data.get("tg_id"), name=data.get("name"), username=data.get("username"), role=data.get("role"))
-        session.add(role)
-        await session.commit()
-        return {"status": "ok"}
+                    <div style="text-align: center; margin-bottom: 80px; position: relative;">
+                        <h3 style="margin:0 0 15px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                        <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; position: relative;">
+                        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                            <svg style="width:28px; height:28px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:12px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
+                        </div>
+                        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                            <div style="font-size: 28px; color: #FFFFFF; font-weight: 900; margin-bottom: 12px; line-height: 1;">€</div>
+                            <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
+                        </div>
+                    </div>
+                </div>
 
-@app.delete("/api/crm/roles/{tg_id}")
-async def remove_role(tg_id: int):
-    async with async_session() as session:
-        result = await session.execute(select(Role).where(Role.tg_id == tg_id))
-        r = result.scalar_one_or_none()
-        if r:
-            await session.delete(r)
-            await session.commit()
-        return {"status": "ok"}
+                <div class="divider"></div>
 
-@app.post("/api/crm/quests")
-async def save_quest(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        if "reward_value" in data:
-            data["reward_value"] = str(data["reward_value"])
-        q_id = data.get("id")
-        if q_id:
-            q = await session.get(Quest, q_id)
-            if q:
-                for key, value in data.items():
-                    setattr(q, key, value)
-        else:
-            data.pop("id", None)
-            new_q = Quest(**data)
-            session.add(new_q)
-        await session.commit()
-        return {"status": "ok"}
+                <!-- ВТОРОЙ БЛОК: НОВОСТИ, ЛИДЕРБОРД И КАТАЛОГ -->
+                <div style="padding: 0 20px;">
+                    
+                    <!-- СЛАЙДЕР НОВИНОК -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                        <div class="slider-container" id="promo-slider" @scroll="handleScroll">
+                            <div class="slide">
+                                <img src="https://placehold.co/600x400/111216/F88F22?text=NEW" class="slide-bg">
+                                <div class="slide-content">
+                                    <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
+                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Уже доступны во всех городах!</p>
+                                </div>
+                            </div>
+                            <div class="slide">
+                                <img src="https://placehold.co/600x400/111216/4ade80?text=SALE" class="slide-bg">
+                                <div class="slide-content">
+                                    <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
+                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">-15% на все жидкости до 20:00.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slider-progress-bar">
+                            <div class="slider-progress-fill" :style="{ width: sliderProgress + '%' }"></div>
+                        </div>
+                    </div>
 
-@app.delete("/api/crm/quests/{quest_id}")
-async def delete_quest(quest_id: int):
-    async with async_session() as session:
-        q = await session.get(Quest, quest_id)
-        if q:
-            await session.delete(q)
-            await session.commit()
-        return {"status": "ok"}
+                    <div class="divider"></div>
 
-@app.post("/api/crm/promocodes")
-async def add_promocode(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        promo = Promocode(
-            code=data.get("code"), 
-            type=data.get("type"), 
-            value=float(data.get("value", 0)),
-            usage_limit=int(data.get("usage_limit") or 0),
-            expiration_date=data.get("expiration_date"),
-            is_courier_bound=data.get("is_courier_bound", False),
-            courier_id=data.get("courier_id")
-        )
-        session.add(promo)
-        await session.commit()
-        return {"status": "ok"}
+                    <!-- ЛИДЕРБОРД (Один, сразу после новостей) -->
+                    <div style="padding-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Лидерборд Сезона</h3>
+                            <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
+                        </div>
+                        <div v-for="(player, idx) in leaderboard" :key="idx" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 15px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
+                                        {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
+                                    </span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 16px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
+                                <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
+                            </div>
+                        </div>
+                    </div>
 
-@app.delete("/api/crm/promocodes/{promo_id}")
-async def delete_promocode(promo_id: int):
-    async with async_session() as session:
-        promo = await session.get(Promocode, promo_id)
-        if promo:
-            await session.delete(promo)
-            await session.commit()
-        return {"status": "ok"}
+                    <div class="divider"></div>
 
-@app.post("/api/crm/orders/update")
-async def update_order(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        order = await session.get(Order, data["id"])
-        if order:
-            for key in ["created_at", "closed_at", "payment_method", "items", "is_owner", "courier", "courier_cut", "profit"]:
-                if key in data:
-                    setattr(order, key, data[key])
-        await session.commit()
-        return {"status": "ok"}
+                    <!-- КАТАЛОГ ТОВАРОВ -->
+                    <div id="catalog-section" style="padding-top: 10px; padding-bottom: 40px;">
+                        <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
+                            Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
+                        </div>
 
-@app.delete("/api/crm/orders/{order_id}")
-async def delete_order_db(order_id: int):
-    async with async_session() as session:
-        order = await session.get(Order, order_id)
-        if order:
-            await session.delete(order)
-            await session.commit()
-        return {"status": "ok"}
+                        <div class="search-container" style="margin-top: 0;">
+                            <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                        </div>
 
-@app.post("/api/crm/supplies")
-async def add_supply(request: Request):
-    data = await request.json()
-    async with async_session() as session:
-        sup = Supply(date=data.get("date"), items_count=data.get("items_count"), logistics_cost=data.get("logistics_cost"), total_cost=data.get("total_cost"), items=data.get("items"))
-        session.add(sup)
-        await session.commit()
-        return {"status": "ok"}
+                        <div class="category-scroll">
+                            <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                            <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                        </div>
 
-@app.delete("/api/crm/supplies/{supply_id}")
-async def delete_supply(supply_id: int):
-    async with async_session() as session:
-        sup = await session.get(Supply, supply_id)
-        if sup:
-            await session.delete(sup)
-            await session.commit()
-        return {"status": "ok"}
+                        <div class="products-grid">
+                            <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
+                                <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                </div>
+                                <img :src="item.photo" class="product-img">
+                                <div class="product-info">
+                                    <div class="product-title">{{ item.name }}</div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
+                                        <div class="product-price">{{ item.price.toFixed(2) }} €</div>
+                                        <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                            <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
+                                        </div>
+                                        <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
+                                            <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
+                                            <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
+                                            <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                    </div>
 
-# ==========================================
-# БЛОК 5: ВЫДАЧА ИНТЕРФЕЙСА CRM
-# ==========================================
-@app.get("/crm", response_class=HTMLResponse)
-async def serve_crm_dashboard():
-    file_path = "/var/www/sovento_store/app/frontend/dashboard.html"
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            return file.read()
-    except FileNotFoundError:
-        return "<h1>Ошибка: Файл дизайна dashboard.html не найден!</h1>"
+                </div> <!-- Конец Второго Блока (Новости, Лидерборд, Каталог) -->
+            </div> <!-- Конец ЕДИНОЙ ЛЕНТЫ main -->
 
-# ==========================================
-# БЛОК 5.1: ВЫДАЧА ИНТЕРФЕЙСА КУРЬЕРА
-# ==========================================
-@app.get("/courier", response_class=HTMLResponse)
-async def serve_courier_dashboard():
-    file_path = "/var/www/sovento_store/app/frontend/courier.html"
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            return file.read()
-    except FileNotFoundError:
-        return "<h1>Ошибка: Файл courier.html не найден!</h1>"
+            <!-- ЭКРАН 3: КОРЗИНА -->
+            <div v-if="currentTab === 'cart'" v-cloak>
+                <h1 style="margin-top:0;">Корзина</h1>
+                <div class="mock-card" v-if="Object.keys(cart).length === 0">
+                    <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваша корзина пуста</p>
+                </div>
+                <div v-else>
+                    <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center;" v-for="(item, id) in cart" :key="id">
+                        <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:cover; background:#1A1A1E;">
+                        <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
+                            <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
+                            <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 4px;">
+                                    <div @click="changeCartCount(id, -1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; cursor: pointer;">-</div>
+                                    <div style="font-size:14px; font-weight:bold; min-width: 16px; text-align:center;">{{ item.count }}</div>
+                                    <div @click="changeCartCount(id, 1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white; cursor: pointer;">+</div>
+                                </div>
+                                <div @click="removeCartItem(id)" style="width:34px; height:34px; background:rgba(255,60,0,0.1); border-radius:10px; display:flex; justify-content:center; align-items:center; color:var(--brand-red); cursor: pointer;">
+                                    <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mock-card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:16px; font-weight:800; color:var(--text-muted);">Итого:</span>
+                        <span style="font-size:22px; font-weight:900; color:var(--text-main);">{{ cartTotal }} €</span>
+                    </div>
+                    <button @click="currentTab = 'checkout'" style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
+                        Перейти к оформлению
+                    </button>
+                </div>
+            </div>
 
-# ==========================================
-# ВЫДАЧА ИНТЕРФЕЙСА МАГАЗИНА (MINI APP)
-# ==========================================
-@app.get("/shop", response_class=HTMLResponse)
-async def serve_miniapp():
-    try:
-        with open("/var/www/sovento_store/app/frontend/miniapp.html", "r", encoding="utf-8") as file:
-            return file.read()
-    except FileNotFoundError:
-        return "<h1 style='color:white; background:#111; text-align:center; padding:50px;'>Магазин на этапе сборки...</h1>"
+            <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
+            <div v-if="currentTab === 'checkout'" v-cloak>
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
+                    <div class="checkout-back-btn" @click="currentTab = 'cart'">
+                        <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                    </div>
+                    <h1 style="margin:0; font-size: 22px;">Оформление</h1>
+                </div>
+                
+                <div class="mock-card" style="padding: 20px; margin-top: 0;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ получения</h3>
+                    <div class="toggle-group">
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'pickup'}" @click="setDelivery('pickup')">Самовывоз</div>
+                        <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="setDelivery('courier')">Доставка</div>
+                    </div>
+                    
+                    <!-- Поля для доставки курьером -->
+                    <div v-if="checkout.delivery === 'courier'" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.address" placeholder="Адрес доставки (улица, дом / квартира)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.zip" placeholder="Почтовый индекс (например: 69000)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.city" placeholder="Город (например: Leipzig)">
+                        <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
+                    </div>
 
-# ==========================================
-# БЛОК 5.2: PWA MANIFEST (ДЛЯ УСТАНОВКИ НА ТЕЛЕФОН)
-# ==========================================
-@app.get("/manifest.json")
-async def get_manifest():
-    return {
-        "name": "SOVENTO System",
-        "short_name": "SOVENTO",
-        "start_url": "/crm",
-        "display": "standalone",
-        "background_color": "#0F0F12",
-        "theme_color": "#EF3E2C",
-        "icons": [
-            {
-                "src": "https://placehold.co/192x192/EF3E2C/FFF?text=S",
-                "sizes": "192x192",
-                "type": "image/png"
+                    <!-- Адрес самовывоза -->
+                    <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
+                        Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
+                    </div>
+                </div>
+
+                <div class="mock-card" style="padding: 20px;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
+                    <div class="toggle-group">
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="setPayment('cash')">Наличные</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="setPayment('card')">Картой</div>
+                        <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="setPayment('crypto')">Криптой</div>
+                    </div>
+                </div>
+
+                <button style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
+                    Подтвердить заказ ({{ cartTotal }} €)
+                </button>
+            </div>
+
+            <!-- ЭКРАН 6: ПРОФИЛЬ (ГЕЙМИФИКАЦИЯ) -->
+            <div v-if="currentTab === 'profile'" v-cloak>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 style="margin:0;">Профиль</h1>
+                    <!-- Баланс баллов просто цифрой -->
+                    <div style="background: rgba(248, 143, 34, 0.1); border: 1px solid var(--brand-red); padding: 5px 15px; border-radius: 12px; font-weight: 900; color: var(--brand-red); font-size: 15px;">
+                        {{ user.balance }}
+                    </div>
+                </div>
+
+                <!-- КАРТОЧКА ИГРОКА И ПОЛОСА XP -->
+                <div class="mock-card" style="margin-top: 0; padding: 20px; cursor: pointer;" @click="isLadderOpen = true">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img :src="user.avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--brand-red);">
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <!-- Карандашик возле имени -->
+                                <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                                    {{ user.displayName }}
+                                    <div @click.stop="changeName" style="background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px; display: flex; cursor: pointer;">
+                                        <svg style="width: 14px; height: 14px; fill: var(--text-muted);" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 10.18l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                    </div>
+                                </div>
+                                <span class="level-badge">Lvl {{ user.level }}</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Ранг: <b style="color:var(--text-main);">{{ user.rankName }}</b></div>
+                            <div class="xp-bar-container">
+                                <div class="xp-bar-fill" :style="{ width: (user.xp / user.maxXp * 100) + '%' }"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">
+                                <span>{{ user.xp }} XP</span>
+                                <span>{{ user.maxXp }} XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 15px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+                        Нажми, чтобы увидеть карьерную лестницу
+                    </div>
+                </div>
+
+                <!-- МИНИ-ИГРЫ (Рулетка и Crash 50/50) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    
+                    <!-- Рулетка -->
+                    <div class="roulette-card" style="margin:0; flex-direction:column; align-items:flex-start; padding: 15px;" @click="openRoulette">
+                        <svg style="width: 28px; height: 28px; fill: var(--brand-red); margin-bottom: 10px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zM14.28 16H13v-3c0-.55-.45-1-1-1H9V9l3.5-3.5c1.45.69 2.59 1.83 3.28 3.28L13 11.53c0 .55.45 1 1 1h2.82c.12.47.18.97.18 1.47 0 2.91-1.72 5.42-4.22 6.5l1.5-1.5z"/></svg>
+                        <h3 style="margin: 0 0 5px 0; font-size: 14px; color: var(--brand-red);">Рулетка</h3>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">Ежедневные<br>подарки</p>
+                    </div>
+
+                    <!-- CRASH -->
+                    <div class="roulette-card" style="margin:0; border-left-color: #8B5CF6; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02)); border: 1px solid rgba(139,92,246,0.3); flex-direction:column; align-items:flex-start; padding: 15px;" @click="openCrashGame">
+                        <div style="font-size: 26px; margin-bottom: 8px;">🚀</div>
+                        <h3 style="margin: 0 0 5px 0; font-size: 14px; color: #8B5CF6;">Краш-игра</h3>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">Умножай<br>баллы</p>
+                    </div>
+                </div>
+
+                <!-- АКТИВНЫЕ КВЕСТЫ (Теперь они ВНУТРИ профиля) -->
+                <div style="margin-top: 25px;">
+                    <h2 style="margin: 0 0 15px 0; font-size: 18px;">Активные квесты</h2>
+                    <div v-for="q in activeQuests" :key="q.id" class="mock-card" style="margin-top:0; margin-bottom:15px; padding:15px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top:0; left:0; width:4px; height:100%; background: var(--brand-red);"></div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h3 style="margin:0 0 5px 0; font-size:15px;">{{ q.title }}</h3>
+                                <p style="margin:0; font-size:12px; color:var(--text-muted);">{{ q.description }}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="background:rgba(248, 143, 34, 0.1); color:var(--brand-red); font-weight:800; font-size:11px; padding:4px 8px; border-radius:6px;">+{{ q.reward_xp }} XP</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; display:flex; align-items:center; gap:10px;">
+                            <div style="flex-grow:1; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                                <div style="height:100%; background:var(--brand-red);" :style="{ width: (q.progress / q.target * 100) + '%' }"></div>
+                            </div>
+                            <span style="font-size:11px; font-weight:bold; color:var(--text-muted);">{{ q.progress }} / {{ q.target }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- КОНЕЦ ЭКРАНА ПРОФИЛЯ -->
+            
+        </div> <!-- Конец app-content -->
+
+        <!-- ТОСТ-УВЕДОМЛЕНИЕ (Избранное) -->
+        <div class="toast-notification" :class="{ show: isFavToastVisible }" @click="currentTab = 'catalog'; currentCategory = 'Избранное'; isFavToastVisible = false;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:24px; height:24px; background:rgba(255,60,0,0.2); border-radius:50%; display:flex; justify-content:center; align-items:center;">
+                        <svg style="width:12px; height:12px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:14px; font-weight:800; color:var(--text-main);">Добавлено в избранное</span>
+                        <span style="font-size:11px; font-weight:600; color:var(--text-muted);">Найти: Товары → Избранное</span>
+                    </div>
+                </div>
+                <svg style="width:20px; height:20px; fill:var(--text-muted);" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </div>
+            <div class="toast-progress" :style="{ width: favToastProgress + '%' }"></div>
+        </div>
+
+        <!-- ТОСТ-УВЕДОМЛЕНИЕ (Добавление в корзину) -->
+        <div class="toast-notification" :class="{ show: isToastVisible }" @click="currentTab = 'cart'; isToastVisible = false; isModalOpen = false;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:24px; height:24px; background:rgba(255,60,0,0.2); border-radius:50%; display:flex; justify-content:center; align-items:center;">
+                        <svg style="width:12px; height:12px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:14px; font-weight:800; color:var(--text-main);">Товар в корзине</span>
+                        <span style="font-size:11px; font-weight:600; color:var(--brand-red);">Нажмите, чтобы перейти</span>
+                    </div>
+                </div>
+                <svg style="width:20px; height:20px; fill:var(--text-muted);" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </div>
+            <div class="toast-progress" :style="{ width: toastProgress + '%' }"></div>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО ТОВАРА (Выезжает снизу) -->
+        <div class="modal-overlay" :class="{ active: isModalOpen }" @click.self="closeProduct">
+            <div class="modal-sheet">
+                <div v-if="selectedProduct">
+                    <div class="close-btn" @click="closeProduct">
+                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </div>
+                    <img :src="selectedProduct.photo" class="modal-img-full">
+                    <div style="color:var(--brand-red); font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:5px;">{{ selectedProduct.category }}</div>
+                    <h2 style="margin:0 0 10px 0; font-size:22px; font-weight:800; line-height:1.2;">{{ selectedProduct.name }}</h2>
+                    <p style="margin:0 0 20px 0; font-size:14px; color:var(--text-muted); line-height:1.5;">{{ selectedProduct.desc }}</p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:26px; font-weight:900;">{{ selectedProduct.price.toFixed(2) }} €</div>
+                    </div>
+                    <button class="modal-btn" @click="addToCart(selectedProduct)">Добавить в корзину</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- АНИМИРОВАННАЯ РУЛЕТКА -->
+        <div class="roulette-overlay" :class="{ active: isRouletteOpen }" @click.self="closeRoulette">
+            <h2 style="margin:0 0 25px 0; font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing: 1px;">Колесо Фортуны</h2>
+            
+            <div class="roulette-window">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-strip" :style="{ transform: 'translateX(' + rouletteOffset + 'px)', transition: rouletteTransition }">
+                    <div v-for="(item, i) in rouletteStrip" :key="i" class="roulette-item" :class="{ epic: item.type === 'epic', rare: item.type === 'rare' }">
+                        {{ item.name }}
+                    </div>
+                </div>
+            </div>
+
+            <button class="modal-btn" style="width: 80%; max-width: 300px; margin-top: 0; box-shadow: 0 5px 20px rgba(255,60,0,0.3);" @click="spinRoulette" :disabled="isSpinning">
+                {{ isSpinning ? 'Крутим...' : 'Испытать удачу' }}
+            </button>
+
+            <!-- Блок под выигрыш -->
+            <div style="height: 60px; margin-top: 20px; text-align: center;">
+                <div v-if="rouletteResult" style="font-size: 13px; font-weight: bold; color: var(--text-muted); animation: fadeUp 0.5s;">
+                    Ваш выигрыш:<br>
+                    <span style="color: var(--text-main); font-size: 18px; text-transform: uppercase;">{{ rouletteResult.name }}</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px; color: var(--text-muted); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;" @click="closeRoulette" v-if="!isSpinning">
+                Закрыть рулетку
+            </div>
+        </div>
+
+        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
+        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
+            <div class="modal-sheet" style="padding-bottom: 20px;">
+                <div class="close-btn" @click="isLadderOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
+                
+                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
+                    <!-- Линия прогресса -->
+                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    </div>
+                    
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                            {{ lvl }}
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
+                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ -->
+        <div class="modal-overlay" :class="{ active: isLadderOpen }" @click.self="isLadderOpen = false">
+            <div class="modal-sheet" style="padding-bottom: 20px;">
+                <div class="close-btn" @click="isLadderOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800;">Карьерная лестница</h2>
+                
+                <div style="display:flex; overflow-x:auto; gap: 0; padding-bottom:20px; position:relative; scrollbar-width:none;">
+                    <!-- Линия прогресса -->
+                    <div style="position:absolute; top: 14px; left: 20px; right: 20px; height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red);" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    </div>
+                    
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; display:flex; flex-direction:column; align-items:center; position:relative; z-index: 2;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:900; font-size:14px; transition: 0.3s;" 
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(255,60,0,0.5);' : 'background: #1A1A1E; color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                            {{ lvl }}
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--text-main);">{{ getRankName(lvl) }}</div>
+                        <div style="margin-top:5px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 5px;">{{ getRankPerk(lvl) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- МОДАЛКА CRASH ИГРЫ -->
+        <div class="modal-overlay" :class="{ active: isCrashOpen }" @click.self="isCrashOpen = false; if(isCrashRunning) cashOut();">
+            <div class="modal-sheet" style="padding-bottom: 20px; background: #0A0A0C;">
+                <div class="close-btn" @click="if(!isCrashRunning) isCrashOpen = false">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-size:22px; font-weight:900; color:#8B5CF6;">SOVENTO CRASH</h2>
+                    <div style="color: var(--brand-red); font-weight:bold;">{{ user.balance }} баллов</div>
+                </div>
+
+                <!-- ЭКРАН ИГРЫ -->
+                <div style="height: 200px; background: #111216; border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 20px; position:relative; overflow:hidden;">
+                    <!-- Анимация графика -->
+                    <div v-if="isCrashRunning" style="position:absolute; bottom:0; left:0; width:100%; height:4px; background:#8B5CF6; opacity:0.5;"></div>
+                    
+                    <div style="font-size: 64px; font-weight: 900; line-height: 1;" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFF') }">
+                        {{ crashMultiplier.toFixed(2) }}x
+                    </div>
+                    <div v-if="crashCrashed" style="color: #EF3E2C; font-weight: bold; margin-top: 10px; font-size: 18px; text-transform: uppercase;">
+                        Crashed!
+                    </div>
+                    <div v-if="crashWinAmount > 0" style="color: #4ade80; font-weight: bold; margin-top: 10px; font-size: 18px;">
+                        Вы забрали: +{{ crashWinAmount }}
+                    </div>
+                </div>
+
+                <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
+                <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                    <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 18px; font-weight:bold; text-align:center;" :disabled="isCrashRunning" placeholder="Ставка">
+                    <button class="toggle-btn" style="flex:0.5;" @click="crashBet = Math.floor(user.balance / 2)" :disabled="isCrashRunning">1/2</button>
+                    <button class="toggle-btn" style="flex:0.5;" @click="crashBet = user.balance" :disabled="isCrashRunning">ALL</button>
+                </div>
+
+                <button style="width: 100%; padding: 18px; border: none; border-radius: 16px; font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase; transition: 0.2s;"
+                        :style="isCrashRunning ? 'background:#F59E0B; color:white;' : 'background:#8B5CF6; color:white;'"
+                        @click="isCrashRunning ? cashOut() : startCrash()"
+                        :disabled="crashCrashed && isCrashRunning">
+                    {{ isCrashRunning ? 'ЗАБРАТЬ ' + Math.floor(crashBet * crashMultiplier) : 'ИГРАТЬ' }}
+                </button>
+            </div>
+        </div>
+        <!-- ПАНЕЛЬ НАВИГАЦИИ -->
+        <div class="bottom-nav" v-show="currentTab !== 'checkout'">
+            <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
+            </div>
+            <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'catalog' }" @click="scrollToSection('catalog')">
+                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm0 10h6v6H4zm10-10h6v6h-6zm0 10h6v6h-6z"/></svg> Товары
+            </div>
+            <div class="nav-item" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'" style="position:relative;">
+                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> 
+                Корзина
+                <div v-if="cartItemsCount > 0" class="bounce-badge" style="position:absolute; top:-5px; right:12px; background:var(--brand-red); color:white; font-size:10px; font-weight:900; border-radius:10px; padding:2px 6px; border:2px solid var(--glass); pointer-events: none;">{{ cartItemsCount }}</div>
+            </div>
+            <div class="nav-item" :class="{ active: currentTab === 'profile' }" @click="currentTab = 'profile'">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
+            </div>
+        </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // Crash Game
+                    isCrashOpen: false,
+                    isCrashRunning: false,
+                    crashCrashed: false,
+                    crashMultiplier: 1.00,
+                    crashBet: 10,
+                    crashTarget: 1.00,
+                    crashTimer: null,
+                    crashWinAmount: 0,
+                    currentTab: 'main', 
+                    activeScrollSection: 'home',
+                    sliderProgress: 0, 
+                    activeSlide: 0,    
+                    totalSlides: 2, 
+                    sliderTimer: null,
+                    isLadderOpen: false,
+                    activeQuests: [
+                        { id: 1, title: 'Сделай 3 заказа', description: 'Закажите 3 любые жидкости в этом месяце.', progress: 1, target: 3, reward_xp: 150 },
+                        { id: 2, title: 'Реферал', description: 'Пригласите друга по вашему промокоду.', progress: 0, target: 1, reward_xp: 300 }
+                    ],    
+                    sliderTimer: null, 
+                    
+                    citiesList: ['Берлин', 'Мюнхен', 'Варшава', 'Гамбург', 'Франкфурт'],
+                    currentCity: null, 
+                    isCityDropdownOpen: false,
+                    
+                    searchQuery: '',
+                    currentCategory: 'Все',
+                    
+                    isModalOpen: false,
+                    selectedProduct: null,
+
+                    isToastVisible: false,
+                    toastProgress: 100,
+                    toastInterval: null,
+
+                    // Тост для избранного
+                    isFavToastVisible: false,
+                    favToastProgress: 100,
+                    favToastInterval: null,
+
+                    checkout: {
+                        delivery: 'pickup',
+                        payment: 'card',
+                        address: '',
+                        zip: '',
+                        city: '',
+                        telegram: ''
+                    },
+
+                    cart: {},
+                    favorites: {}, // Хранилище лайкнутых товаров
+                    user: { 
+                        displayName: '', 
+                        avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S',
+                        level: 4,
+                        rankName: 'Свой человек',
+                        xp: 450,
+                        maxXp: 600, // XP до следующего 5 уровня
+                        balance: 1400 // 14 евро
+                    },
+                    leaderboard: [
+                        { name: 'Alex M.', level: 8, amount: 14500, xp_gained: 850, isMe: false },
+                        { name: 'Влад', level: 7, amount: 12000, xp_gained: 720, isMe: false },
+                        { name: 'Dmitry', level: 6, amount: 9500, xp_gained: 600, isMe: false },
+                        { name: 'Ваш Никнейм', level: 4, amount: 4500, xp_gained: 210, isMe: true } 
+                    ],
+                    // Переменные рулетки
+                    isRouletteOpen: false,
+                    isSpinning: false,
+                    rouletteOffset: 0,
+                    rouletteTransition: 'none',
+                    rouletteResult: null,
+                    rouletteStrip: [],
+
+                    products: [
+                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс." },
+                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/1200x1600/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей." },
+                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/1200x1600/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара." },
+                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней." }
+                    ]
+                }
             },
-            {
-                "src": "https://placehold.co/512x512/EF3E2C/FFF?text=S",
-                "sizes": "512x512",
-                "type": "image/png"
-            }
-        ]
-    }
+            computed: {
+                filteredProducts() {
+                    return this.products.filter(p => {
+                        // Если выбрана категория Избранное — показываем только лайкнутые товары
+                        if (this.currentCategory === 'Избранное') {
+                            return this.favorites[p.id] && p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        }
+                        const matchCat = this.currentCategory === 'Все' || p.category === this.currentCategory;
+                        const matchSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        return matchCat && matchSearch;
+                    });
+                },
+                cartTotal() {
+                    let total = 0;
+                    for (let id in this.cart) {
+                        total += this.cart[id].price * this.cart[id].count;
+                    }
+                    return total.toFixed(2);
+                },
+                cartItemsCount() {
+                    let count = 0;
+                    for (let id in this.cart) {
+                        count += this.cart[id].count;
+                    }
+                    return count;
+                }
+            },
+            mounted() {
+                this.generateNickname();
+                window.addEventListener('scroll', this.trackScrollPosition);
+                this.startSlider(); // <-- ВОТ ЭТА СТРОКА ОЖИВЛЯЕТ СЛАЙДЕР!
+                
+                // ЧТЕНИЕ ПАРАМЕТРОВ ОТ БОТА
+                const urlParams = new URLSearchParams(window.location.search);
+                const tab = urlParams.get('tab');
+                
+                if (tab === 'catalog') {
+                    this.currentTab = 'main';
+                    setTimeout(() => this.scrollToSection('catalog'), 500);
+                } else if (tab === 'cart') {
+                    this.currentTab = 'cart';
+                } else if (tab === 'profile') {
+                    this.currentTab = 'profile';
+                    // Если просили рулетку, сразу открываем
+                    setTimeout(() => this.openRoulette(), 600);
+                }
+            },
+            beforeUnmount() {
+                window.removeEventListener('scroll', this.trackScrollPosition);
+                clearInterval(this.sliderTimer);
+            },
+            methods: {
+                scrollToSection(section) {
+                    // Принудительно включаем главную ленту
+                    this.currentTab = 'main';
+                    
+                    this.$nextTick(() => {
+                        // Даем микро-задержку, чтобы Vue успел отрисовать экран
+                        setTimeout(() => {
+                            if (section === 'home') {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else if (section === 'catalog') {
+                                const el = document.getElementById('catalog-section');
+                                if (el) {
+                                    // Скроллим так, чтобы каталог был чуть ниже липкой кнопки города
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                }
+                            }
+                        }, 50);
+                    });
+                },
+                trackScrollPosition() {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                            this.activeScrollSection = 'catalog';
+                        } else {
+                            this.activeScrollSection = 'home';
+                        }
+                    }
+                },
+                startSlider() {
+                    this.sliderTimer = setInterval(() => {
+                        if(this.currentTab !== 'main') return; 
+                        const slider = document.getElementById('promo-slider');
+                        if(!slider || this.totalSlides <= 1) return; 
+
+                        this.sliderProgress += (100 / (5000 / 50)); 
+                        
+                        if (this.sliderProgress >= 100) {
+                            this.sliderProgress = 0;
+                            this.activeSlide++;
+                            
+                            if (this.activeSlide >= this.totalSlides) {
+                                this.activeSlide = 0;
+                            }
+                            slider.scrollTo({ left: this.activeSlide * slider.clientWidth, behavior: 'smooth' });
+                        }
+                    }, 50);
+                },
+                handleScroll() {
+                    const slider = document.getElementById('promo-slider');
+                    if(slider) {
+                        this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
+                    }
+                },
+                showFavToast() {
+                    this.isFavToastVisible = true;
+                    this.favToastProgress = 100;
+                    clearInterval(this.favToastInterval);
+                    this.favToastInterval = setInterval(() => {
+                        this.favToastProgress -= (100 / (3000 / 30)); 
+                        if (this.favToastProgress <= 0) {
+                            this.isFavToastVisible = false;
+                            clearInterval(this.favToastInterval);
+                        }
+                    }, 30);
+                },
+                toggleFav(item) {
+                    if (this.favorites[item.id]) {
+                        delete this.favorites[item.id];
+                    } else {
+                        this.favorites[item.id] = true;
+                        this.showFavToast();
+                    }
+                },
+                showToast() {
+                    this.isToastVisible = true;
+                    this.toastProgress = 100;
+                    clearInterval(this.toastInterval);
+                    this.toastInterval = setInterval(() => {
+                        this.toastProgress -= (100 / (3000 / 30)); 
+                        if (this.toastProgress <= 0) {
+                            this.isToastVisible = false;
+                            clearInterval(this.toastInterval);
+                        }
+                    }, 30);
+                },
+                addToCart(item) {
+                    if (!this.cart[item.id]) {
+                        this.cart[item.id] = { ...item, count: 1 };
+                        this.showToast();
+                        this.closeProduct();
+                    }
+                },
+                changeCartCount(id, delta) {
+                    if (this.cart[id]) {
+                        this.cart[id].count += delta;
+                        if (this.cart[id].count <= 0) {
+                            delete this.cart[id];
+                        }
+                    }
+                },
+                removeCartItem(id) {
+                    delete this.cart[id];
+                },
+                setDelivery(type) {
+                    this.checkout.delivery = type;
+                    // Если выбрали доставку, а стояли "Наличные" — сбрасываем на "Карту"
+                    if (type === 'courier' && this.checkout.payment === 'cash') {
+                        this.checkout.payment = 'card';
+                    }
+                },
+                setPayment(type) {
+                    // Если выбрана доставка курьером, запрещаем переключаться на наличные
+                    if (this.checkout.delivery === 'courier' && type === 'cash') return;
+                    this.checkout.payment = type;
+                },
+                selectCity(city) {
+                    this.currentCity = city;
+                    this.isCityDropdownOpen = false;
+                    this.$nextTick(() => {
+                        const slider = document.getElementById('promo-slider');
+                        if (slider) {
+                            this.totalSlides = slider.children.length;
+                        }
+                    });
+                },
+                generateNickname() {
+                    const randomDigits = Math.floor(1000 + Math.random() * 9000);
+                    this.user.displayName = 'user_' + randomDigits;
+                    let me = this.leaderboard.find(p => p.isMe);
+                    if(me) me.name = this.user.displayName;
+                },
+                changeName() {
+                    const newName = prompt("Введите новый никнейм (до 15 символов):", this.user.displayName);
+                    if (newName && newName.trim().length > 0 && newName.trim().length <= 15) {
+                        this.user.displayName = newName.trim();
+                        // Меняем имя и в Лидерборде
+                        let me = this.leaderboard.find(p => p.isMe);
+                        if(me) me.name = this.user.displayName;
+                        alert("Никнейм успешно изменен!");
+                    } else if (newName) {
+                        alert("Никнейм должен быть от 1 до 15 символов!");
+                    }
+                },
+                openProduct(item) {
+                    this.selectedProduct = item;
+                    this.isModalOpen = true;
+                },
+                closeProduct() {
+                    this.isModalOpen = false;
+                    setTimeout(() => { this.selectedProduct = null; }, 300);
+                },
+                scrollToSection(section) {
+                    if (this.currentTab !== 'main') this.currentTab = 'main';
+                    
+                    this.$nextTick(() => {
+                        if (section === 'home') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else if (section === 'catalog') {
+                            const el = document.getElementById('catalog-section');
+                            if (el) {
+                                const y = el.getBoundingClientRect().top + window.pageYOffset - 15;
+                                window.scrollTo({ top: y, behavior: 'smooth' });
+                            }
+                        }
+                    });
+                },
+                trackScrollPosition() {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                            this.activeScrollSection = 'catalog';
+                        } else {
+                            this.activeScrollSection = 'home';
+                        }
+                    }
+                },
+                trackScrollPosition() {
+                    if (this.currentTab !== 'main') return;
+                    const el = document.getElementById('catalog-section');
+                    if (el) {
+                        // Если якорь каталога поднялся выше 40% экрана, считаем что мы в зоне Товаров
+                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+                            this.activeScrollSection = 'catalog';
+                        } else {
+                            this.activeScrollSection = 'home';
+                        }
+                    }
+                },
+
+                getRankName(lvl) {
+                    const ranks = ['Новичок', 'Любитель', 'Вейпер', 'Свой человек', 'Проверенный', 'Знаток', 'Мастер', 'Эксперт', 'Элита', 'Амбассадор'];
+                    return ranks[lvl - 1] || 'Секретный ранг';
+                },
+                getRankPerk(lvl) {
+                    const perks = [
+                        'Списание до 50%',
+                        'Списание до 55% + 100 баллов',
+                        'Купон 50% на жидкость',
+                        'Списание до 55% + 200 баллов',
+                        'Бесплатная доставка',
+                        'Списание до 60% + Шансы рулетки UP',
+                        'Списание до 65% + 400 баллов',
+                        'Премиум жидкость',
+                        'Списание до 70% + 600 баллов',
+                        'Бокс + скидка 15% навсегда'
+                    ];
+                    return perks[lvl - 1] || 'Нет данных';
+                },
+                // === ЛОГИКА РУЛЕТКИ ===
+                setupRoulette() {
+                    // Шансы под 4+ уровень: Пусто(20%), 100 баллов(35%), 200 баллов(25%), Скидка 25%(13%), Товар недели(7%)
+                    const pool = [
+                        { name: 'Пусто', type: 'empty' }, { name: 'Пусто', type: 'empty' },
+                        { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' }, { name: '100 Баллов', type: 'normal' },
+                        { name: '200 Баллов', type: 'rare' }, { name: '200 Баллов', type: 'rare' }, { name: '200 Баллов', type: 'rare' },
+                        { name: 'Скидка 25%', type: 'rare' }, { name: 'Скидка 25%', type: 'rare' },
+                        { name: 'Товар Недели', type: 'epic' }
+                    ];
+                    // Генерируем ленту из 60 элементов
+                    let strip = [];
+                    for(let i = 0; i < 60; i++) {
+                        strip.push(pool[Math.floor(Math.random() * pool.length)]);
+                    }
+                    this.rouletteStrip = strip;
+                },
+                // === LОГИКА CRASH ИГРЫ ===
+                openCrashGame() {
+                    this.isCrashOpen = true;
+                    this.crashMultiplier = 1.00;
+                    this.crashCrashed = false;
+                    this.crashWinAmount = 0;
+                    if(this.crashBet > this.user.balance) this.crashBet = this.user.balance;
+                },
+                startCrash() {
+                    if(this.crashBet <= 0 || this.crashBet > this.user.balance) return alert("Неверная сумма ставки!");
+                    
+                    this.user.balance -= this.crashBet; // Снимаем ставку
+                    this.isCrashRunning = true;
+                    this.crashCrashed = false;
+                    this.crashMultiplier = 1.00;
+                    this.crashWinAmount = 0;
+
+                    // МАТЕМАТИКА КАЗИНО (House Edge ~6%)
+                    // 6% шанс, что крашнет сразу на 1.00x
+                    if (Math.random() < 0.06) {
+                        this.crashTarget = 1.00;
+                    } else {
+                        // Математика честного краша (Inverse Transform): e = 1 / (1 - random)
+                        // Умножаем на 0.94, чтобы казино было в микро-плюсе
+                        let r = Math.random();
+                        this.crashTarget = (0.94 / (1 - r));
+                        if(this.crashTarget < 1.01) this.crashTarget = 1.01;
+                    }
+
+                    // Анимация роста
+                    let tick = 0;
+                    this.crashTimer = setInterval(() => {
+                        tick += 1;
+                        // Функция роста (ускоряется со временем)
+                        this.crashMultiplier = Math.pow(1.01, tick); 
+
+                        if (this.crashMultiplier >= this.crashTarget) {
+                            // КРАШ!
+                            this.crashMultiplier = this.crashTarget;
+                            this.isCrashRunning = false;
+                            this.crashCrashed = true;
+                            clearInterval(this.crashTimer);
+                        }
+                    }, 50);
+                },
+                cashOut() {
+                    if(!this.isCrashRunning) return;
+                    clearInterval(this.crashTimer);
+                    this.isCrashRunning = false;
+                    
+                    this.crashWinAmount = Math.floor(this.crashBet * this.crashMultiplier);
+                    this.user.balance += this.crashWinAmount; // Выдаем выигрыш
+                },
+                openRoulette() {
+                    if(!this.rouletteStrip.length) this.setupRoulette();
+                    this.isRouletteOpen = true;
+                    this.rouletteResult = null;
+                    this.rouletteOffset = 0;
+                    this.rouletteTransition = 'none';
+                },
+                closeRoulette() {
+                    if(!this.isSpinning) this.isRouletteOpen = false;
+                },
+                spinRoulette() {
+                    if(this.isSpinning) return;
+                    this.isSpinning = true;
+                    this.rouletteResult = null;
+                    
+                    // Элемент имеет ширину 80px + отступ 10px = 90px
+                    const itemWidth = 90; 
+                    // Выбираем выигрышный индекс в конце ленты (от 40 до 50)
+                    const winIndex = Math.floor(Math.random() * 10) + 40; 
+                    
+                    // Легкий рандомный сдвиг, чтобы указатель не стоял ровно по центру карточки
+                    const randomJitter = Math.floor(Math.random() * 50) - 25; 
+                    const targetOffset = -(winIndex * itemWidth) + randomJitter;
+                    
+                    // Сбрасываем позицию
+                    this.rouletteTransition = 'none';
+                    this.rouletteOffset = 0;
+                    
+                    setTimeout(() => {
+                        // Запускаем анимацию кручения (4 секунды)
+                        this.rouletteTransition = 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)';
+                        this.rouletteOffset = targetOffset;
+                        
+                        setTimeout(() => {
+                            this.isSpinning = false;
+                            this.rouletteResult = this.rouletteStrip[winIndex];
+                            
+                            // Авто-начисление (визуальное)
+                            if(this.rouletteResult.type !== 'empty' && this.rouletteResult.name.includes('Баллов')) {
+                                const pts = parseInt(this.rouletteResult.name);
+                                this.user.balance += pts;
+                            }
+                        }, 4000);
+                    }, 50);
+                }
+            } // Конец блока methods
+        }).mount('#app')
+    </script>
+</body>
+</html>
