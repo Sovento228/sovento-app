@@ -42,10 +42,10 @@
             line-height: 1;
         }
 
-        /* ТОТАЛЬНО ЧЕРНЫЙ ФОН */
+        /* ФОН ДЛЯ НИЖНЕЙ ЧАСТИ ПРИЛОЖЕНИЯ */
         .bg-animation-container {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background-color: var(--dark);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-color: #040507; /* Тотальный глубокий черный */
         }
 
         /* РАЗДЕЛИТЕЛЬ */
@@ -193,30 +193,37 @@
             <!-- ЕДИНАЯ ЛЕНТА (ГЛАВНАЯ + КАТАЛОГ + ЛИДЕРБОРД) -->
             <div v-show="currentTab === 'main'" v-cloak>
                 
-                <!-- ПЕРВЫЙ ЭКРАН (100vh) С ОРАНЖЕВЫМ СВЕЧЕНИЕМ -->
+<!-- ПЕРВЫЙ ЭКРАН (100vh): СТУДИЙНЫЙ СВЕТ -->
                 <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
-                    <!-- Оранжевое свечение только внутри этого блока -->
-                    <div style="position: absolute; top: -10%; left: 0; width: 100%; height: 110%; background: radial-gradient(circle at 50% 30%, rgba(248, 143, 34, 0.4) 0%, rgba(248, 143, 34, 0.15) 40%, transparent 75%); z-index: -1; pointer-events: none;"></div>
                     
-                    <h1 class="logo-font" style="margin-bottom: 70px;">SOVENTO</h1>
+                    <!-- Несколько источников мягкого освещения -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden;">
+                        <div style="position: absolute; top: 10%; left: 10%; width: 300px; height: 300px; background: rgba(248, 143, 34, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+                        <div style="position: absolute; top: 40%; right: -10%; width: 250px; height: 250px; background: rgba(200, 80, 20, 0.12); filter: blur(50px); border-radius: 50%;"></div>
+                        <div style="position: absolute; top: 70%; left: 50%; transform: translateX(-50%); width: 400px; height: 150px; background: rgba(248, 143, 34, 0.1); filter: blur(40px); border-radius: 50%;"></div>
+                        <!-- Плавное затухание в черный снизу -->
+                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #040507, transparent);"></div>
+                    </div>
+                    
+                    <h1 class="logo-font" style="margin-bottom: 80px; position: relative;">SOVENTO</h1>
 
                     <!-- БЛОК "О НАС" -->
-                    <div style="text-align: center; margin-bottom: 50px;">
+                    <div style="text-align: center; margin-bottom: 60px; position: relative;">
                         <h3 style="margin:0 0 15px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
                         <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
                     </div>
                     
                     <!-- ПРЕИМУЩЕСТВА -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; position: relative;">
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
                             <svg style="width:28px; height:28px; fill:none; stroke:#FFFFFF; stroke-width:2; margin-bottom:12px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
-                            <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
+                            <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Быстрая доставка</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Курьер привезет заказ в руки</p>
                         </div>
                         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
                             <div style="font-size: 28px; color: #FFFFFF; font-weight: 900; margin-bottom: 12px; line-height: 1;">€</div>
-                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
-                            <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
+                            <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #FFFFFF;">Бонусная система</h4>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.7);">Копите баллы: 100 = 1€</p>
                         </div>
                     </div>
                 </div>
