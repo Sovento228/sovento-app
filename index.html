@@ -10,13 +10,12 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            --dark: #05060A; /* Глубокий черный с каплей синего */
-            --card-bg: rgba(21, 21, 24, 0.7); 
-            --brand-red: #F88F22; 
-            --brand-red-glow: rgba(248, 143, 34, 0.25);
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
-            --glass: rgba(5, 6, 10, 0.85);
+            --dark: #140f17; 
+            --card-bg: #210207; 
+            --brand-red: #730c1e; 
+            --text-main: #e8d5d8; /* Светло-розовый для читаемости на темном фоне */
+            --text-muted: #8c6a70; /* Тот самый цвет из выделенного прямоугольника */
+            --glass: rgba(20, 15, 23, 0.85);
         }
 
         body { 
@@ -29,103 +28,96 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* УЛЬТРА-ЖИРНЫЙ ЛОГОТИП (MOON SHOP) */
         .logo-font {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
             font-size: 56px;
             letter-spacing: -3px;
-            color: #FFFFFF;
+            color: var(--text-main);
             text-align: center;
             text-transform: uppercase;
             margin: 0;
             line-height: 1;
         }
 
-        /* ТОТАЛЬНО ЧЕРНЫЙ ФОН */
         .bg-animation-container {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
             background-color: var(--dark);
             pointer-events: none;
         }
 
-        /* РАЗДЕЛИТЕЛЬ */
-        .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 30px 0; }
-
-        /* ИСПРАВЛЕНИЕ ЧЕРНОЙ ПОЛОСЫ СВЕРХУ */
+        .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.05); margin: 30px 0; }
         .app-content { padding: 0 0 120px 0; }
 
+        /* Нижняя навигация без рамок и расширенная почти до краев */
         .bottom-nav {
-            position: fixed; bottom: 20px; left: 4%; width: 92%; /* Расширили почти до краев */
-            background: rgba(10, 10, 12, 0.6); /* Слегка затемнили для контраста без рамки */
+            position: fixed; bottom: 20px; left: 4%; width: 92%;
+            background: rgba(20, 15, 23, 0.7);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 25px; /* Удалили border */
+            border-radius: 25px; border: none;
             display: flex; justify-content: space-around; align-items: center;
             padding: 12px 0; z-index: 2500; box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Убрали оранжевую внутреннюю тень */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; cursor: pointer; }
-        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(248, 143, 34, 0.4); }
+        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(115, 12, 30, 0.4); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
+        /* Все карточки теперь без рамок */
         .mock-card {
             background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
-            border: 1px solid var(--brand-red-glow); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(248, 143, 34, 0.05);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        /* --- СЛАЙДЕР ДОСКИ ОБЪЯВЛЕНИЙ --- */
         .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 10px; margin-top: 10px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
-        .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .slide { flex: 0 0 100%; scroll-snap-align: center; background: var(--card-bg); border-radius: 16px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box; border: none; position: relative; overflow: hidden; }
         .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; z-index: 0; }
         .slide-content { position: relative; z-index: 1; }
         .slider-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden; }
         .slider-progress-fill { height: 100%; background: var(--brand-red); transition: width 0.1s linear; }
 
-        .city-btn { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); }
-        .city-dropdown { position: absolute; top: 60px; right: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 2000; padding: 10px 0; }
+        .city-btn { background: var(--card-bg); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: none; color: var(--text-main); }
+        .city-dropdown { position: absolute; top: 60px; right: 20px; background: var(--card-bg); border: none; border-radius: 16px; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 2000; padding: 10px 0; }
         .city-dropdown-item { padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; }
-        .city-dropdown-item:hover, .city-dropdown-item.active { background: rgba(255, 60, 0, 0.1); color: var(--brand-red); }
+        .city-dropdown-item:hover, .city-dropdown-item.active { background: rgba(115, 12, 30, 0.2); color: var(--brand-red); }
 
         .onboarding-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        .onboarding-content { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); box-sizing: border-box; margin: 0; }
+        .onboarding-content { background: var(--card-bg); border: none; border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); box-sizing: border-box; margin: 0; }
 
         .search-container { margin-bottom: 15px; margin-top: 10px; }
-        .search-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; transition: 0.3s; }
-        .search-input:focus { border-color: rgba(248, 143, 34, 0.5); }
+        .search-input { width: 100%; background: var(--card-bg); border: none; border-radius: 16px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
         .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .cat-pill { background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
-        .cat-pill.active { background: var(--brand-red); color: white; border-color: var(--brand-red); box-shadow: 0 4px 15px rgba(248, 143, 34, 0.3); }
+        .cat-pill { background: var(--card-bg); border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
+        .cat-pill.active { background: var(--brand-red); color: white; box-shadow: 0 4px 15px rgba(115, 12, 30, 0.4); }
 
         .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .product-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
-        .product-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #1A1A1E; }
+        .product-card { background: var(--card-bg); border: none; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .product-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: var(--dark); }
         .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
         .product-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
         .product-price { font-size: 16px; font-weight: 900; color: var(--text-main); }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 3000; display:flex; flex-direction:column; justify-content:flex-end; opacity:0; pointer-events:none; transition:0.3s; }
         .modal-overlay.active { opacity:1; pointer-events:all; }
-        .modal-sheet { background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; box-sizing:border-box; transform:translateY(100%); transition:0.3s; border-top:1px solid rgba(255,255,255,0.1); position: relative; }
+        .modal-sheet { background:var(--card-bg); width:100%; border-radius:24px 24px 0 0; padding:25px 20px 40px 20px; box-sizing:border-box; transform:translateY(100%); transition:0.3s; border: none; position: relative; }
         .modal-overlay.active .modal-sheet { transform:translateY(0); }
-        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .close-btn { position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.05); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .close-btn svg { width: 16px; height: 16px; fill: var(--text-main); }
-        .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: #1A1A1E; margin-bottom: 15px; }
+        .modal-img-full { width: 100%; aspect-ratio: 3 / 4; max-height: 45vh; object-fit: cover; border-radius: 16px; background: var(--dark); margin-bottom: 15px; }
         .modal-btn { width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; margin-top: 20px; cursor: pointer; }
 
-        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; pointer-events: none; }
+        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--card-bg); border: none; border-radius: 16px; padding: 15px 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; gap: 10px; cursor: pointer; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; pointer-events: none; }
         .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
         .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--brand-red); transition: width 0.03s linear; }
 
-        .checkout-input { width: 100%; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px; }
-        .checkout-input:focus { border-color: rgba(248, 143, 34, 0.5); }
+        .checkout-input { width: 100%; background: var(--card-bg); border: none; border-radius: 12px; padding: 14px 15px; color: var(--text-main); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 10px; }
         .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
-        .toggle-btn { flex: 1; background: #1A1A1E; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .toggle-btn.active { background: rgba(248, 143, 34, 0.15); border-color: var(--brand-red); color: var(--brand-red); }
+        .toggle-btn { flex: 1; background: var(--card-bg); border: none; border-radius: 12px; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .toggle-btn.active { background: rgba(115, 12, 30, 0.2); color: var(--brand-red); }
         .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
         
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -133,18 +125,18 @@
         @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
         .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
-        .fav-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(10,10,12,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .fav-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(20,15,23,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: 0.2s; border: none; }
         .fav-btn svg { width: 18px; height: 18px; fill: transparent; stroke: var(--text-main); stroke-width: 2px; transition: 0.2s; }
         .fav-btn.active svg { fill: var(--brand-red); stroke: var(--brand-red); }
 
-        .checkout-back-btn { width: 44px; height: 44px; background: rgba(248, 143, 34, 0.1); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(248, 143, 34, 0.3); color: var(--brand-red); }
-        .checkout-back-btn:active { background: rgba(248, 143, 34, 0.2); transform: scale(0.95); }
+        .checkout-back-btn { width: 44px; height: 44px; background: rgba(115, 12, 30, 0.2); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; border: none; color: var(--brand-red); }
+        .checkout-back-btn:active { background: rgba(115, 12, 30, 0.4); transform: scale(0.95); }
         
-        .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #FFB74D); transition: width 0.5s ease-out; }
+        .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #a01a2d); transition: width 0.5s ease-out; }
         .level-badge { background: var(--brand-red); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         
-        .roulette-card { background: linear-gradient(135deg, rgba(248, 143, 34, 0.1), rgba(248, 143, 34, 0.02)); border: 1px solid rgba(248, 143, 34, 0.3); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .roulette-card { background: linear-gradient(135deg, rgba(115, 12, 30, 0.2), rgba(115, 12, 30, 0.05)); border: none; border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
         .roulette-card:active { transform: scale(0.98); }
         
         .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -154,42 +146,12 @@
 
         .roulette-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--glass); z-index: 4000; display:flex; flex-direction:column; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:0.3s; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); }
         .roulette-overlay.active { opacity:1; pointer-events:all; }
-        .roulette-window { width: 90%; max-width: 350px; height: 110px; background: #111113; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 25px; display: flex; align-items: center; box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), inset -20px 0 30px rgba(0,0,0,0.9); }
+        .roulette-window { width: 90%; max-width: 350px; height: 110px; background: var(--dark); border: none; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 25px; display: flex; align-items: center; box-shadow: inset 20px 0 30px rgba(0,0,0,0.5), inset -20px 0 30px rgba(0,0,0,0.5); }
         .roulette-strip { display: flex; align-items: center; gap: 10px; padding-left: calc(50% - 45px); }
-        .roulette-item { width: 80px; height: 80px; flex-shrink: 0; background: #1A1A1E; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-main); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 5px; box-sizing: border-box; }
-        .roulette-item.rare { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.1); }
-        .roulette-item.epic { border-color: var(--brand-red); color: var(--brand-red); box-shadow: 0 0 15px rgba(248, 143, 34, 0.2); }
+        .roulette-item { width: 80px; height: 80px; flex-shrink: 0; background: var(--card-bg); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-main); border: none; text-align: center; padding: 5px; box-sizing: border-box; }
+        .roulette-item.rare { color: #e8d5d8; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
+        .roulette-item.epic { color: var(--brand-red); box-shadow: 0 0 15px rgba(115, 12, 30, 0.4); }
         .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: var(--brand-red); z-index: 10; border-radius: 2px; box-shadow: 0 0 10px var(--brand-red); }
-    /* АНИМАЦИИ ДЛЯ ИСТОЧНИКОВ СВЕТА */
-        @keyframes floatLight1 {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(15px, -15px) scale(1.05); }
-            100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes floatLight2 {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(-15px, 20px) scale(0.95); }
-            100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .ambient-light-1 {
-            animation: floatLight1 12s ease-in-out infinite;
-        }
-        .ambient-light-2 {
-            animation: floatLight2 15s ease-in-out infinite;
-        }
-    /* --- АНИМАЦИЯ ФОНА (Дыхание света) --- */
-        @keyframes floatLight1 {
-            0% { transform: translate(0px, 0px) scale(1); opacity: 0.8; }
-            50% { transform: translate(15px, -15px) scale(1.05); opacity: 1; }
-            100% { transform: translate(0px, 0px) scale(1); opacity: 0.8; }
-        }
-        @keyframes floatLight2 {
-            0% { transform: translate(0px, 0px) scale(1); opacity: 0.8; }
-            50% { transform: translate(-15px, 15px) scale(0.95); opacity: 1; }
-            100% { transform: translate(0px, 0px) scale(1); opacity: 0.8; }
-        }
-        .ambient-light-1 { animation: floatLight1 8s ease-in-out infinite; }
-        .ambient-light-2 { animation: floatLight2 10s ease-in-out infinite; }
     </style>
 </head>
 <body>
@@ -227,64 +189,56 @@
 <!-- ПЕРВЫЙ ЭКРАН (100vh): ТЕПЛЫЙ АМБИЕНТНЫЙ СВЕТ И ВОЗДУХ -->
                 <div id="home-section" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; margin-top: -65px;">
                     
-                    <!-- НОВЫЙ ЯРКИЙ ФОН (Два мощных свечения по углам) -->
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; background-color: #05060A;">
-                        <!-- Левое верхнее яркое свечение (Терракотовый/Оранжевый) -->
-                        <div class="ambient-light-1" style="position: absolute; top: -15%; left: -20%; width: 550px; height: 550px; background: rgba(227, 94, 23, 0.45); filter: blur(120px); border-radius: 50%;"></div>
-                        
-                        <!-- Правое верхнее свечение (Золотисто-Желтый) -->
-                        <div class="ambient-light-2" style="position: absolute; top: -5%; right: -25%; width: 600px; height: 600px; background: rgba(248, 185, 42, 0.4); filter: blur(130px); border-radius: 50%;"></div>
-                        
-                        <!-- Плавное затухание в черный снизу, чтобы текст читался -->
-                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; background: linear-gradient(to top, var(--dark), transparent);"></div>
-                    </div>
+                    <!-- ПЛАВНЫЙ ГРАДИЕНТ СВЕРХУ (#480415 -> #140f17) -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 55vh; background: linear-gradient(to bottom, #480415 0%, #140f17 100%); z-index: -1; pointer-events: none;"></div>
                     
                     <!-- УВЕЛИЧЕННЫЕ ОТСТУПЫ МЕЖДУ БЛОКАМИ -->
                     <h1 class="logo-font" style="margin-bottom: 110px; position: relative;">SOVENTO</h1>
 
                     <div style="text-align: center; margin-bottom: 30px; position: relative;">
-                        <h3 style="margin:0 0 15px 0; color: #FFFFFF; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
-                        <p style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
+                        <h3 style="margin:0 0 15px 0; color: var(--text-main); font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">О нас</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 auto; max-width: 95%;">SOVENTO предоставляет оригинальную продукцию ваших любимых брендов, с отличной системой лояльности и бонусами.</p>
                     </div>
-                </div> <!-- Закрываем home-section (Первый экран со свечениями) -->
+                </div> <!-- Закрываем home-section -->
 
-                <!-- НОВЫЙ БЛОК: ИНФОРМАЦИЯ (ФОН #06080E) -->
-                <!-- Gap увеличен до 90px для большего пространства -->
-                <div style="background-color: #06080e; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; gap: 90px; text-align: center; position: relative; z-index: 1; border-top: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);">
+                <!-- БЛОК ИНФОРМАЦИИ (Без рамок и фонов) -->
+                <!-- Разнесен на большее расстояние, текст в один ряд -->
+                <div style="padding: 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 90px; text-align: center; position: relative; z-index: 1;">
                     
                     <div>
-                        <!-- white-space: nowrap гарантирует, что текст будет строго в одну линию -->
+                        <!-- white-space: nowrap гарантирует текст в один ряд -->
                         <div class="logo-font" style="font-size: 38px; letter-spacing: -1px; margin-bottom: 8px; line-height: 1.1; white-space: nowrap;">ДОСТАВКА</div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Курьеры доставят заказ в ближайший срок</div>
+                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Курьеры доставят заказ в ближайший срок</div>
                     </div>
                     
                     <div>
                         <div class="logo-font" style="font-size: 38px; letter-spacing: -1px; margin-bottom: 8px; line-height: 1.1; white-space: nowrap;">100 БАЛЛОВ</div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Начисляется за каждый заказ</div>
+                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Начисляется за каждый заказ</div>
                     </div>
                     
                 </div>
 
-                <!-- ТРЕТИЙ БЛОК: НОВОСТИ, ЛИДЕРБОРД И КАТАЛОГ (ФОН #03050B) -->
-                <div style="background-color: #03050b; padding: 40px 20px 20px 20px; position: relative; z-index: 1;">                    
-                    <!-- СЛАЙДЕР НОВИНОК -->
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="margin: 0 0 5px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                <!-- КАТАЛОГ ТОВАРОВ И СЛАЙДЕР -->
+                <div id="catalog-section" style="padding-top: 60px; padding-bottom: 40px;">
+                    
+                    <!-- СЛАЙДЕР НОВИНОК (Перенесен сюда, над каталогом) -->
+                    <div style="margin-bottom: 30px; padding: 0 20px;">
+                        <h3 style="margin: 0 0 15px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main);">Новинки и Акции</h3>
                         <div class="slider-container" id="promo-slider" @scroll="handleScroll">
                             <div class="slide">
-                                <img src="https://placehold.co/600x400/111216/F88F22?text=NEW" class="slide-bg">
+                                <img src="https://placehold.co/600x400/210207/730c1e?text=NEW" class="slide-bg">
                                 <div class="slide-content">
                                     <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
-                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
-                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Уже доступны во всех городах!</p>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:var(--text-main);">Новая поставка XROS</h2>
+                                    <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Уже доступны во всех городах!</p>
                                 </div>
                             </div>
                             <div class="slide">
-                                <img src="https://placehold.co/600x400/111216/4ade80?text=SALE" class="slide-bg">
+                                <img src="https://placehold.co/600x400/210207/730c1e?text=SALE" class="slide-bg">
                                 <div class="slide-content">
-                                    <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
-                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
-                                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">-15% на все жидкости до 20:00.</p>
+                                    <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
+                                    <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:var(--text-main);">Счастливые часы</h2>
+                                    <p style="margin: 0; font-size: 12px; color: var(--text-muted);">-15% на все жидкости до 20:00.</p>
                                 </div>
                             </div>
                         </div>
@@ -293,77 +247,47 @@
                         </div>
                     </div>
 
-                    <div class="divider"></div>
-
-                    <!-- ЛИДЕРБОРД (Один, сразу после новостей) -->
-                    <div style="padding-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Лидерборд Сезона</h3>
-                            <span style="font-size: 10px; color: var(--brand-red); font-weight: 800; border: 1px solid var(--brand-red); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Top 4</span>
-                        </div>
-                        <div v-for="(player, idx) in leaderboard" :key="idx" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span class="rank-num" :class="{'rank-top': idx < 3}" style="color: #FFF;">0{{ idx + 1 }}</span>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 15px; font-weight: 700; color: #FFF;" :style="player.isMe ? 'color: var(--brand-red);' : ''">
-                                        {{ player.name }} <span v-if="player.isMe" style="font-size: 10px;">(Вы)</span>
-                                    </span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">Lvl {{ player.level }}</span>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 16px; font-weight: 800; color: #FFF;">{{ player.amount }}</div>
-                                <div style="font-size: 11px; color: var(--brand-red); font-weight: 700;">+{{ player.xp_gained }} XP</div>
-                            </div>
-                        </div>
+                    <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
+                        Каталог товаров: <b style="color:var(--text-main); font-size: 16px;">{{ currentCity }}</b>
                     </div>
 
-                    <div class="divider"></div>
+                    <div class="search-container" style="margin-top: 0; padding: 0 20px;">
+                        <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                    </div>
 
-                    <!-- КАТАЛОГ ТОВАРОВ -->
-                    <div id="catalog-section" style="padding-top: 10px; padding-bottom: 40px;">
-                        <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px; letter-spacing: 0.5px;">
-                            Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
-                        </div>
+                    <div class="category-scroll" style="padding-left: 20px;">
+                        <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                        <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                    </div>
 
-                        <div class="search-container" style="margin-top: 0;">
-                            <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
-                        </div>
-
-                        <div class="category-scroll">
-                            <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
-                        </div>
-
-                        <div class="products-grid">
-                            <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
-                                <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
-                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                </div>
-                                <img :src="item.photo" class="product-img">
-                                <div class="product-info">
-                                    <div class="product-title">{{ item.name }}</div>
-                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
-                                        <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                                        <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(255, 60, 0, 0.15); border: 1px solid var(--brand-red); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
-                                            <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
-                                        </div>
-                                        <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
-                                            <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
-                                            <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
-                                            <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
-                                        </div>
+                    <div class="products-grid" style="padding: 0 20px;">
+                        <div class="product-card" style="position:relative;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
+                            <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
+                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+                            <img :src="item.photo" class="product-img">
+                            <div class="product-info">
+                                <div class="product-title">{{ item.name }}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
+                                    <div class="product-price">{{ item.price.toFixed(2) }} €</div>
+                                    <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: rgba(115, 12, 30, 0.2); border-radius:10px; width:30px; height:30px; display:flex; justify-content:center; align-items:center; transition: 0.2s;">
+                                        <svg style="width:16px; height:16px; fill:var(--brand-red);" viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 15H5V8h14v13z"/></svg>
+                                    </div>
+                                    <div v-else style="display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 3px;" @click.stop>
+                                        <div @click.stop="changeCartCount(item.id, -1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--dark); border-radius:8px; font-weight:bold; color:var(--text-main);">-</div>
+                                        <div style="font-size:13px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
+                                        <div @click.stop="changeCartCount(item.id, 1)" style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white;">+</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
                     </div>
+                    <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                </div>
 
-                </div> <!-- Конец Второго Блока (Новости, Лидерборд, Каталог) -->
             </div> <!-- Конец ЕДИНОЙ ЛЕНТЫ main -->
 
             <!-- ЭКРАН 3: КОРЗИНА -->
