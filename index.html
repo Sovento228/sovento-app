@@ -285,71 +285,72 @@
                             Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
                         </div>
 
-                        <div class="search-container" style="padding: 0 20px; margin-top: 0;">
-                            <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input">
+                        <!-- НОВАЯ СТЕКЛЯННАЯ ПАНЕЛЬ ДЛЯ ПОИСКА И ФИЛЬТРОВ -->
+                        <div style="margin: 0 20px 25px 20px; padding: 20px; background: rgba(3, 5, 11, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03);">
+                            
+                            <!-- Внутреннее поле поиска -->
+                            <div class="search-container" style="margin-bottom: 15px; margin-top: 0;">
+                                <!-- Слегка затемняем фон инпута, чтобы он давал красивый "вдавленный" контраст внутри панели -->
+                                <input type="text" v-model="searchQuery" placeholder="Поиск товаров..." class="search-input" style="background: rgba(0,0,0,0.4); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                            </div>
+
+                            <!-- Категории скроллятся строго ВНУТРИ панели (padding-left убран) -->
+                            <div class="category-scroll" style="padding-bottom: 5px; margin-bottom: 0;">
+                                <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
+                                <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
+                                <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
+                                <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
+                                <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
+                            </div>
+                            
                         </div>
 
-                        <div class="category-scroll" style="padding-left: 20px;">
-                            <div class="cat-pill" :class="{active: currentCategory === 'Все'}" @click="currentCategory = 'Все'">Все</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Жидкости'}" @click="currentCategory = 'Жидкости'">Жидкости</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Избранное'}" @click="currentCategory = 'Избранное'">Избранное</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Под-системы'}" @click="currentCategory = 'Под-системы'">Под-системы</div>
-                            <div class="cat-pill" :class="{active: currentCategory === 'Картриджи'}" @click="currentCategory = 'Картриджи'">Картриджи</div>
-                        </div>
-
-                        <!-- СЕТКА ТОВАРОВ (Теперь 1 колонка, структура из референса) -->
-                        <div class="products-grid" style="padding: 0 20px; display: flex; flex-direction: column; gap: 25px;">
+                        <!-- СЕТКА ТОВАРОВ (Теперь 1 колонка) -->
+                        <div class="products-grid" style="padding: 0 20px; display: flex; flex-direction: column; gap: 20px;">
                             
                             <!-- Карточка товара -->
-                            <!-- ТЕСТОВОЕ СВЕЧЕНИЕ в background -->
-                            <div class="product-card" style="background: radial-gradient(circle at right top, rgba(115, 12, 30, 0.4) 0%, rgba(20, 15, 23, 0.95) 50%); border-radius: 24px; padding: 20px; position: relative; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: none;" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
+                            <div class="product-card" style="background: linear-gradient(135deg, rgba(20, 15, 23, 0.9), rgba(115, 12, 30, 0.15)); border-radius: 24px; padding: 20px; position: relative; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03);" v-for="item in filteredProducts" :key="item.id" @click="openProduct(item)">
 
-                                <!-- Кнопка избранного в правом верхнем углу (Абсолютная позиция) -->
-                                <div class="fav-btn" style="position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; z-index: 10;" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
-                                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                </div>
-
-                                <!-- Блок с большой картинкой по центру -->
-                                <!-- Разрешаем прозрачный фон (background: transparent) и обрезаем по содержимому (contain) -->
-                                <div style="width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                                    <img :src="item.photo" style="max-width: 100%; max-height: 100%; object-fit: contain; background: transparent; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5));">
-                                </div>
-
-                                <!-- Название под фоткой -->
-                                <div class="logo-font" style="font-size: 22px; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; text-transform: none; text-align: left; padding: 0 5px;">
-                                    {{ item.name }}
-                                </div>
-
-                                <!-- Тонкий разделитель перед низом -->
-                                <div style="width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 20px;"></div>
-
-                                <!-- Низ карточки (Цена + Доступно слева, Кнопка В корзину справа) -->
-                                <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px;">
+                                <!-- Внутреннее поле (Картинка слева, Текст справа, Избранное внутри) -->
+                                <!-- ТЕСТОВОЕ СВЕЧЕНИЕ (background: radial-gradient... - потом можно удалить или изменить) -->
+                                <div style="position: relative; display: flex; gap: 15px; background: radial-gradient(circle at 20% 50%, rgba(115, 12, 30, 0.6) 0%, rgba(255, 255, 255, 0.02) 60%); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.03);">
                                     
-                                    <!-- Левая часть (Цена, объем, наличие) -->
-                                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                                        <!-- Большущая цена -->
-                                        <div style="font-size: 26px; font-weight: 900; color: var(--text-main); font-family: 'Montserrat', sans-serif; letter-spacing: -1px;">
-                                            {{ item.price.toFixed(2) }} €
-                                        </div>
-                                        <!-- Тонкий зеленый статус -->
-                                        <div style="font-size: 11px; font-weight: 300; color: #4ade80; letter-spacing: 0.5px;">
-                                            В наличии
-                                        </div>
+                                    <!-- Кнопка избранного интегрирована ВНУТРЬ панели (в правый верхний угол) -->
+                                    <div class="fav-btn" style="position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05);" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)">
+                                        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                     </div>
+
+                                    <!-- Картинка (background: transparent чтобы удалить черный фон под PNG, object-fit: contain чтобы не обрезалась) -->
+                                    <img :src="item.photo" style="width: 90px; height: 110px; object-fit: contain; border-radius: 12px; background: transparent; flex-shrink: 0;">
+                                    
+                                    <!-- Правый текстовый блок (padding-right нужен, чтобы текст не залезал под кнопку избранного) -->
+                                    <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden; padding-right: 25px;">
+                                        <!-- Большое название (Размер уменьшен до 16px, разрешен перенос на 2 строки) -->
+                                        <div class="logo-font" style="font-size: 16px; line-height: 1.2; margin-bottom: 8px; letter-spacing: 0px; text-transform: none; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.name }}</div>
+                                        
+                                        <!-- Цена -->
+                                        <div style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">{{ item.price.toFixed(2) }} €</div>
+                                        
+                                        <!-- Описание (Ограничено 2 строками) -->
+                                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.desc }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Низ карточки (Доступно в городе + Кнопка в корзину) -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 5px;">
+                                    <!-- font-weight: 400 (тонкий шрифт), color: приглушенный зеленый -->
+                                    <div style="font-size: 12px; font-weight: 400; color: rgba(74, 222, 128, 0.6);">В наличии в г. {{ currentCity }}</div>
                                     
                                     <!-- Кнопка В корзину -->
-                                    <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: var(--brand-red); color: white; font-weight: 700; font-size: 13px; padding: 12px 24px; border-radius: 25px; transition: 0.2s;">
+                                    <div v-if="!cart[item.id]" @click.stop="addToCart(item)" style="background: var(--brand-red); color: white; font-weight: 800; font-size: 13px; padding: 10px 24px; border-radius: 20px; transition: 0.2s;">
                                         В корзину
                                     </div>
-                                    
-                                    <!-- Управление добавленным товаром (+/-) -->
-                                    <div v-else style="display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.05); border-radius: 25px; padding: 6px 8px;" @click.stop>
-                                        <div @click.stop="changeCartCount(item.id, -1)" style="width:28px; height:28px; display:flex; justify-content:center; align-items:center; background:var(--dark); border-radius:50%; font-weight:bold; color:var(--text-main); cursor:pointer;">-</div>
-                                        <div style="font-size:14px; font-weight:bold; min-width: 14px; text-align:center;">{{ cart[item.id].count }}</div>
-                                        <div @click.stop="changeCartCount(item.id, 1)" style="width:28px; height:28px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:50%; font-weight:bold; color:white; cursor:pointer;">+</div>
+                                    <!-- Элемент управления, если товар уже добавлен -->
+                                    <div v-else style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius: 20px; padding: 4px 6px;" @click.stop>
+                                        <div @click.stop="changeCartCount(item.id, -1)" style="width:30px; height:30px; display:flex; justify-content:center; align-items:center; background:var(--dark); border-radius:50%; font-weight:bold; color:var(--text-main);">-</div>
+                                        <div style="font-size:14px; font-weight:bold; min-width: 18px; text-align:center;">{{ cart[item.id].count }}</div>
+                                        <div @click.stop="changeCartCount(item.id, 1)" style="width:30px; height:30px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:50%; font-weight:bold; color:white;">+</div>
                                     </div>
-
                                 </div>
 
                             </div>
