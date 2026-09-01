@@ -188,26 +188,29 @@
             <div v-show="currentTab === 'main'" v-cloak>
                 
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
-                <!-- flex-start выравнивает по верху, min-height: 100vh растягивает блок, padding-bottom: 30vh оставляет 30% экрана снизу пустыми -->
                 <div id="home-section" style="position: relative; display: flex; flex-direction: column; justify-content: flex-start; min-height: 100vh; padding: calc(65px + 10vh) 20px 30vh 20px; box-sizing: border-box; margin-top: -65px;">
                     
-                    <!-- Верхний текст Sovento с белыми полосками -->
-                    <!-- Увеличил margin-bottom до 55px, чтобы отделить от заголовка -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 55px;">
-                        <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.5);"></div>
-                        <div style="font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #FFFFFF;">Sovento</div>
-                        <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.5);"></div>
+                    <!-- Мелкий белый текст над главным заголовком -->
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FFFFFF; text-align: center; margin-bottom: 15px; margin-top: 30px;">
+                        Сегодняшний заказ будет у вас
                     </div>
 
-                    <!-- Главный заголовок -->
-                    <div class="logo-font" style="font-size: 40px; line-height: 1.1; margin-bottom: 25px; letter-spacing: -1px; text-align: center;">
-                        СЕГОДНЯШНИЙ ЗАКАЗ<br>БУДЕТ У ВАС
+                    <!-- Главный заголовок (SOVENTO) -->
+                    <div class="logo-font" style="font-size: 56px; line-height: 1.1; margin-bottom: 25px; letter-spacing: -2px; text-align: center;">
+                        SOVENTO
                     </div>
 
                     <!-- Описание -->
                     <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; text-align: center; max-width: 95%; margin: 0 auto;">
                         В нашем ассортименте предоставлено разнобразные вкусы ваших любимых жиж. С вашей поддержкой там появятся и другие товары
                     </p>
+
+                    <!-- Кнопка "Оформить заказ", которая выталкивается вниз в оставленное пустое пространство -->
+                    <div style="margin-top: auto; display: flex; justify-content: center; padding-top: 40px;">
+                        <button @click="scrollToSection('catalog')" style="background: var(--brand-red); color: white; border: none; padding: 18px 0; border-radius: 30px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 0 5px 20px rgba(221, 136, 56, 0.3); transition: 0.2s; width: 100%; max-width: 280px;">
+                            Оформить заказ
+                        </button>
+                    </div>
 
                 </div> <!-- Закрываем home-section -->
 
@@ -217,19 +220,33 @@
                 <!-- БЛОК С СИНИМ ФОНОМ (#03050b) ДЛЯ ВСЕГО ОСТАЛЬНОГО -->
                 <div style="background-color: var(--dark); padding: 50px 0 20px 0; position: relative; z-index: 1;">
                     
-                    <!-- ИНФО-БЛОК (Доставка и Баллы в окошках) -->
+                    <!-- ИНФО-БЛОК (Оформление и Баллы в окошках) -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; margin-bottom: 50px; padding: 0 20px;">
                         
-                        <!-- Окошко 1 (Доставка) -->
+                        <!-- Окошко 1 (Оформление) -->
                         <div style="background: rgba(255, 255, 255, 0.03); border-radius: 24px; padding: 35px 20px; width: 100%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(10px);">
-                            <div class="logo-font" style="font-size: 30px; letter-spacing: -1px; margin-bottom: 10px; line-height: 1.1; white-space: nowrap;">ДОСТАВКА</div>
-                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Курьеры доставят заказ в ближайший срок</div>
+                            <div class="logo-font" style="font-size: 30px; letter-spacing: -1px; margin-bottom: 15px; line-height: 1.1; white-space: nowrap;">ОФОРМЛЕНИЕ</div>
+                            <!-- Текст выровнен аккуратно, чтобы список читался легко -->
+                            <div style="font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; line-height: 1.6; text-align: left;">
+                                <div style="text-align: center; margin-bottom: 10px;">Оформление заказа происходит в 3 клика:</div>
+                                <div style="margin-bottom: 15px; padding-left: 10px;">
+                                    - выберите товар<br>
+                                    - перейдите в корзину<br>
+                                    - подтвердите место и заказ
+                                </div>
+                                <div style="text-align: center; color: var(--text-main); font-weight: 600;">
+                                    Все! Никуда писать не надо, с вами вскоре свяжутся
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Окошко 2 (Баллы) -->
                         <div style="background: rgba(255, 255, 255, 0.03); border-radius: 24px; padding: 35px 20px; width: 100%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(10px);">
-                            <div class="logo-font" style="font-size: 30px; letter-spacing: -1px; margin-bottom: 10px; line-height: 1.1; white-space: nowrap;">100 БАЛЛОВ</div>
-                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Начисляется за каждый заказ</div>
+                            <div class="logo-font" style="font-size: 30px; letter-spacing: -1px; margin-bottom: 15px; line-height: 1.1; white-space: nowrap;">100 БАЛЛОВ</div>
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.5;">
+                                Начисляется за каждый заказ.<br><br>
+                                <span style="color: var(--text-main);">100 балов конвертируются в 1€, с нашими бонусами вы можете удвоить это значение.</span>
+                            </div>
                         </div>
                         
                     </div>
