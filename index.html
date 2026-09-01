@@ -129,8 +129,8 @@
         .fav-btn svg { width: 18px; height: 18px; fill: transparent; stroke: var(--text-main); stroke-width: 2px; transition: 0.2s; }
         .fav-btn.active svg { fill: var(--brand-red); stroke: var(--brand-red); }
 
-        .checkout-back-btn { width: 44px; height: 44px; background: rgba(221, 136, 56, 0.2); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; border: none; color: var(--brand-red); }
-        .checkout-back-btn:active { background: rgba(221, 136, 56, 0.4); transform: scale(0.95); }
+        .checkout-back-btn { display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; color: #FFFFFF; }
+        .checkout-back-btn:active { transform: scale(0.95); opacity: 0.7; }
         
         .xp-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 8px; overflow: hidden; position: relative; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand-red), #F5A623); transition: width 0.5s ease-out; }
@@ -371,10 +371,11 @@
                 </div>
                 
                 <div v-else>
-                    <!-- Список товаров (отступы между товарами через gap) -->
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center; margin-bottom: 0;" v-for="(item, id) in cart" :key="id">
-                            <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:cover; background:var(--dark);">
+                    <!-- Список товаров (Без рамок, с тонкими разделителями) -->
+                    <div style="display: flex; flex-direction: column;">
+                        <!-- Вместо карточки теперь просто отступы и полоска снизу -->
+                        <div style="padding: 15px 0; display:flex; gap:15px; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05);" v-for="(item, id) in cart" :key="id">
+                            <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:transparent; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));">
                             <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
                                 <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
                                 <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
@@ -409,10 +410,34 @@
             </div>
 
             <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
-            <div v-if="currentTab === 'checkout'" v-cloak>
+            <div v-if="currentTab === 'checkout'" v-cloak style="padding: 20px 20px 120px 20px;">
+                
+                <!-- КОПИЯ СЛАЙДЕРА НОВИНОК -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
+                    <div class="slider-container" style="margin-top: 0; padding-bottom: 0;">
+                        <div class="slide">
+                            <img src="https://placehold.co/600x400/111216/DD8838?text=NEW" class="slide-bg">
+                            <div class="slide-content">
+                                <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
+                                <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
+                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Уже доступны во всех городах!</p>
+                            </div>
+                        </div>
+                        <div class="slide">
+                            <img src="https://placehold.co/600x400/111216/4ade80?text=SALE" class="slide-bg">
+                            <div class="slide-content">
+                                <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
+                                <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
+                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">-15% на все жидкости до 20:00.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
                     <div class="checkout-back-btn" @click="currentTab = 'cart'">
-                        <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                        <svg style="width:28px; height:28px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
                     </div>
                     <h1 style="margin:0; font-size: 22px;">Оформление</h1>
                 </div>
