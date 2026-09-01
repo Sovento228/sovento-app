@@ -361,36 +361,50 @@
             </div> <!-- ВАЖНО: ЗАКРЫВАЕМ ЕДИНУЮ ЛЕНТУ MAIN ЗДЕСЬ! -->
 
             <!-- ЭКРАН 3: КОРЗИНА -->
-            <div v-if="currentTab === 'cart'" v-cloak>
-                <h1 style="margin-top:0;">Корзина</h1>
-                <div class="mock-card" v-if="Object.keys(cart).length === 0">
-                    <p style="color: var(--text-muted); text-align: center; margin: 0;">Ваша корзина пуста</p>
+            <!-- Добавлен padding, чтобы контент не прилипал к краям, а снизу (150px) было место для скролла под меню -->
+            <div v-if="currentTab === 'cart'" v-cloak style="padding: 20px 20px 150px 20px;">
+                <h1 style="margin-top:0; font-size: 26px;">Корзина</h1>
+                
+                <!-- Пустая корзина без рамок с выравниванием влево и точками -->
+                <div v-if="Object.keys(cart).length === 0" style="margin-top: 20px;">
+                    <p style="color: var(--text-muted); text-align: left; margin: 0; font-size: 15px;">Ваша корзина пуста...</p>
                 </div>
+                
                 <div v-else>
-                    <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center;" v-for="(item, id) in cart" :key="id">
-                        <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:cover; background:#1A1A1E;">
-                        <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
-                            <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
-                            <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                                <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 4px;">
-                                    <div @click="changeCartCount(id, -1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:#1A1A1E; border-radius:8px; font-weight:bold; cursor: pointer;">-</div>
-                                    <div style="font-size:14px; font-weight:bold; min-width: 16px; text-align:center;">{{ item.count }}</div>
-                                    <div @click="changeCartCount(id, 1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white; cursor: pointer;">+</div>
-                                </div>
-                                <div @click="removeCartItem(id)" style="width:34px; height:34px; background:rgba(255,60,0,0.1); border-radius:10px; display:flex; justify-content:center; align-items:center; color:var(--brand-red); cursor: pointer;">
-                                    <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    <!-- Список товаров (отступы между товарами через gap) -->
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div class="mock-card" style="padding: 15px; display:flex; gap:15px; align-items:center; margin-bottom: 0;" v-for="(item, id) in cart" :key="id">
+                            <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:cover; background:var(--dark);">
+                            <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
+                                <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
+                                <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                    <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 4px;">
+                                        <div @click="changeCartCount(id, -1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--dark); border-radius:8px; font-weight:bold; color:var(--text-main); cursor: pointer;">-</div>
+                                        <div style="font-size:14px; font-weight:bold; min-width: 16px; text-align:center;">{{ item.count }}</div>
+                                        <div @click="changeCartCount(id, 1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white; cursor: pointer;">+</div>
+                                    </div>
+                                    <div @click="removeCartItem(id)" style="width:34px; height:34px; background:rgba(221,136,56,0.1); border-radius:10px; display:flex; justify-content:center; align-items:center; color:var(--brand-red); cursor: pointer;">
+                                        <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="mock-card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:16px; font-weight:800; color:var(--text-muted);">Итого:</span>
-                        <span style="font-size:22px; font-weight:900; color:var(--text-main);">{{ cartTotal }} €</span>
+
+                    <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ ЗАКАЗА -->
+                    <div style="position: fixed; bottom: 85px; left: 0; width: 100%; background: var(--dark); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; z-index: 2000;">
+                        <!-- Итоговая цена слева -->
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">К оплате</span>
+                            <span style="font-size: 24px; font-weight: 900; color: var(--text-main); line-height: 1.1;">{{ cartTotal }} €</span>
+                        </div>
+                        
+                        <!-- Кнопка оформить справа -->
+                        <button @click="currentTab = 'checkout'" style="background: var(--brand-red); color: white; border: none; border-radius: 20px; padding: 14px 28px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 5px 15px rgba(221,136,56,0.3); transition: 0.2s;">
+                            Оформить
+                        </button>
                     </div>
-                    <button @click="currentTab = 'checkout'" style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
-                        Перейти к оформлению
-                    </button>
                 </div>
             </div>
 
