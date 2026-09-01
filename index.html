@@ -188,10 +188,12 @@
             <div v-show="currentTab === 'main'" v-cloak>
                 
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
-                <div id="home-section" style="position: relative; display: flex; flex-direction: column; justify-content: center; padding: 120px 20px 60px 20px;">
+                <!-- flex-start выравнивает по верху, min-height: 100vh растягивает блок, padding-bottom: 30vh оставляет 30% экрана снизу пустыми -->
+                <div id="home-section" style="position: relative; display: flex; flex-direction: column; justify-content: flex-start; min-height: 100vh; padding: calc(65px + 10vh) 20px 30vh 20px; box-sizing: border-box; margin-top: -65px;">
                     
                     <!-- Верхний текст Sovento с белыми полосками -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 40px;">
+                    <!-- Увеличил margin-bottom до 55px, чтобы отделить от заголовка -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 55px;">
                         <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.5);"></div>
                         <div style="font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #FFFFFF;">Sovento</div>
                         <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.5);"></div>
