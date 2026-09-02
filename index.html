@@ -6,7 +6,7 @@
     <title>SOVENTO Store</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Ruslan+Display&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
@@ -186,13 +186,18 @@
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <div id="home-section" style="position: relative; display: flex; flex-direction: column; justify-content: flex-start; min-height: 100vh; padding: calc(65px + 10vh) 20px 30vh 20px; box-sizing: border-box; margin-top: -65px;">
                     
-                    <!-- Мелкий белый текст над главным заголовком -->
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FFFFFF; text-align: center; margin-bottom: 15px; margin-top: 30px;">
+                    <!-- Мелкий пудровый текст (увеличен отступ снизу, чтобы дать воздух картинке) -->
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); text-align: center; margin-bottom: 25px; position: relative; z-index: 1;">
                         Сегодняшний заказ будет у вас
                     </div>
 
-                    <!-- Главный заголовок (SOVENTO) -->
-                    <div class="logo-font" style="font-size: 56px; line-height: 1.1; margin-bottom: 25px; letter-spacing: -2px; text-align: center;">
+                    <!-- ВСТАВЛЕННОЕ ФОТО ЦЕРКВИ -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 10px; position: relative; z-index: 1;">
+                        <img src="https://i.postimg.cc/mggzVm3P/Cerkov'-dla-sovento.png" style="width: 140px; height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">
+                    </div>
+
+                    <!-- Главный заголовок (SOVENTO) с НОВЫМ СТАРОСЛАВЯНСКИМ ШРИФТОМ -->
+                    <div style="font-family: 'Ruslan Display', cursive; font-size: 68px; line-height: 1; margin-bottom: 35px; letter-spacing: 4px; text-align: center; color: var(--text-main); position: relative; z-index: 1; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                         SOVENTO
                     </div>
 
