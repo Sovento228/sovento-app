@@ -10,13 +10,13 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            --dark: #1A1818; /* Obsidian */
+            --dark: #03050B; /* Глубокий сине-черный фон */
             --card-bg: rgba(255, 255, 255, 0.03); 
-            --brand-red: #A63F12; /* Saddle Brown */
-            --brand-red-glow: rgba(166, 63, 18, 0.25);
-            --text-main: #EBE6E6; /* Белый текст */
-            --text-muted: #A19D9C; /* Серый текст */
-            --glass: rgba(26, 24, 24, 0.85);
+            --brand-red: #A63F12; /* Наш новый оранжевый */
+            --brand-red-glow: rgba(166, 63, 18, 0.4);
+            --text-main: #F4F6F8; /* Более чистый и яркий белый */
+            --text-muted: #9BA3AE; /* Идеальный серый на базе нового белого */
+            --glass: rgba(3, 5, 11, 0.85); /* Стекло под сине-черный */
         }
 
         body { 
@@ -322,10 +322,10 @@
                                 </div>
 
                                 <!-- ВНУТРЕННЯЯ ПАНЕЛЬ С ГРАДИЕНТОМ И ШАХМАТНЫМ РАСПОЛОЖЕНИЕМ -->
-                                <!-- Если картинка слева, градиент слева-направо (#2F2D2E -> #B7723F). Если справа - наоборот. -->
+                                <!-- От глубокого темно-синего (#070B14) к нашему новому оранжевому (var(--brand-red)) -->
                                 <div :style="{ 
                                         flexDirection: index % 2 === 0 ? 'row' : 'row-reverse',
-                                        background: index % 2 === 0 ? 'linear-gradient(90deg, #2F2D2E 0%, #B7723F 100%)' : 'linear-gradient(-90deg, #2F2D2E 0%, #B7723F 100%)'
+                                        background: index % 2 === 0 ? 'linear-gradient(90deg, #070B14 0%, var(--brand-red) 100%)' : 'linear-gradient(-90deg, #070B14 0%, var(--brand-red) 100%)'
                                      }" 
                                      style="display: flex; border-radius: 16px; padding: 15px; gap: 15px; align-items: center; margin-bottom: 15px;">
                                     
@@ -1024,7 +1024,15 @@
                     setTimeout(() => { this.selectedProduct = null; }, 300);
                 },
                 scrollToSection(section) {
-                    if (this.currentTab !== 'main') this.currentTab = 'main';
+                    this.activeScrollSection = section; // Мгновенно переключаем индикатор
+                    
+                    if (this.currentTab !== 'main') {
+                        this.currentTab = 'main';
+                        // Сбрасываем позицию экрана в самый верх мгновенно, чтобы не прыгала "Товары"
+                        if (section === 'home') {
+                            window.scrollTo(0, 0);
+                        }
+                    }
                     
                     this.$nextTick(() => {
                         setTimeout(() => {
