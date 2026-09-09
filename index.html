@@ -1092,7 +1092,7 @@
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
                         if(this.currentTab !== 'main') return; 
-                        const slider = document.getElementById('promo-slider');
+                        const slider = this.$refs.promoSlider;
                         if(!slider || this.totalSlides <= 1) return; 
 
                         this.sliderProgress += (100 / (5000 / 50)); 
@@ -1109,7 +1109,7 @@
                     }, 50);
                 },
                 handleScroll() {
-                    const slider = document.getElementById('promo-slider');
+                    const slider = this.$refs.promoSlider;
                     if(slider) {
                         this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
                     }
@@ -1180,7 +1180,7 @@
                     this.currentCity = city;
                     this.isCityDropdownOpen = false;
                     this.$nextTick(() => {
-                        const slider = document.getElementById('promo-slider');
+                        const slider = this.$refs.promoSlider;
                         if (slider) {
                             this.totalSlides = slider.children.length;
                         }
