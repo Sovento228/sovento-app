@@ -50,18 +50,35 @@
         .divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.05); margin: 30px 0; }
         .app-content { padding: 0 0 120px 0; }
 
+        /* Универсальный класс для тактильного отклика (пружинящие кнопки) */
+        .haptic-btn { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .haptic-btn:active { transform: scale(0.92) !important; }
+
+        /* Парящая навигация (Floating Glass Nav) */
         .bottom-nav {
-            position: fixed; bottom: 20px; left: 4%; width: 92%;
-            background: rgba(26, 24, 24, 0.7);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 25px; border: none;
+            position: fixed; bottom: 25px; left: 5%; width: 90%;
+            background: linear-gradient(180deg, rgba(30, 32, 40, 0.85) 0%, rgba(15, 17, 21, 0.95) 100%);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 30px; border: 1px solid rgba(255,255,255,0.08);
             display: flex; justify-content: space-around; align-items: center;
-            padding: 12px 0; z-index: 2500; box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 14px 10px; z-index: 2500; box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.1);
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; cursor: pointer; }
-        .nav-item.active { color: var(--brand-red); text-shadow: 0 0 10px rgba(166, 63, 18, 0.4); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 6px; 
+            color: var(--text-muted); font-size: 10px; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease-out; 
+            cursor: pointer; position: relative;
+        }
+        .nav-item:active { transform: scale(0.9); opacity: 0.7; }
+        .nav-item.active { color: var(--text-main); }
+        /* Красивая точка под активной вкладкой */
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: -8px; width: 4px; height: 4px; 
+            background: var(--brand-red); border-radius: 50%; box-shadow: 0 0 8px var(--brand-red);
+        }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; transition: 0.3s; }
+        .nav-item.active svg { fill: var(--brand-red); filter: drop-shadow(0 2px 8px rgba(166, 63, 18, 0.6)); }
 
         .mock-card {
             background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
@@ -386,7 +403,7 @@
                         <!-- СЛАЙДЕР НОВИНОК -->
                         <div style="margin-bottom: 30px; padding: 0 20px;">
                             <h3 style="margin: 0 0 15px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
-                            <div class="slider-container" id="promo-slider" @scroll="handleScroll">
+                            <div class="slider-container" ref="promoSlider" @scroll="handleScroll">
                                 <div class="slide">
                                     <img src="https://placehold.co/600x400/111216/DD8838?text=NEW" class="slide-bg">
                                     <div class="slide-content">
@@ -499,49 +516,53 @@
                 </div> <!-- Конец синего блока -->
             </div> <!-- ВАЖНО: ЗАКРЫВАЕМ ЕДИНУЮ ЛЕНТУ MAIN ЗДЕСЬ! -->
 
-            <!-- ЭКРАН 3: КОРЗИНА -->
-            <!-- Добавлен padding, чтобы контент не прилипал к краям, а снизу (150px) было место для скролла под меню -->
+            <!-- ЭКРАН 3: КОРЗИНА (PREMIUM REDESIGN) -->
             <div v-if="currentTab === 'cart'" v-cloak style="padding: 20px 20px 150px 20px;">
-                <h1 style="margin-top:0; font-size: 26px;">Корзина</h1>
+                <h1 style="margin-top:0; font-size: 26px; margin-bottom: 20px;">Корзина</h1>
                 
-                <!-- Пустая корзина без рамок с выравниванием влево и точками -->
-                <div v-if="Object.keys(cart).length === 0" style="margin-top: 20px;">
-                    <p style="color: var(--text-muted); text-align: left; margin: 0; font-size: 15px;">Ваша корзина пуста...</p>
+                <div v-if="Object.keys(cart).length === 0" style="text-align: center; margin-top: 50px; opacity: 0.5;">
+                    <svg style="width: 64px; height: 64px; fill: var(--text-muted); margin-bottom: 15px;" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <p style="color: var(--text-muted); margin: 0; font-size: 15px; font-weight: 600;">Ваша корзина пока пуста</p>
                 </div>
                 
                 <div v-else>
-                    <!-- Список товаров (Без рамок, с тонкими разделителями) -->
+                    <!-- Стеклянные карточки товаров -->
                     <div style="display: flex; flex-direction: column;">
-                        <!-- Вместо карточки теперь просто отступы и полоска снизу -->
-                        <div style="padding: 15px 0; display:flex; gap:15px; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05);" v-for="(item, id) in cart" :key="id">
-                            <img :src="item.photo" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:transparent; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));">
-                            <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px;">
-                                <div style="font-size:13px; font-weight:700;">{{ item.name }}</div>
-                                <div style="font-size:14px; font-weight:900; color:var(--brand-red);">{{ (item.price * item.count).toFixed(2) }} €</div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                                    <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); border-radius:10px; padding: 4px;">
-                                        <div @click="changeCartCount(id, -1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--dark); border-radius:8px; font-weight:bold; color:var(--text-main); cursor: pointer;">-</div>
-                                        <div style="font-size:14px; font-weight:bold; min-width: 16px; text-align:center;">{{ item.count }}</div>
-                                        <div @click="changeCartCount(id, 1)" style="width:26px; height:26px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:8px; font-weight:bold; color:white; cursor: pointer;">+</div>
+                        <div class="haptic-btn" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display:flex; gap:15px; align-items:center; position: relative; overflow: hidden; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 10px 25px rgba(0,0,0,0.3);" v-for="(item, id) in cart" :key="id">
+                            
+                            <!-- Цветовой ореол товара -->
+                            <div :style="{ background: item.color }" style="position: absolute; top: 50%; left: 0; transform: translateY(-50%); width: 80px; height: 80px; filter: blur(40px); opacity: 0.3; border-radius: 50%; pointer-events: none;"></div>
+                            
+                            <img :src="item.photo" style="width:70px; height:70px; border-radius:16px; object-fit:contain; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); position: relative; z-index: 1;">
+                            
+                            <div style="flex-grow:1; display:flex; flex-direction:column; gap:5px; position: relative; z-index: 1;">
+                                <div style="font-size:14px; font-weight:800; line-height: 1.2;">{{ item.name }}</div>
+                                <div style="font-size:16px; font-weight:900; color:var(--text-main); text-shadow: 0 2px 5px rgba(0,0,0,0.5);">{{ (item.price * item.count).toFixed(2) }} €</div>
+                                
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                                    <!-- Элегантный счетчик -->
+                                    <div style="display:flex; align-items:center; gap:12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius:12px; padding: 4px 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                                        <div class="haptic-btn" @click.stop="changeCartCount(id, -1)" style="width:28px; height:28px; display:flex; justify-content:center; align-items:center; background: rgba(255,255,255,0.05); border-radius:50%; font-weight:bold; color:var(--text-main); cursor: pointer;">-</div>
+                                        <div style="font-size:14px; font-weight:900; min-width: 16px; text-align:center;">{{ item.count }}</div>
+                                        <div class="haptic-btn" @click.stop="changeCartCount(id, 1)" style="width:28px; height:28px; display:flex; justify-content:center; align-items:center; background:var(--brand-red); border-radius:50%; font-weight:bold; color:white; cursor: pointer; box-shadow: 0 2px 8px rgba(166, 63, 18, 0.5);">+</div>
                                     </div>
-                                    <div @click="removeCartItem(id)" style="width:34px; height:34px; background:rgba(221,136,56,0.1); border-radius:10px; display:flex; justify-content:center; align-items:center; color:var(--brand-red); cursor: pointer;">
-                                        <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    <!-- Кнопка удаления -->
+                                    <div class="haptic-btn" @click.stop="removeCartItem(id)" style="width:36px; height:36px; background:rgba(239, 62, 44, 0.1); border: 1px solid rgba(239, 62, 44, 0.2); border-radius:12px; display:flex; justify-content:center; align-items:center; color:#EF3E2C; cursor: pointer;">
+                                        <svg style="width:18px; height:18px; fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ ЗАКАЗА -->
-                    <div style="position: fixed; bottom: 85px; left: 0; width: 100%; background: var(--dark); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; z-index: 2000;">
-                        <!-- Итоговая цена слева -->
+                    <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ -->
+                    <div style="position: fixed; bottom: 85px; left: 0; width: 100%; background: linear-gradient(180deg, rgba(3, 5, 11, 0.8) 0%, rgba(3, 5, 11, 0.95) 100%); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 2000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
                         <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">К оплате</span>
-                            <span style="font-size: 24px; font-weight: 900; color: var(--text-main); line-height: 1.1;">{{ cartTotal }} €</span>
+                            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">К оплате</span>
+                            <span style="font-size: 26px; font-weight: 900; color: white; line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">{{ cartTotal }} €</span>
                         </div>
                         
-                        <!-- Кнопка оформить справа -->
-                        <button @click="currentTab = 'checkout'" style="background: var(--brand-red); color: white; border: none; border-radius: 20px; padding: 14px 28px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 5px 15px rgba(221,136,56,0.3); transition: 0.2s;">
+                        <button class="haptic-btn" @click="currentTab = 'checkout'" style="background: linear-gradient(135deg, var(--brand-red) 0%, #7A2E0C 100%); color: white; border: 1px solid rgba(255, 150, 100, 0.3); border-radius: 20px; padding: 16px 30px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 0 10px 25px rgba(166, 63, 18, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);">
                             Оформить
                         </button>
                     </div>
@@ -908,7 +929,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- ПАНЕЛЬ НАВИГАЦИИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
