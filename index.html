@@ -154,6 +154,100 @@
         .roulette-item.rare { color: #e8d5d8; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
         .roulette-item.epic { color: var(--brand-red); box-shadow: 0 0 15px rgba(221, 136, 56, 0.4); }
         .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: var(--brand-red); z-index: 10; border-radius: 2px; box-shadow: 0 0 10px var(--brand-red); }
+        /* =========================================
+           ФИЗИКА И ВИЗУАЛ CRASH ИГРЫ (JETX STYLE)
+           ========================================= */
+        /* Движение звездного неба */
+        @keyframes spacePan {
+            from { background-position: 0 0; }
+            to { background-position: -200px 100px; }
+        }
+        /* Тряска ракеты от перегрузок */
+        @keyframes jetVibration {
+            0%, 100% { transform: translate(0, 0) rotate(12deg); }
+            25% { transform: translate(1px, -2px) rotate(13deg); }
+            50% { transform: translate(-1px, 2px) rotate(11deg); }
+            75% { transform: translate(2px, 1px) rotate(12deg); }
+        }
+        /* Анимация огня из сопла */
+        @keyframes flameFlicker {
+            0%, 100% { transform: scaleX(1); opacity: 0.8; }
+            50% { transform: scaleX(1.3); opacity: 1; filter: drop-shadow(0 0 10px #4ade80); }
+        }
+
+        /* Фон игры */
+        .jetx-bg {
+            background-color: #0b0c10;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.6), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 150px 150px;
+        }
+        .jetx-bg.is-flying {
+            animation: spacePan 3s linear infinite;
+        }
+
+        /* Контейнер траектории */
+        .jet-trajectory {
+            position: absolute;
+            left: -20px; bottom: 10px;
+            /* Плавный выход на орбиту: летит в центр-право и останавливается */
+            transition: left 3s cubic-bezier(0.2, 0.8, 0.2, 1), bottom 2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 10;
+        }
+        .jet-trajectory.is-flying {
+            left: 65%;
+            bottom: 55%;
+        }
+        .jet-trajectory.is-crashed {
+            transition: transform 0.6s ease-in, opacity 0.4s;
+            transform: translateY(150px) rotate(45deg);
+            opacity: 0;
+        }
+
+        /* Сама ракета */
+        .jet-sprite {
+            transform: rotate(45deg); /* Стартовый угол */
+            transition: transform 2s ease-out;
+            position: relative;
+        }
+        .is-flying .jet-sprite {
+            /* Выравнивается в полете и начинает вибрировать */
+            animation: jetVibration 0.3s ease-in-out infinite;
+        }
+
+        /* Пламя */
+        .jet-flame {
+            position: absolute;
+            right: 90%; top: 50%;
+            width: 40px; height: 6px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #4ade80);
+            transform-origin: right center;
+            transform: translateY(-50%);
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .is-flying .jet-flame {
+            opacity: 1;
+            animation: flameFlicker 0.1s infinite;
+        }
+        
+        .crash-multiplier-text {
+            font-size: 72px; 
+            font-weight: 900; 
+            line-height: 1; 
+            z-index: 5; 
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            font-family: 'Montserrat', sans-serif;
+            transition: color 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -736,143 +830,85 @@
                 </div>
             </div>
         </div>
-        <!-- МОДАЛКА CRASH ИГРЫ -->
-        <!-- Стили специфичные для физики краш-игры -->
-        <style>
-            /* Бесконечная анимация сетки для эффекта скорости */
-            @keyframes gridScroll {
-                0% { background-position: 0 0; }
-                100% { background-position: -40px 40px; }
-            }
-            /* Мягкая турбулентность в полете */
-            @keyframes planeWobble {
-                0%, 100% { transform: translateY(0px) rotate(0deg); }
-                50% { transform: translateY(-4px) rotate(-2deg); }
-            }
-            /* Пульсация шлейфа */
-            @keyframes trailPulse {
-                0%, 100% { opacity: 0.6; width: 80px; }
-                50% { opacity: 1; width: 120px; }
-            }
 
-            .crash-bg-grid {
-                background-image: 
-                    linear-gradient(rgba(139, 92, 246, 0.15) 1px, transparent 1px), 
-                    linear-gradient(90deg, rgba(139, 92, 246, 0.15) 1px, transparent 1px);
-                background-size: 40px 40px;
-                background-position: 0 0;
-            }
-            .crash-bg-grid.is-flying {
-                animation: gridScroll 0.8s linear infinite;
-            }
-
-            /* ОСЬ X: Плавное ускорение вправо */
-            .plane-x {
-                position: absolute; bottom: 20px; left: 10px;
-                transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-                transform: translateX(0);
-                z-index: 10;
-            }
-            .plane-x.is-flying { transform: translateX(170px); }
-            .plane-x.is-crashed { transform: translateX(250px); transition: transform 0.6s linear; }
-
-            /* ОСЬ Y: Резкий рывок вверх с плавным выравниванием (создает дугу) */
-            .plane-y {
-                transition: transform 1.5s cubic-bezier(0, 0.5, 0.2, 1), opacity 0.3s;
-                transform: translateY(0) rotate(0deg);
-            }
-            .plane-y.is-flying { transform: translateY(-110px) rotate(-12deg); }
-            .plane-y.is-crashed { transform: translateY(100px) rotate(60deg); transition: transform 0.6s ease-in; opacity: 0; }
-
-            /* Сам самолет с турбулентностью */
-            .plane-sprite { transition: 0.2s; }
-            .is-flying .plane-sprite { animation: planeWobble 1.5s ease-in-out infinite; }
-            
-            .plane-trail {
-                position: absolute; right: 80%; top: 50%;
-                height: 3px; background: linear-gradient(90deg, transparent, #8B5CF6, #D8B4FE);
-                transform: translateY(-50%); border-radius: 2px;
-                filter: drop-shadow(0 0 8px #8B5CF6);
-                opacity: 0; transition: opacity 0.3s;
-            }
-            .is-flying .plane-trail {
-                animation: trailPulse 0.5s ease-in-out infinite;
-                opacity: 1;
-            }
-        </style>
-
+        <!-- МОДАЛКА CRASH ИГРЫ (JETX STYLE) -->
         <div class="modal-overlay" :class="{ active: isCrashOpen }" @click.self="isCrashOpen = false; isCrashRunning ? cashOut() : null">
-            <div class="modal-sheet" style="padding-bottom: 20px; background: #08080A; border-top: 1px solid rgba(139,92,246,0.2);">
+            <div class="modal-sheet" style="padding-bottom: 20px; background: #0A0A0C; border-top: 1px solid rgba(74, 222, 128, 0.2);">
                 <div class="close-btn" @click="!isCrashRunning && (isCrashOpen = false)">
                     <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </div>
+                
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h2 style="margin:0; font-size:22px; font-weight:900; background: linear-gradient(90deg, #A78BFA, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SOVENTO CRASH</h2>
-                    <div style="color: var(--text-main); font-weight:bold; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                        {{ user.balance }} <span style="color:var(--brand-red);">баллов</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="margin:0; font-size:22px; font-weight:900; color: #FFF; letter-spacing: 1px; font-style: italic;">JET<span style="color: #4ade80;">X</span></h2>
+                    </div>
+                    <div style="color: #F4F6F8; font-weight:900; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 12px; display: flex; align-items: center; gap: 6px;">
+                        <svg style="width: 14px; height: 14px; fill: #4ade80;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zM14.28 16H13v-3c0-.55-.45-1-1-1H9V9l3.5-3.5c1.45.69 2.59 1.83 3.28 3.28L13 11.53c0 .55.45 1 1 1h2.82c.12.47.18.97.18 1.47 0 2.91-1.72 5.42-4.22 6.5l1.5-1.5z"/></svg>
+                        {{ user.balance.toFixed(2) }}
                     </div>
                 </div>
 
-                <!-- ЭКРАН ИГРЫ -->
-                <div style="height: 240px; background: radial-gradient(circle at 50% 0%, #151522 0%, #0A0A0C 100%); border: 1px solid rgba(139,92,246,0.3); border-radius: 20px; margin-bottom: 20px; position:relative; overflow:hidden; display: flex; flex-direction: column; align-items: center; padding-top: 15px; box-shadow: inset 0 10px 30px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5);">
+                <!-- ИГРОВОЙ ЭКРАН -->
+                <div class="jetx-bg" :class="{'is-flying': isCrashRunning}" style="height: 260px; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.05);">
                     
-                    <!-- Движущаяся неоновая сетка -->
-                    <div class="crash-bg-grid" :class="{'is-flying': isCrashRunning}" style="position: absolute; bottom: 0; left: 0; width: 200%; height: 200%; z-index: 0; pointer-events: none;"></div>
-                    
-                    <!-- Статус игры -->
-                    <div style="background: rgba(0,0,0,0.6); padding: 6px 16px; border-radius: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); z-index: 20; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
+                    <!-- Статус игры (Сверху по центру) -->
+                    <div style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 6px 16px; border-radius: 20px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); z-index: 20; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
                         <span v-if="!isCrashRunning && !crashCrashed">Ожидание ставки</span>
-                        <span v-if="isCrashRunning" style="color: #4ade80;">В полете...</span>
-                        <span v-if="crashCrashed" style="color: #EF3E2C;">КРАШ!</span>
+                        <span v-if="isCrashRunning" style="color: #4ade80;">Полет нормальный</span>
+                        <span v-if="crashCrashed" style="color: #EF3E2C;">Улетел</span>
                     </div>
 
-                    <!-- Множитель -->
-                    <div style="font-size: 64px; font-weight: 900; line-height: 1.1; z-index: 20; text-shadow: 0 10px 20px rgba(0,0,0,0.8); margin-top: 10px;" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFF') }">
-                        {{ crashMultiplier.toFixed(2) }}x
-                    </div>
-                    
-                    <!-- Выигрыш при кэшауте -->
-                    <div v-if="crashWinAmount > 0" style="color: #4ade80; font-weight: 900; font-size: 16px; z-index: 20; background: rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.3); padding: 6px 16px; border-radius: 12px; margin-top: 10px; animation: fadeUp 0.3s ease-out;">
-                        Вы забрали +{{ crashWinAmount }}
+                    <!-- Огромный множитель (Слева по центру, как в JetX) -->
+                    <div class="crash-multiplier-text" :style="{ color: crashCrashed ? '#EF3E2C' : (isCrashRunning ? '#4ade80' : '#FFFFFF') }">
+                        {{ crashMultiplier.toFixed(2) }}<span style="font-size: 40px;">x</span>
                     </div>
 
-                    <!-- СОСТАВНОЙ САМОЛЕТ С ФИЗИКОЙ ДУГИ -->
-                    <div class="plane-x" :class="{'is-flying': isCrashRunning, 'is-crashed': crashCrashed}">
-                        <div class="plane-y" :class="{'is-flying': isCrashRunning, 'is-crashed': crashCrashed}">
-                            <div class="plane-sprite" style="position: relative;">
-                                <!-- Огонь из турбины -->
-                                <div class="plane-trail"></div>
-                                <!-- SVG Премиум Джет -->
-                                <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; fill: #FFFFFF; filter: drop-shadow(0 5px 10px rgba(139,92,246,0.6)); transform: rotate(90deg);">
-                                    <path d="M21,16V14L13,9V3.5C13,2.67 12.33,2 11.5,2C10.67,2 10,2.67 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" />
-                                </svg>
-                            </div>
+                    <!-- СОСТАВНОЙ ДЖЕТ -->
+                    <div class="jet-trajectory" :class="{'is-flying': isCrashRunning, 'is-crashed': crashCrashed}">
+                        <div class="jet-sprite">
+                            <div class="jet-flame"></div>
+                            <!-- Крутой SVG джет (ракета) -->
+                            <svg viewBox="0 0 24 24" style="width: 56px; height: 56px; fill: #FFFFFF; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); transform: rotate(45deg);">
+                                <path fill="#cbd5e1" d="M14.4,2.8C14.1,2.3 13.6,2 13,2H11C10.4,2 9.9,2.3 9.6,2.8L5.1,10H18.9L14.4,2.8Z" />
+                                <path fill="#f8fafc" d="M19.8,11H4.2C3.5,11 3,11.5 3,12.2V14.8C3,15.5 3.5,16 4.2,16H19.8C20.5,16 21,15.5 21,14.8V12.2C21,11.5 20.5,11 19.8,11Z" />
+                                <path fill="#e2e8f0" d="M6,17H18V19C18,20.1 17.1,21 16,21H8C6.9,21 6,20.1 6,19V17Z" />
+                                <path fill="#3b82f6" d="M9,13H15V14H9V13Z" /> <!-- Иллюминатор/полоса -->
+                                <path fill="#ef4444" d="M3,12L1,16H3V12ZM21,12V16H23L21,12Z" /> <!-- Крылья -->
+                            </svg>
                         </div>
                     </div>
+                </div>
+
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px;">
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Ставка (Баллы)</span>
+                        <span v-if="crashWinAmount > 0" style="font-size: 12px; color: #4ade80; font-weight: 800;">Выигрыш: +{{ crashWinAmount.toFixed(2) }}</span>
+                    </div>
                     
-                    <!-- Взрыв -->
-                    <div v-if="crashCrashed" style="position: absolute; bottom: 80px; right: 40px; font-size: 40px; z-index: 5; filter: drop-shadow(0 0 20px #EF3E2C); animation: fadeUp 0.2s ease-out;">💥</div>
-                </div>
+                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                        <div style="flex: 1; position: relative;">
+                            <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 20px; font-weight:900; width: 100%; padding-right: 40px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);" :disabled="isCrashRunning">
+                        </div>
+                        <button class="toggle-btn" style="flex:0; padding: 0 15px; font-size: 14px; background: rgba(255,255,255,0.05);" @click="crashBet = Math.floor(crashBet / 2)" :disabled="isCrashRunning">/2</button>
+                        <button class="toggle-btn" style="flex:0; padding: 0 15px; font-size: 14px; background: rgba(255,255,255,0.05);" @click="crashBet = crashBet * 2" :disabled="isCrashRunning">x2</button>
+                        <button class="toggle-btn" style="flex:0; padding: 0 15px; font-size: 14px; background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3);" @click="crashBet = user.balance" :disabled="isCrashRunning">MAX</button>
+                    </div>
 
-                <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
-                <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                    <input type="number" v-model="crashBet" class="checkout-input" style="margin:0; font-size: 18px; font-weight:900; text-align:center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);" :disabled="isCrashRunning" placeholder="Ставка">
-                    <button class="toggle-btn" style="flex:0.5; font-size: 14px; background: rgba(255,255,255,0.05);" @click="crashBet = Math.floor(user.balance / 2)" :disabled="isCrashRunning">1/2</button>
-                    <button class="toggle-btn" style="flex:0.5; font-size: 14px; background: rgba(139, 92, 246, 0.2); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3);" @click="crashBet = user.balance" :disabled="isCrashRunning">MAX</button>
+                    <button style="width: 100%; padding: 20px; border: none; border-radius: 12px; font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase; transition: all 0.1s ease-out;"
+                            :style="isCrashRunning ? 'background: #F59E0B; color:#000; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);' : 'background: #4ade80; color:#000; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);'"
+                            @click="isCrashRunning ? cashOut() : startCrash()"
+                            :disabled="crashCrashed && isCrashRunning"
+                            onmousedown="this.style.transform='scale(0.97)'"
+                            onmouseup="this.style.transform='scale(1)'"
+                            ontouchstart="this.style.transform='scale(0.97)'"
+                            ontouchend="this.style.transform='scale(1)'">
+                        {{ isCrashRunning ? 'ЗАБРАТЬ ' + (crashBet * crashMultiplier).toFixed(2) : 'СДЕЛАТЬ СТАВКУ' }}
+                    </button>
                 </div>
-
-                <button style="width: 100%; padding: 20px; border: none; border-radius: 16px; font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 20px rgba(0,0,0,0.3);"
-                        :style="isCrashRunning ? 'background: linear-gradient(135deg, #F59E0B, #D97706); color:white; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);' : 'background: linear-gradient(135deg, #8B5CF6, #6D28D9); color:white; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);'"
-                        @click="isCrashRunning ? cashOut() : startCrash()"
-                        :disabled="crashCrashed && isCrashRunning"
-                        onmousedown="this.style.transform='scale(0.96)'"
-                        onmouseup="this.style.transform='scale(1)'"
-                        ontouchstart="this.style.transform='scale(0.96)'"
-                        ontouchend="this.style.transform='scale(1)'">
-                    {{ isCrashRunning ? 'ЗАБРАТЬ ' + Math.floor(crashBet * crashMultiplier) : 'НАЧАТЬ ПОЛЕТ' }}
-                </button>
             </div>
         </div>
+        
         <!-- ПАНЕЛЬ НАВИГАЦИИ -->
         <div class="bottom-nav" v-show="currentTab !== 'checkout'">
             <div class="nav-item" :class="{ active: currentTab === 'main' && activeScrollSection === 'home' }" @click="scrollToSection('home')">
