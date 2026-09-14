@@ -542,7 +542,31 @@
                             </div>
                         </div>
                         <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                    
+                    <!-- FOOTER (Дисклеймер и Навигация) -->
+                    <div style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+                        <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; text-align: left; margin-bottom: 15px;">SOVENTO</div>
+                        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">Эксклюзивная коллекция жидкостей и девайсов. Доставка по всей Германии. Заказы и наличие — в Telegram.</p>
                         
+                        <div style="margin-bottom: 30px;">
+                            <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;">Навигация</div>
+                            <div @click="scrollToSection('catalog')" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Товары</div>
+                            <div @click="scrollToSection('home')" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">О нас</div>
+                            <div @click="goToFavorites" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Избранное</div>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;">Telegram</div>
+                            <div style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Канал с поступлениями</div>
+                            <div style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Поддержка</div>
+                        </div>
+
+                        <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
+
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
+                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
+                    </div>    
+
                     </div> <!-- Конец catalog-section -->
                 </div> <!-- Конец синего блока -->
             </div> <!-- ВАЖНО: ЗАКРЫВАЕМ ЕДИНУЮ ЛЕНТУ MAIN ЗДЕСЬ! -->
@@ -705,7 +729,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Ранг: <b style="color:var(--brand-red);">{{ user.rankName }}</b></div>
                             
                             <div class="xp-bar-container" style="height: 6px; background: rgba(0,0,0,0.5); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
                                 <div class="xp-bar-fill" :style="{ width: (user.xp / user.maxXp * 100) + '%' }" style="box-shadow: 0 0 10px var(--brand-red);"></div>
@@ -769,6 +792,30 @@
                         </div>
                     </div>
                 </div>
+
+            <!-- FOOTER (Дисклеймер и Навигация) -->
+                    <div style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+                        <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; text-align: left; margin-bottom: 15px;">SOVENTO</div>
+                        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">Эксклюзивная коллекция жидкостей и девайсов. Доставка по всей Германии. Заказы и наличие — в Telegram.</p>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;">Навигация</div>
+                            <div @click="scrollToSection('catalog')" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Товары</div>
+                            <div @click="scrollToSection('home')" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">О нас</div>
+                            <div @click="goToFavorites" style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Избранное</div>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;">Telegram</div>
+                            <div style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Канал с поступлениями</div>
+                            <div style="font-size: 14px; color: var(--text-main); font-weight: 500; margin-bottom: 12px; cursor: pointer;">Поддержка</div>
+                        </div>
+
+                        <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
+
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
+                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
+                    </div>    
 
             </div> <!-- КОНЕЦ ЭКРАНА ПРОФИЛЯ -->
             
@@ -853,21 +900,31 @@
                     </div>
                 </div>
 
-                <!-- Состояние ПОСЛЕ прокрутки (Заблокировано на 24 часа) -->
-                <div v-if="hasSpunRoulette" style="text-align:center; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); animation: fadeUp 0.5s;">
-                    <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.4;" v-html="rouletteMessage"></div>
+                <!-- Состояние ПОСЛЕ прокрутки (Таймер) -->
+            <div v-if="hasSpunRoulette" style="text-align:center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); width: 80%; animation: fadeUp 0.5s;">
+                
+                <div v-if="justSpun">
+                    <!-- Сразу после прокрута -->
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">Отлично!<br>Ваш выигрыш:</div>
                     <div v-if="rouletteResult && rouletteResult.type !== 'empty'" style="font-size: 22px; color: var(--brand-red); font-weight: 900; text-transform: uppercase; text-shadow: 0 0 15px var(--brand-red-glow);">
                         {{ rouletteResult.name }}
                     </div>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 11px; color: var(--text-muted); font-weight: 600;">
-                        ⏱ СЛЕДУЮЩАЯ ПОПЫТКА ЧЕРЕЗ 24 ЧАСА
+                    <div v-else style="font-size: 22px; color: var(--text-muted); font-weight: 900; text-transform: uppercase;">Пусто</div>
+                </div>
+                
+                <div v-else>
+                    <!-- При повторном заходе (Таймер) -->
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.5;">
+                        Ждите <span style="color: var(--brand-red); font-size: 16px;">{{ rouletteTimerDisplay }}</span>,<br>вы сможете попытать свою удачу снова.
                     </div>
                 </div>
 
-                <!-- Кнопка ДО прокрутки -->
-                <button v-else class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; border: none;" @click="spinRoulette" :disabled="isSpinning">
-                    {{ isSpinning ? 'КРУТИМ...' : 'ИСПЫТАТЬ УДАЧУ' }}
-                </button>
+            </div>
+
+            <!-- Кнопка ДО прокрутки -->
+            <button v-else class="haptic-btn btn-cherry" style="width: 80%; max-width: 300px; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; border: none;" @click="spinRoulette" :disabled="isSpinning">
+                {{ isSpinning ? 'КРУТИМ...' : 'ИСПЫТАТЬ УДАЧУ' }}
+            </button>
             </div>
         </div>
 
@@ -882,21 +939,18 @@
                 <!-- Исправленный контейнер для скролла -->
                 <div style="display: flex; overflow-x: auto; overflow-y: hidden; gap: 0; padding-bottom: 20px; position: relative; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%;">
                     
-                    <!-- Полоса фона прогресса (серая) -->
-                    <!-- Ширина высчитывается динамически на базе 8 уровней (каждый шаг ~120px) -->
-                    <div style="position: absolute; top: 14px; left: 60px; width: calc(120px * 7); height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
-                        <!-- Закрашенная часть (оранжевая) -->
-                        <div style="height: 100%; background: var(--brand-red); transition: width 0.3s;" :style="{ width: ((user.level - 1) / 7 * 100) + '%' }"></div>
+                    <!-- Полоса фона прогресса (Точный расчет ширины и отступа) -->
+                    <div style="position: absolute; top: 14px; left: 60px; width: calc(120px * 9); height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <div style="height: 100%; background: var(--brand-red); transition: width 0.3s;" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
                     </div>
                     
-                    <!-- Узлы (8 уровней) -->
-                    <div v-for="lvl in 8" :key="lvl" style="min-width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2;">
+                    <!-- Узлы (flex-shrink: 0 защищает от сжатия верстки) -->
+                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; transition: 0.3s;" 
                              :style="user.level >= lvl ? 'background: var(--brand-red); color: var(--text-main); box-shadow: 0 0 10px var(--brand-red-glow);' : 'background: var(--dark); color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
                             {{ lvl }}
                         </div>
-                        <!-- Только номер уровня -->
-                        <div style="margin-top:12px; font-size:14px; font-weight: 800; color:var(--text-main); text-align:center; padding: 0 5px;">
+                        <div style="margin-top:12px; font-size:13px; font-weight: 800; color:var(--text-main); text-align:center; padding: 0 5px;">
                             Уровень {{ lvl }}
                         </div>
                         <div style="margin-top:6px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 10px; line-height: 1.4;">
@@ -972,7 +1026,7 @@
                         <button class="toggle-btn haptic-btn" style="flex:0; padding: 0 15px; font-size: 14px; font-weight: 800; color: #FFFFFF; background: rgba(255,255,255,0.15);" @click="crashBet = Math.floor(crashBet / 2)" :disabled="isCrashRunning">/2</button>
                         <button class="toggle-btn haptic-btn" style="flex:0; padding: 0 15px; font-size: 14px; font-weight: 800; color: #FFFFFF; background: rgba(255,255,255,0.15);" @click="crashBet = crashBet * 2" :disabled="isCrashRunning">x2</button>
                         <!-- Кнопка MAX золотая -->
-                        <button class="toggle-btn haptic-btn" style="flex:0; padding: 0 15px; font-size: 14px; font-weight: 800; color: #FF9408; background: rgba(255, 148, 8, 0.15); border: 1px solid rgba(255, 148, 8, 0.3);" @click="crashBet = Math.floor(user.balance)" :disabled="isCrashRunning">MAX</button>
+                        <button class="toggle-btn haptic-btn" style="flex:0; padding: 0 15px; font-size: 14px; font-weight: 800; color: #FF9408; background: rgba(255, 148, 8, 0.15); border: 1px solid rgba(255, 148, 8, 0.3);" @click="crashBet = Math.min(Math.floor(user.balance), 400)" :disabled="isCrashRunning">400</button>
                     </div>
 
                     <!-- Главная Золотая кнопка (в полете становится вишнево-красной) -->
@@ -1074,6 +1128,9 @@
                     // Переменные рулетки
                     isRouletteOpen: false,
                     hasSpunRoulette: false,
+                    justSpun: false,
+                    rouletteNextSpinTime: 0,
+                    rouletteTimerDisplay: '00:00:00',
                     rouletteMessage: '',
                     isSpinning: false,
                     rouletteOffset: 0,
@@ -1117,6 +1174,20 @@
                 }
             },
             mounted() {
+                
+                // Таймер для рулетки
+                setInterval(() => {
+                    if (this.rouletteNextSpinTime > Date.now()) {
+                        let diff = Math.floor((this.rouletteNextSpinTime - Date.now()) / 1000);
+                        let h = Math.floor(diff / 3600).toString().padStart(2, '0');
+                        let m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                        let s = (diff % 60).toString().padStart(2, '0');
+                        this.rouletteTimerDisplay = `${h}:${m}:${s}`;
+                    } else {
+                        this.hasSpunRoulette = false;
+                    }
+                }, 1000);
+
                 this.initTelegramUser(); // <-- Запускаем сбор данных из ТГ
                 window.addEventListener('scroll', this.trackScrollPosition);
                 this.startSlider(); 
@@ -1174,7 +1245,13 @@
                         this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
                     }
                 },
-
+                goToFavorites() {
+                    this.switchTab('main');
+                    this.$nextTick(() => {
+                        this.scrollToSection('catalog');
+                        this.currentCategory = 'Избранное';
+                    });
+                },
                 switchTab(tab) {
                     this.currentTab = tab;
                     // МГНОВЕННЫЙ СКРОЛЛ НАВЕРХ ПРИ СМЕНЕ ВКЛАДКИ
@@ -1420,6 +1497,7 @@
                 },
                 startCrash() {
                     if(this.crashBet <= 0 || this.crashBet > this.user.balance) return alert("Неверная сумма ставки!");
+                    if(this.crashBet > 400) return alert("Максимальная ставка ограничена 400 баллами!");
                     
                     this.user.balance -= this.crashBet; // Снимаем ставку
                     this.isCrashRunning = true;
@@ -1471,7 +1549,10 @@
                     this.rouletteTransition = 'none';
                 },
                 closeRoulette() {
-                    if(!this.isSpinning) this.isRouletteOpen = false;
+                    if(!this.isSpinning) {
+                        this.isRouletteOpen = false;
+                        this.justSpun = false; // При следующем открытии покажем таймер
+                    }
                 },
                 spinRoulette() {
                     if(this.isSpinning || this.hasSpunRoulette) return;
@@ -1492,17 +1573,15 @@
                         
                         setTimeout(() => {
                             this.isSpinning = false;
-                            this.hasSpunRoulette = true; // БЛОКИРУЕМ РУЛЕТКУ
+                            this.hasSpunRoulette = true;
+                            this.justSpun = true;
+                            // Блокируем на 24 часа (в миллисекундах)
+                            this.rouletteNextSpinTime = Date.now() + 24 * 60 * 60 * 1000;
                             this.rouletteResult = this.rouletteStrip[winIndex];
                             
-                            if(this.rouletteResult.type === 'empty') {
-                                this.rouletteMessage = 'Увы, в этот раз ничего.<br>Повезет завтра! 🍀';
-                            } else {
-                                this.rouletteMessage = 'Отлично!<br>Ваш выигрыш:';
-                                if(this.rouletteResult.name.includes('Баллов')) {
-                                    const pts = parseInt(this.rouletteResult.name);
-                                    this.user.balance += pts;
-                                }
+                            if(this.rouletteResult.type !== 'empty' && this.rouletteResult.name.includes('Баллов')) {
+                                const pts = parseInt(this.rouletteResult.name);
+                                this.user.balance += pts;
                             }
                         }, 4000);
                     }, 50);
