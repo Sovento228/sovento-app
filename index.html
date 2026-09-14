@@ -1257,6 +1257,8 @@
                         if (slider) {
                             this.totalSlides = slider.children.length;
                         }
+                        // Запускаем анимацию появления ровно тогда, когда DOM главной страницы реально отрисовался
+                        this.initReveal();
                     });
                 },
                 generateNickname() {
