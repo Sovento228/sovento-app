@@ -853,16 +853,19 @@
                     </div>
                 </div>
 
-                <div style="height: 40px; margin-bottom: 20px; text-align: center; display: flex; justify-content: center; align-items: center;">
-                    <div v-if="rouletteResult" style="font-size: 13px; font-weight: bold; color: var(--text-muted); animation: fadeUp 0.5s;">
-                        Выигрыш: <span style="color: var(--text-main); font-size: 18px; text-transform: uppercase; margin-left: 5px; text-shadow: 0 0 10px var(--brand-red-glow);">{{ rouletteResult.name }}</span>
+                <!-- Состояние ПОСЛЕ прокрутки (Заблокировано на 24 часа) -->
+                <div v-if="hasSpunRoulette" style="text-align:center; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); animation: fadeUp 0.5s;">
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.4;" v-html="rouletteMessage"></div>
+                    <div v-if="rouletteResult && rouletteResult.type !== 'empty'" style="font-size: 22px; color: var(--brand-red); font-weight: 900; text-transform: uppercase; text-shadow: 0 0 15px var(--brand-red-glow);">
+                        {{ rouletteResult.name }}
                     </div>
-                    <div v-else style="font-size: 12px; color: var(--text-muted); opacity: 0.5; text-transform: uppercase; letter-spacing: 1px;">
-                        Крути колесо каждый день
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 11px; color: var(--text-muted); font-weight: 600;">
+                        ⏱ СЛЕДУЮЩАЯ ПОПЫТКА ЧЕРЕЗ 24 ЧАСА
                     </div>
                 </div>
 
-                <button class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer;" @click="spinRoulette" :disabled="isSpinning">
+                <!-- Кнопка ДО прокрутки -->
+                <button v-else class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; border: none;" @click="spinRoulette" :disabled="isSpinning">
                     {{ isSpinning ? 'КРУТИМ...' : 'ИСПЫТАТЬ УДАЧУ' }}
                 </button>
             </div>
@@ -880,24 +883,23 @@
                 <div style="display: flex; overflow-x: auto; overflow-y: hidden; gap: 0; padding-bottom: 20px; position: relative; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%;">
                     
                     <!-- Полоса фона прогресса (серая) -->
-                    <!-- Ширина высчитывается динамически на базе 10 уровней (каждый шаг ~120px) -->
-                    <div style="position: absolute; top: 14px; left: 60px; width: calc(120px * 9); height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
-                        <!-- Закрашенная часть (вишневая) -->
-                        <div style="height: 100%; background: var(--brand-red); transition: width 0.3s;" :style="{ width: ((user.level - 1) / 9 * 100) + '%' }"></div>
+                    <!-- Ширина высчитывается динамически на базе 8 уровней (каждый шаг ~120px) -->
+                    <div style="position: absolute; top: 14px; left: 60px; width: calc(120px * 7); height: 4px; background: rgba(255,255,255,0.1); z-index: 1;">
+                        <!-- Закрашенная часть (оранжевая) -->
+                        <div style="height: 100%; background: var(--brand-red); transition: width 0.3s;" :style="{ width: ((user.level - 1) / 7 * 100) + '%' }"></div>
                     </div>
                     
-                    <!-- Узлы (flex-shrink: 0 не дает им сжиматься и ломать верстку) -->
-                    <div v-for="lvl in 10" :key="lvl" style="min-width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2;">
-                        <!-- Круг с номером -->
+                    <!-- Узлы (8 уровней) -->
+                    <div v-for="lvl in 8" :key="lvl" style="min-width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; transition: 0.3s;" 
-                             :style="user.level >= lvl ? 'background: var(--brand-red); color: white; box-shadow: 0 0 10px rgba(149, 18, 44, 0.6);' : 'background: var(--dark); color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
+                             :style="user.level >= lvl ? 'background: var(--brand-red); color: var(--text-main); box-shadow: 0 0 10px var(--brand-red-glow);' : 'background: var(--dark); color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1);'">
                             {{ lvl }}
                         </div>
-                        <!-- Текст без названий, только уровень и перк -->
-                        <div style="margin-top:12px; font-size:12px; font-weight: 800; color:var(--text-main); text-align:center; padding: 0 5px;">
+                        <!-- Только номер уровня -->
+                        <div style="margin-top:12px; font-size:14px; font-weight: 800; color:var(--text-main); text-align:center; padding: 0 5px;">
                             Уровень {{ lvl }}
                         </div>
-                        <div style="margin-top:4px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 10px; line-height: 1.3;">
+                        <div style="margin-top:6px; font-size:10px; color:var(--text-muted); text-align:center; padding: 0 10px; line-height: 1.4;">
                             {{ getRankPerk(lvl) }}
                         </div>
                     </div>
@@ -1071,6 +1073,8 @@
                     ],
                     // Переменные рулетки
                     isRouletteOpen: false,
+                    hasSpunRoulette: false,
+                    rouletteMessage: '',
                     isSpinning: false,
                     rouletteOffset: 0,
                     rouletteTransition: 'none',
@@ -1370,24 +1374,25 @@
                 },
 
                 getRankName(lvl) {
-                    const ranks = ['Новичок', 'Любитель', 'Вейпер', 'Свой человек', 'Проверенный', 'Знаток', 'Мастер', 'Эксперт', 'Элита', 'Амбассадор'];
+                    // Оставили 8 названий для 8 уровней (хотя в UI они скрыты, это нужно для профиля)
+                    const ranks = ['Новичок', 'Любитель', 'Вейпер', 'Свой человек', 'Проверенный', 'Знаток', 'Мастер', 'Элита'];
                     return ranks[lvl - 1] || 'Секретный ранг';
                 },
                 getRankPerk(lvl) {
+                    // Новая экономика уровней (по требованию)
                     const perks = [
-                        'Списание до 50%',
-                        'Списание до 55% + 100 баллов',
-                        'Купон 50% на жидкость',
-                        'Списание до 55% + 200 баллов',
-                        'Бесплатная доставка',
-                        'Списание до 60% + Шансы рулетки UP',
-                        'Списание до 65% + 400 баллов',
-                        'Премиум жидкость',
-                        'Списание до 70% + 600 баллов',
-                        'Бокс + скидка 15% навсегда'
+                        'Списание до 25% (от 2 шт) или 50% (от 4 шт)',
+                        'Списание до 30% (от 2 шт) или 50% (от 4 шт)',
+                        'Купон 50% на жидкость + Списание до 35% (от 2 шт)',
+                        'Списание до 35% (от 2 шт) или 50% (от 4 шт) + 300 баллов',
+                        'Купон 35% на всё + 400 баллов + Списание до 40% (от 2 шт)',
+                        'Списание до 45% + Шансы рулетки UP',
+                        'Списание до 45% (от 2 шт) или 60% (от 4 шт) + 300 баллов',
+                        '+ 500 баллов на баланс'
                     ];
                     return perks[lvl - 1] || 'Нет данных';
                 },
+                
                 // === ЛОГИКА РУЛЕТКИ ===
                 setupRoulette() {
                     // Шансы под 4+ уровень: Пусто(20%), 100 баллов(35%), 200 баллов(25%), Скидка 25%(13%), Товар недели(7%)
@@ -1469,36 +1474,35 @@
                     if(!this.isSpinning) this.isRouletteOpen = false;
                 },
                 spinRoulette() {
-                    if(this.isSpinning) return;
+                    if(this.isSpinning || this.hasSpunRoulette) return;
                     this.isSpinning = true;
                     this.rouletteResult = null;
                     
-                    // Элемент имеет ширину 80px + отступ 10px = 90px
                     const itemWidth = 90; 
-                    // Выбираем выигрышный индекс в конце ленты (от 40 до 50)
                     const winIndex = Math.floor(Math.random() * 10) + 40; 
-                    
-                    // Легкий рандомный сдвиг, чтобы указатель не стоял ровно по центру карточки
                     const randomJitter = Math.floor(Math.random() * 50) - 25; 
                     const targetOffset = -(winIndex * itemWidth) + randomJitter;
                     
-                    // Сбрасываем позицию
                     this.rouletteTransition = 'none';
                     this.rouletteOffset = 0;
                     
                     setTimeout(() => {
-                        // Запускаем анимацию кручения (4 секунды)
                         this.rouletteTransition = 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)';
                         this.rouletteOffset = targetOffset;
                         
                         setTimeout(() => {
                             this.isSpinning = false;
+                            this.hasSpunRoulette = true; // БЛОКИРУЕМ РУЛЕТКУ
                             this.rouletteResult = this.rouletteStrip[winIndex];
                             
-                            // Авто-начисление (визуальное)
-                            if(this.rouletteResult.type !== 'empty' && this.rouletteResult.name.includes('Баллов')) {
-                                const pts = parseInt(this.rouletteResult.name);
-                                this.user.balance += pts;
+                            if(this.rouletteResult.type === 'empty') {
+                                this.rouletteMessage = 'Увы, в этот раз ничего.<br>Повезет завтра! 🍀';
+                            } else {
+                                this.rouletteMessage = 'Отлично!<br>Ваш выигрыш:';
+                                if(this.rouletteResult.name.includes('Баллов')) {
+                                    const pts = parseInt(this.rouletteResult.name);
+                                    this.user.balance += pts;
+                                }
                             }
                         }, 4000);
                     }, 50);
