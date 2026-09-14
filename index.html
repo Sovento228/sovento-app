@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Официальный скрипт Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             /* Опираемся на Градиент 05 и 01 из палитры */
@@ -1100,7 +1102,7 @@
                 }
             },
             mounted() {
-                this.generateNickname();
+                this.initTelegramUser(); // <-- Запускаем сбор данных из ТГ
                 window.addEventListener('scroll', this.trackScrollPosition);
                 this.startSlider(); 
                 
@@ -1261,6 +1263,48 @@
                         this.initReveal();
                     });
                 },
+                
+                // === ПОЛУЧАЕМ ДАННЫЕ ИЗ ТЕЛЕГРАМА ===
+                initTelegramUser() {
+                    const tg = window.Telegram.WebApp;
+                    
+                    // Сообщаем телеграму, что апп готов, и разворачиваем его
+                    tg.ready();
+                    tg.expand();
+
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        const tgUser = tg.initDataUnsafe.user;
+                        
+                        // 1. Устанавливаем имя (Юзернейм -> Имя -> Рандом)
+                        if (tgUser.username) {
+                            this.user.displayName = '@' + tgUser.username;
+                        } else if (tgUser.first_name) {
+                            this.user.displayName = tgUser.first_name;
+                        } else {
+                            this.generateNickname();
+                        }
+
+                        // 2. Устанавливаем Аватарку
+                        if (tgUser.photo_url) {
+                            this.user.avatar = tgUser.photo_url;
+                        } else {
+                            // Если нет фото в ТГ, делаем красивую заглушку с первой буквой имени
+                            let firstLetter = this.user.displayName.replace('@', '').charAt(0).toUpperCase();
+                            if(!firstLetter) firstLetter = 'S';
+                            // Заглушка в цветах нашей вишневой темы
+                            this.user.avatar = `https://placehold.co/100x100/100C08/95122C?text=${firstLetter}&font=Montserrat`;
+                        }
+                        
+                        // Обновляем в лидерборде (если нужно)
+                        let me = this.leaderboard.find(p => p.isMe);
+                        if(me) me.name = this.user.displayName;
+                        
+                    } else {
+                        // Если открыли просто в браузере с ПК
+                        this.generateNickname();
+                    }
+                },
+
                 generateNickname() {
                     const randomDigits = Math.floor(1000 + Math.random() * 9000);
                     this.user.displayName = 'user_' + randomDigits;
