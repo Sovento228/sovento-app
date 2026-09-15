@@ -798,9 +798,10 @@
                         </div>
                     </div>
                 </div>
+            </div> <!-- Закрываем контейнер с паддингом профиля РАНЬШЕ футера -->
 
-            <!-- FOOTER (Дисклеймер и Навигация) -->
-                    <div style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+            <!-- FOOTER (Дисклеймер и Навигация) - ТЕПЕРЬ ОН НА ВСЮ ШИРИНУ -->
+            <div v-if="currentTab === 'profile'" style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05);">
                         <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; text-align: left; margin-bottom: 15px;">SOVENTO</div>
                         <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">Эксклюзивная коллекция жидкостей и девайсов. Доставка по всей Германии. Заказы и наличие — в Telegram.</p>
                         
@@ -821,6 +822,10 @@
                         <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
 
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
+                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
+                    </div>    
+
+            </div> <!-- КОНЕЦ ЭКРАНА ПРОФИЛЯ -->
             
         </div> <!-- Конец app-content -->
 
