@@ -151,7 +151,8 @@
         .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
         
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .app-content > div[v-cloak] { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* Vue удаляет v-cloak после загрузки, поэтому анимируем все экраны напрямую (кроме липкой шапки) */
+        .app-content > div:not(:first-child) { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
         .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
@@ -1236,6 +1237,13 @@
                 clearInterval(this.sliderTimer);
             },
             methods: {
+                generateNickname() {
+                    const randomNum = Math.floor(Math.random() * 9000) + 1000;
+                    this.user.displayName = 'Гость ' + randomNum;
+                    
+                    let me = this.leaderboard.find(p => p.isMe);
+                    if(me) me.name = this.user.displayName;
+                },
                 startSlider() {
                     this.sliderTimer = setInterval(() => {
                         if(this.currentTab !== 'main') return; 
