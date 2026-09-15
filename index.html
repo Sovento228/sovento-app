@@ -436,10 +436,10 @@
                             <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main);">ИГРЫ SOVENTO</div>
                             
                             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-                                Выполняйте квесты, зарабатывайте баллы и преумножайте их в наших мини-играх!<br>
+                                Оформляй заказы и получай кешбек баллами которые сможешь приумножать в мини-игре от SOVENTO в Профиле<br>
                                 <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div><b style="color: var(--text-main);">SOVENTO SPIN:</b> Бесплатная ежедневная рулетка с ценными призами.</div>
-                                    <div><b style="color: var(--text-main);">SOVENTO X:</b> Рискните накопленными баллами и умножьте их в нашей Crash-игре.</div>
+                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red);">SPIN</span>:</b> Бесплатная ежедневная рулетка с ценными призами.</div>
+                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red);">X</span>:</b> Рискните накопленными баллами и умножьте их в нашей Crash-игре.</div>
                                 </div>
                             </div>
                         </div>
@@ -517,7 +517,8 @@
 
                                 <!-- Кнопка Избранное -->
                                 <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1); width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; border-radius: 50%; backdrop-filter: blur(10px);">
-                                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: transparent; stroke: var(--text-main); stroke-width: 2;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    <!-- Inline стили удалены, вся магия происходит в CSS -->
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                 </div>
 
                                 <!-- ВЕРХНЯЯ ЧАСТЬ: ИЗОБРАЖЕНИЕ И ТЕКСТ (Шахматка) -->
@@ -583,7 +584,7 @@
                         <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
 
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
-                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
+                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
                     </div>    
 
                     </div> <!-- Конец catalog-section -->
@@ -822,7 +823,7 @@
                         <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
 
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
-                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
+                        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
                     </div>    
             
         </div> <!-- Конец app-content -->
@@ -1282,7 +1283,7 @@
                 },
                 switchTab(tab) {
                     this.currentTab = tab;
-                    if (tab === 'cart') this.toasts = []; // Очищаем тостеры при входе в корзину
+                    if (tab === 'cart') this.toasts = []; 
                     window.scrollTo(0, 0); 
                     this.$nextTick(() => {
                         this.initReveal();
@@ -1293,32 +1294,26 @@
                     
                     if (this.currentTab !== 'main') {
                         this.currentTab = 'main';
-                        window.scrollTo(0, 0);
                     }
                     
                     this.$nextTick(() => {
+                        // Увеличили тайм-аут, чтобы Vue успел отрендерить страницу до скролла
                         setTimeout(() => {
                             if (section === 'home') {
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             } else if (section === 'about') {
                                 const el = document.getElementById('about-section');
-                                if (el) {
-                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                                    window.scrollTo({ top: y, behavior: 'smooth' });
-                                }
+                                if (el) window.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' });
                             } else if (section === 'catalog') {
                                 const el = document.getElementById('catalog-section');
-                                if (el) {
-                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                                    window.scrollTo({ top: y, behavior: 'smooth' });
-                                }
+                                // Отнимаем 60px чтобы "Новинки и Акции" встали ровно под шапку города
+                                if (el) window.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' });
                             }
                             this.initReveal();
-                        }, 50);
+                        }, 100); 
                     });
                 },
                 initReveal() {
-                    // Автоматически находим все карточки и добавляем им класс reveal (без ручного кодинга HTML!)
                     const targets = document.querySelectorAll('.product-card, .mock-card, .slider-container, .search-container');
                     targets.forEach(el => {
                         if (!el.classList.contains('reveal') && !el.classList.contains('active')) {
@@ -1326,22 +1321,21 @@
                         }
                     });
 
-                    // Intersection Observer (следит, когда элемент появляется на экране)
-                    const elements = document.querySelectorAll('.reveal:not(.active)');
                     const observer = new IntersectionObserver((entries, obs) => {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                entry.target.classList.add('active'); // Элемент выезжает!
-                                obs.unobserve(entry.target); // Анимируем только один раз
+                                entry.target.classList.add('active'); 
+                                obs.unobserve(entry.target); 
                             }
                         });
                     }, { rootMargin: '0px 0px -30px 0px' });
                     
+                    elements = document.querySelectorAll('.reveal:not(.active)');
                     elements.forEach(el => observer.observe(el));
                 },
 
                 handleToastClick(type) {
-                    this.toasts = []; // Скрываем тостер сразу по клику
+                    this.toasts = []; 
                     if(type === 'cart') this.switchTab('cart');
                     if(type === 'fav') { this.scrollToSection('catalog'); this.currentCategory = 'Избранное'; }
                 },
@@ -1361,32 +1355,39 @@
                         progress: 100
                     });
                 },
+                // ИДЕАЛЬНАЯ РЕАКТИВНОСТЬ: Пересоздаем объекты целиком
                 toggleFav(item) {
-                    if (this.favorites[item.id]) {
-                        delete this.favorites[item.id];
+                    let newFavs = { ...this.favorites };
+                    if (newFavs[item.id]) {
+                        delete newFavs[item.id];
                     } else {
-                        this.favorites[item.id] = true;
+                        newFavs[item.id] = true;
                         this.addToast('fav');
                     }
+                    this.favorites = newFavs;
                 },
-                switchTab(tab) {
-                    this.currentTab = tab;
-                    if (tab === 'cart') this.toasts = []; // Очищаем тостеры при входе в корзину
-                    window.scrollTo(0, 0); 
-                    this.$nextTick(() => {
-                        this.initReveal();
-                    });
+                addToCart(item) {
+                    if (!this.cart[item.id]) {
+                        // Полное обновление объекта для 100% срабатывания реактивности Vue
+                        this.cart = Object.assign({}, this.cart, { [item.id]: { ...item, count: 1 } });
+                        this.addToast('cart');
+                        this.closeProduct();
+                    }
                 },
                 changeCartCount(id, delta) {
                     if (this.cart[id]) {
                         this.cart[id].count += delta;
                         if (this.cart[id].count <= 0) {
-                            delete this.cart[id];
+                            let newCart = { ...this.cart };
+                            delete newCart[id];
+                            this.cart = newCart;
                         }
                     }
                 },
                 removeCartItem(id) {
-                    delete this.cart[id];
+                    let newCart = { ...this.cart };
+                    delete newCart[id];
+                    this.cart = newCart;
                 },
                 setDelivery(type) {
                     this.checkout.delivery = type;
