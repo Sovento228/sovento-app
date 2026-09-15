@@ -1254,20 +1254,51 @@
                     }
                 },
                 goToFavorites() {
-                    this.switchTab('main');
+                    if (this.currentTab !== 'main') {
+                        this.currentTab = 'main';
+                        window.scrollTo(0, 0);
+                    }
                     this.$nextTick(() => {
-                        this.scrollToSection('catalog');
                         this.currentCategory = 'Избранное';
+                        this.scrollToSection('catalog');
                     });
                 },
                 switchTab(tab) {
                     this.currentTab = tab;
-                    // МГНОВЕННЫЙ СКРОЛЛ НАВЕРХ ПРИ СМЕНЕ ВКЛАДКИ
-                    window.scrollTo({ top: 0, behavior: 'instant' }); 
+                    // ИСПРАВЛЕНИЕ БАГА IOS: Мгновенный скролл классическим безопасным методом
+                    window.scrollTo(0, 0); 
                     
-                    // Перезапускаем анимации для новой вкладки
                     this.$nextTick(() => {
                         this.initReveal();
+                    });
+                },
+                scrollToSection(section) {
+                    this.activeScrollSection = section;
+                    
+                    if (this.currentTab !== 'main') {
+                        this.currentTab = 'main';
+                        window.scrollTo(0, 0);
+                    }
+                    
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            if (section === 'home') {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else if (section === 'about') {
+                                const el = document.getElementById('about-section');
+                                if (el) {
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                }
+                            } else if (section === 'catalog') {
+                                const el = document.getElementById('catalog-section');
+                                if (el) {
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                }
+                            }
+                            this.initReveal();
+                        }, 50);
                     });
                 },
                 initReveal() {
@@ -1364,40 +1395,45 @@
                     });
                 },
                 
-                // === ПОЛУЧАЕМ ДАННЫЕ ИЗ ТЕЛЕГРАМА ===
+                // === ПОЛУЧАЕМ ДАННЫЕ ИЗ ТЕЛЕГРАМА (С ЗАЩИТОЙ ОТ ОШИБОК) ===
                 initTelegramUser() {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready();
-                    tg.expand();
+                    try {
+                        const tg = window.Telegram.WebApp;
+                        tg.ready();
+                        tg.expand();
 
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        const tgUser = tg.initDataUnsafe.user;
-                        
-                        // 1. Приоритет на реальное имя пользователя (first_name), затем юзернейм
-                        if (tgUser.first_name) {
-                            this.user.displayName = tgUser.first_name;
-                        } else if (tgUser.username) {
-                            this.user.displayName = '@' + tgUser.username;
+                        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                            const tgUser = tg.initDataUnsafe.user;
+                            
+                            // 1. Приоритет на реальное имя пользователя (first_name), затем юзернейм
+                            if (tgUser.first_name) {
+                                this.user.displayName = tgUser.first_name;
+                            } else if (tgUser.username) {
+                                this.user.displayName = '@' + tgUser.username;
+                            } else {
+                                this.generateNickname();
+                            }
+
+                            // 2. Устанавливаем Аватарку
+                            if (tgUser.photo_url) {
+                                this.user.avatar = tgUser.photo_url;
+                            } else {
+                                // Заглушка с первой буквой имени
+                                let firstLetter = this.user.displayName.replace('@', '').charAt(0).toUpperCase();
+                                if(!firstLetter) firstLetter = 'S';
+                                this.user.avatar = `https://placehold.co/100x100/100C08/95122C?text=${firstLetter}&font=Montserrat`;
+                            }
+                            
+                            let me = this.leaderboard.find(p => p.isMe);
+                            if(me) me.name = this.user.displayName;
+                            
                         } else {
+                            // Если открыли в обычном браузере
                             this.generateNickname();
                         }
-
-                        // 2. Устанавливаем Аватарку
-                        if (tgUser.photo_url) {
-                            this.user.avatar = tgUser.photo_url;
-                        } else {
-                            // Заглушка с первой буквой имени
-                            let firstLetter = this.user.displayName.replace('@', '').charAt(0).toUpperCase();
-                            if(!firstLetter) firstLetter = 'S';
-                            this.user.avatar = `https://placehold.co/100x100/100C08/95122C?text=${firstLetter}&font=Montserrat`;
-                        }
-                        
-                        let me = this.leaderboard.find(p => p.isMe);
-                        if(me) me.name = this.user.displayName;
-                        
-                    } else {
-                        // Если открыли в обычном браузере
-                        this.generateNickname();
+                    } catch (e) {
+                        console.error("TG WebApp Init Error:", e);
+                        this.generateNickname(); // Если ТГ API упало, генерируем никнейм и не даем приложению сломаться
                     }
                 },
                 changeName() {
@@ -1420,37 +1456,7 @@
                     this.isModalOpen = false;
                     setTimeout(() => { this.selectedProduct = null; }, 300);
                 },
-                scrollToSection(section) {
-                    this.activeScrollSection = section; // Мгновенно переключаем индикатор
-                    
-                    if (this.currentTab !== 'main') {
-                        this.switchTab('main');
-                        // Сбрасываем позицию экрана в самый верх мгновенно, чтобы не прыгала "Товары"
-                        if (section === 'home') {
-                            window.scrollTo(0, 0);
-                        }
-                    }
-                    
-                    this.$nextTick(() => {
-                        setTimeout(() => {
-                            if (section === 'home') {
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            } else if (section === 'about') {
-                                const el = document.getElementById('about-section');
-                                if (el) {
-                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                                    window.scrollTo({ top: y, behavior: 'smooth' });
-                                }
-                            } else if (section === 'catalog') {
-                                const el = document.getElementById('catalog-section');
-                                if (el) {
-                                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                                    window.scrollTo({ top: y, behavior: 'smooth' });
-                                }
-                            }
-                        }, 50);
-                    });
-                },
+                
                 trackScrollPosition() {
                     if (this.currentTab !== 'main') return;
                     const el = document.getElementById('catalog-section');
