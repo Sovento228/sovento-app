@@ -158,7 +158,9 @@
 
         .fav-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(3,5,11,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: 0.2s; border: none; }
         .fav-btn svg { width: 18px; height: 18px; fill: transparent; stroke: var(--text-main); stroke-width: 2px; transition: 0.2s; }
-        .fav-btn.active svg { fill: var(--text-main); stroke: var(--text-main); } /* Сердечко теперь белое */
+        /* Полное закрашивание кнопки и белое сердечко без обводки */
+        .fav-btn.active { background: var(--brand-red); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 15px var(--brand-red-glow); }
+        .fav-btn.active svg { fill: #FFFFFF; stroke: transparent; }
 
         .checkout-back-btn { display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; color: #FFFFFF; }
         .checkout-back-btn:active { transform: scale(0.95); opacity: 0.7; }
@@ -415,7 +417,6 @@
                         <div class="reveal delay-2" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 30px 20px; width: 100%; box-sizing: border-box; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); position: relative; overflow: hidden;">
                             <div style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: #E65C00; filter: blur(60px); opacity: 0.2;"></div>
                             
-                            <!-- Немного изменил заголовок для продающего эффекта -->
                             <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main);">КЭШБЕК</div>
                             
                             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
@@ -423,7 +424,22 @@
                                 Начисляется за каждый ваш заказ.<br>
                                 <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
                                     <span style="color: var(--text-main); font-weight: 600;">100 баллов = 1€</span><br>
-                                    С нашими бонусами вы можете удвоить это значение и выгодно оплачивать следующие покупки.
+                                    Списание баллов доступно только от 2 товаров в корзине. С повышением уровня аккаунта повышается процент возможных списанных баллов от общего баланса.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Окошко 3 (Геймификация) -->
+                        <div class="reveal delay-2" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 30px 20px; width: 100%; box-sizing: border-box; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: #CA3F16; filter: blur(60px); opacity: 0.2;"></div>
+                            
+                            <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main);">ИГРЫ SOVENTO</div>
+                            
+                            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                                Выполняйте квесты, зарабатывайте баллы и преумножайте их в наших мини-играх!<br>
+                                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div><b style="color: var(--text-main);">SOVENTO SPIN:</b> Бесплатная ежедневная рулетка с ценными призами.</div>
+                                    <div><b style="color: var(--text-main);">SOVENTO X:</b> Рискните накопленными баллами и умножьте их в нашей Crash-игре.</div>
                                 </div>
                             </div>
                         </div>
@@ -619,8 +635,8 @@
                         </div>
                     </div>
 
-                    <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ -->
-                    <div style="position: fixed; bottom: 85px; left: 0; width: 100%; background: linear-gradient(180deg, rgba(3, 5, 11, 0.8) 0%, rgba(3, 5, 11, 0.95) 100%); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 2000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                    <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ (Floating Island) -->
+                    <div style="position: fixed; bottom: 105px; left: 5%; width: 90%; background: linear-gradient(135deg, rgba(20, 12, 14, 0.95) 0%, rgba(10, 7, 7, 0.98) 100%); padding: 15px 20px; box-sizing: border-box; border: 1px solid rgba(243,244,245,0.08); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); display: flex; justify-content: space-between; align-items: center; z-index: 2000; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">К оплате</span>
                             <span style="font-size: 26px; font-weight: 900; color: white; line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">{{ cartTotal }} €</span>
@@ -636,29 +652,6 @@
             <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
             <div v-if="currentTab === 'checkout'" v-cloak style="padding: 20px 20px 120px 20px;">
                 
-                <!-- КОПИЯ СЛАЙДЕРА НОВИНОК -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="margin: 0 0 15px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
-                    <div class="slider-container" style="margin-top: 0; padding-bottom: 0;">
-                        <div class="slide">
-                            <img src="https://placehold.co/600x400/111216/DD8838?text=NEW" class="slide-bg">
-                            <div class="slide-content">
-                                <span style="background: var(--brand-red); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Новинка</span>
-                                <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Новая поставка XROS</h2>
-                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">Уже доступны во всех городах!</p>
-                            </div>
-                        </div>
-                        <div class="slide">
-                            <img src="https://placehold.co/600x400/111216/4ade80?text=SALE" class="slide-bg">
-                            <div class="slide-content">
-                                <span style="background: #4ade80; color: black; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Скидка</span>
-                                <h2 style="margin: 10px 0 5px 0; font-size: 18px; font-weight: 800; color:#FFF;">Счастливые часы</h2>
-                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.7);">-15% на все жидкости до 20:00.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
                     <div class="checkout-back-btn" @click="currentTab = 'cart'">
                         <svg style="width:28px; height:28px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -673,7 +666,6 @@
                         <div class="toggle-btn" :class="{active: checkout.delivery === 'courier'}" @click="setDelivery('courier')">Доставка</div>
                     </div>
                     
-                    <!-- Поля для доставки курьером -->
                     <div v-if="checkout.delivery === 'courier'" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.address" placeholder="Адрес доставки (улица, дом / квартира)">
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.zip" placeholder="Почтовый индекс (например: 69000)">
@@ -681,7 +673,6 @@
                         <input type="text" class="checkout-input" style="margin:0;" v-model="checkout.telegram" placeholder="Telegram (например: @username)">
                     </div>
 
-                    <!-- Адрес самовывоза -->
                     <div v-if="checkout.delivery === 'pickup'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
                         Пункт выдачи: <b style="color:var(--text-main);">г. {{ currentCity }}</b><br>Точный адрес будет отправлен в чат.
                     </div>
@@ -694,11 +685,22 @@
                         <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="setPayment('card')">Картой</div>
                         <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="setPayment('crypto')">Криптой</div>
                     </div>
+                    
+                    <!-- Текстовая подпись для способов оплаты -->
+                    <div v-if="checkout.payment === 'cash'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
+                        Оплатить сможете при встрече с курьером лично.
+                    </div>
+                    <div v-if="checkout.payment === 'card' || checkout.payment === 'crypto'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
+                        Инструкция по оплате будет выдана после подтверждения заказа.
+                    </div>
                 </div>
 
-                <button style="width: 100%; padding: 16px; background: var(--brand-red); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; margin-top: 20px; cursor: pointer; text-transform: uppercase;">
-                    Подтвердить заказ ({{ cartTotal }} €)
-                </button>
+                <!-- Плавающая кнопка подтверждения -->
+                <div style="position: fixed; bottom: 25px; left: 5%; width: 90%; z-index: 2000;">
+                    <button class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 20px; font-weight: 900; font-size: 15px; cursor: pointer; text-transform: uppercase; border: none; box-shadow: 0 15px 30px rgba(0,0,0,0.8);">
+                        Подтвердить заказ ({{ cartTotal }} €)
+                    </button>
+                </div>
             </div>
 
             <!-- ЭКРАН 6: ПРОФИЛЬ (ГЕЙМИФИКАЦИЯ) -->
@@ -796,9 +798,10 @@
                         </div>
                     </div>
                 </div>
+            </div> <!-- Закрываем контейнер с паддингом профиля РАНЬШЕ футера -->
 
-            <!-- FOOTER (Дисклеймер и Навигация) -->
-                    <div style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+            <!-- FOOTER (Дисклеймер и Навигация) - ТЕПЕРЬ ОН НА ВСЮ ШИРИНУ -->
+            <div v-if="currentTab === 'profile'" style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05);">
                         <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; text-align: left; margin-bottom: 15px;">SOVENTO</div>
                         <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">Эксклюзивная коллекция жидкостей и девайсов. Доставка по всей Германии. Заказы и наличие — в Telegram.</p>
                         
@@ -821,8 +824,6 @@
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">© 2026 SOVENTO</div>
                         <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">Продажа строго лицам достигшим 18 лет. Никотин пагубно влияет на ваше здоровье и вызывает зависимость.</div>
                     </div>    
-
-            </div> <!-- КОНЕЦ ЭКРАНА ПРОФИЛЯ -->
             
         </div> <!-- Конец app-content -->
 
@@ -1281,9 +1282,8 @@
                 },
                 switchTab(tab) {
                     this.currentTab = tab;
-                    // ИСПРАВЛЕНИЕ БАГА IOS: Мгновенный скролл классическим безопасным методом
+                    if (tab === 'cart') this.toasts = []; // Очищаем тостеры при входе в корзину
                     window.scrollTo(0, 0); 
-                    
                     this.$nextTick(() => {
                         this.initReveal();
                     });
@@ -1341,7 +1341,8 @@
                 },
 
                 handleToastClick(type) {
-                    if(type === 'cart') this.currentTab = 'cart';
+                    this.toasts = []; // Скрываем тостер сразу по клику
+                    if(type === 'cart') this.switchTab('cart');
                     if(type === 'fav') { this.scrollToSection('catalog'); this.currentCategory = 'Избранное'; }
                 },
                 addToast(type) {
@@ -1368,12 +1369,13 @@
                         this.addToast('fav');
                     }
                 },
-                addToCart(item) {
-                    if (!this.cart[item.id]) {
-                        this.cart[item.id] = { ...item, count: 1 };
-                        this.addToast('cart');
-                        this.closeProduct();
-                    }
+                switchTab(tab) {
+                    this.currentTab = tab;
+                    if (tab === 'cart') this.toasts = []; // Очищаем тостеры при входе в корзину
+                    window.scrollTo(0, 0); 
+                    this.$nextTick(() => {
+                        this.initReveal();
+                    });
                 },
                 changeCartCount(id, delta) {
                     if (this.cart[id]) {
