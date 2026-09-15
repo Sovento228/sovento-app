@@ -443,7 +443,20 @@
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- Окошко 4 (Поддержка) -->
+                        <div class="reveal delay-1" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 30px 20px; width: 100%; box-sizing: border-box; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: #A89F9E; filter: blur(60px); opacity: 0.15;"></div>
+                            
+                            <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main);">ПОДДЕРЖКА</div>
+                            
+                            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                                Возникли вопросы по товару, доставке или работе сервиса? Мы всегда на связи.<br>
+                                <div style="margin-top: 15px;">
+                                    <a href="https://t.me/ТУТ_ССЫЛКА_НА_МЕНЕДЖЕРА" target="_blank" style="display: inline-block; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 12px; color: var(--text-main); text-decoration: none; font-weight: 800; font-size: 12px; text-transform: uppercase;">Связаться с менеджером</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- КАТАЛОГ И СЛАЙДЕР (Теперь всё внутри catalog-section для правильного скролла) -->
@@ -637,7 +650,7 @@
                     </div>
 
                     <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ -->
-                    <div style="position: fixed; bottom: 80px; left: 0; width: 100%; background: var(--dark); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 2000; box-shadow: 0 -10px 20px rgba(0,0,0,0.5);">
+                    <div style="position: fixed; bottom: 95px; left: 0; width: 100%; background: rgba(10, 7, 7, 0.95); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 2000; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">К оплате</span>
                             <span style="font-size: 26px; font-weight: 900; color: white; line-height: 1.1;">{{ cartTotal }} €</span>
@@ -679,21 +692,21 @@
                     </div>
                 </div>
 
-                <div class="mock-card" style="padding: 20px;">
+                <div class="mock-card" style="padding: 20px; margin-bottom: 15px;">
                     <h3 style="margin: 0 0 10px 0; font-size: 16px;">Способ оплаты</h3>
-                    <div class="toggle-group">
+                    <div class="toggle-group" style="margin-bottom: 0;">
                         <div class="toggle-btn" :class="{active: checkout.payment === 'cash', disabled: checkout.delivery === 'courier'}" @click="setPayment('cash')">Наличные</div>
                         <div class="toggle-btn" :class="{active: checkout.payment === 'card'}" @click="setPayment('card')">Картой</div>
                         <div class="toggle-btn" :class="{active: checkout.payment === 'crypto'}" @click="setPayment('crypto')">Криптой</div>
                     </div>
-                    
-                    <!-- Текстовая подпись для способов оплаты -->
-                    <div v-if="checkout.payment === 'cash'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
-                        Оплатить сможете при встрече с курьером лично.
-                    </div>
-                    <div v-if="checkout.payment === 'card' || checkout.payment === 'crypto'" style="margin-top:12px; font-size:13px; color:var(--text-muted); line-height:1.4;">
-                        Инструкция по оплате будет выдана после подтверждения заказа.
-                    </div>
+                </div>
+                
+                <!-- Текстовая подпись для способов оплаты (ВНЕ карточки и по центру) -->
+                <div v-if="checkout.payment === 'cash'" style="text-align: center; margin-bottom: 25px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
+                    Оплатить сможете при встрече с курьером лично.
+                </div>
+                <div v-if="checkout.payment === 'card' || checkout.payment === 'crypto'" style="text-align: center; margin-bottom: 25px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
+                    Инструкция по оплате будет выдана после подтверждения заказа.
                 </div>
 
                 <!-- Плавающая кнопка подтверждения -->
@@ -923,7 +936,7 @@
                         <div v-else>
                             <!-- При повторном заходе (Таймер) -->
                             <div style="font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.5; text-align: center;">
-                                Возвращайтесь через <span style="color: var(--brand-red); font-size: 16px;">{{ rouletteTimerDisplay }}</span>,<br>вы сможете попытать свою удачу снова.
+                                Возвращайтесь через <span style="color: var(--brand-red); font-size: 16px;">{{ rouletteTimerDisplay }}</span> <br> и вы сможете попытать свою удачу снова.
                             </div>
                         </div>
                     </div>
