@@ -1172,7 +1172,6 @@
                     ],    
                     sliderTimer: null, 
                     
-                    citiesList: ['Берлин', 'Мюнхен', 'Варшава', 'Гамбург', 'Франкфурт'],
                     currentCity: null, 
                     isCityDropdownOpen: false,
                     
@@ -1195,15 +1194,6 @@
 
                     cart: {},
                     favorites: {}, // Хранилище лайкнутых товаров
-                    user: { 
-                        displayName: '', 
-                        avatar: 'https://placehold.co/100x100/151518/FF3C00?text=S',
-                        level: 4,
-                        rankName: 'Свой человек',
-                        xp: 450,
-                        maxXp: 600, // XP до следующего 5 уровня
-                        balance: 1400 // 14 евро
-                    },
                     leaderboard: [
                         { name: 'Alex M.', level: 8, amount: 14500, xp_gained: 850, isMe: false },
                         { name: 'Влад', level: 7, amount: 12000, xp_gained: 720, isMe: false },
@@ -1223,12 +1213,11 @@
                     rouletteResult: null,
                     rouletteStrip: [],
 
-                    products: [
-                        { id: 1, name: "SOVENTO Tobacco Vanilla", price: 16.90, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Премиальная жидкость с нотками терпкого табака и сладкой мадагаскарской ванили. Идеальный баланс.", color: "rgba(166, 63, 18, 0.35)" },
-                        { id: 2, name: "Vaporesso XROS 3 Black", price: 25.00, category: "Под-системы", photo: "https://placehold.co/1200x1600/1A1A1E/4ade80?text=POD", desc: "Компактная и надежная pod-система от Vaporesso с отличной вкусопередачей.", color: "rgba(139, 92, 246, 0.35)" },
-                        { id: 3, name: "Картридж XROS 0.6 Ohm", price: 4.50, category: "Картриджи", photo: "https://placehold.co/1200x1600/1A1A1E/3b82f6?text=CART", desc: "Сменный картридж для лучшей вкусопередачи и густого пара.", color: "rgba(59, 130, 246, 0.35)" },
-                        { id: 4, name: "SOVENTO Mint Ice", price: 15.00, category: "Жидкости", photo: "https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID", desc: "Освежающая ледяная мята. Отлично подходит для жарких дней.", color: "rgba(16, 185, 129, 0.35)" }
-                    ]
+                    citiesList: [], // Теперь грузим из БД
+                    products: [], // Теперь грузим из БД
+                    // Заглушка профиля до ответа сервера
+                    user: { tg_id: null, displayName: 'Загрузка...', avatar: '', level: 1, xp: 0, maxXp: 600, balance: 0.0 },
+                    favorites: {},
                 }
             },
             watch: {
@@ -1440,6 +1429,7 @@
                         this.addToast('fav');
                     }
                     this.favorites = newFavs;
+                    this.syncUserData();
                 },
                 addToCart(item) {
                     if (!this.cart[item.id]) {
@@ -1497,45 +1487,78 @@
                 },
                 
                 // === ПОЛУЧАЕМ ДАННЫЕ ИЗ ТЕЛЕГРАМА (С ЗАЩИТОЙ ОТ ОШИБОК) ===
-                initTelegramUser() {
+                async initTelegramUser() {
+                    let tg_id = null; let first_name = "Гость"; let username = "";
                     try {
                         const tg = window.Telegram.WebApp;
-                        tg.ready();
-                        tg.expand();
-
+                        tg.ready(); tg.expand();
                         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                            const tgUser = tg.initDataUnsafe.user;
+                            tg_id = tg.initDataUnsafe.user.id;
+                            first_name = tg.initDataUnsafe.user.first_name || "";
+                            username = tg.initDataUnsafe.user.username ? "@" + tg.initDataUnsafe.user.username : "";
                             
-                            // 1. Приоритет на реальное имя пользователя (first_name), затем юзернейм
-                            if (tgUser.first_name) {
-                                this.user.displayName = tgUser.first_name;
-                            } else if (tgUser.username) {
-                                this.user.displayName = '@' + tgUser.username;
+                            // Аватарка
+                            if (tg.initDataUnsafe.user.photo_url) {
+                                this.user.avatar = tg.initDataUnsafe.user.photo_url;
                             } else {
-                                this.generateNickname();
-                            }
-
-                            // 2. Устанавливаем Аватарку
-                            if (tgUser.photo_url) {
-                                this.user.avatar = tgUser.photo_url;
-                            } else {
-                                // Заглушка с первой буквой имени
-                                let firstLetter = this.user.displayName.replace('@', '').charAt(0).toUpperCase();
-                                if(!firstLetter) firstLetter = 'S';
+                                let firstLetter = (first_name || 'S').charAt(0).toUpperCase();
                                 this.user.avatar = `https://placehold.co/100x100/100C08/95122C?text=${firstLetter}&font=Montserrat`;
                             }
-                            
-                            let me = this.leaderboard.find(p => p.isMe);
-                            if(me) me.name = this.user.displayName;
-                            
-                        } else {
-                            // Если открыли в обычном браузере
-                            this.generateNickname();
                         }
-                    } catch (e) {
-                        console.error("TG WebApp Init Error:", e);
-                        this.generateNickname(); // Если ТГ API упало, генерируем никнейм и не даем приложению сломаться
-                    }
+                    } catch (e) { console.error("TG WebApp Error:", e); }
+
+                    // Если открыли вне телеги для тестов
+                    if (!tg_id) { tg_id = 123456789; first_name = "Тест"; }
+
+                    // Загружаем данные с нашего FastAPI
+                    try {
+                        const res = await fetch('/api/shop/init', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tg_id: tg_id, first_name: first_name, username: username })
+                        });
+                        const data = await res.json();
+                        if (data.status === 'ok') {
+                            this.user.tg_id = data.user.tg_id;
+                            this.user.displayName = data.user.name;
+                            this.user.balance = data.user.balance || 0;
+                            this.user.xp = data.user.xp || 0;
+                            this.user.level = data.user.level || 1;
+                            this.user.maxXp = this.user.level * 600; // Логика прокачки
+                            this.favorites = data.user.favorites || {};
+                            
+                            // Восстанавливаем таймер рулетки
+                            if (data.user.last_spin && data.user.last_spin > Date.now()) {
+                                this.rouletteNextSpinTime = data.user.last_spin;
+                                this.hasSpunRoulette = true;
+                            }
+
+                            this.citiesList = data.cities || [];
+                            
+                            // Маппим товары под визуал MiniApp
+                            this.products = data.products.map(p => ({
+                                id: p.id,
+                                name: p.name,
+                                price: p.price,
+                                category: p.category || 'Без категории',
+                                photo: p.image || 'https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID',
+                                desc: p.description,
+                                // Генерация цвета свечения на основе категории
+                                color: p.category === 'Жидкости' ? 'rgba(166, 63, 18, 0.35)' : (p.category === 'Картриджи' ? 'rgba(59, 130, 246, 0.35)' : 'rgba(139, 92, 246, 0.35)')
+                            }));
+                        }
+                    } catch (e) { console.error("API Init Error:", e); }
+                },
+                
+                // Функция отправки прогресса юзера на сервер
+                async syncUserData() {
+                    if(!this.user.tg_id) return;
+                    await fetch('/api/shop/sync', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            tg_id: this.user.tg_id, balance: this.user.balance, xp: this.user.xp, 
+                            level: this.user.level, favorites: this.favorites, last_spin: this.rouletteNextSpinTime || 0
+                        })
+                    });
                 },
                 changeName() {
                     const newName = prompt("Введите новый никнейм (до 15 символов):", this.user.displayName);
@@ -1661,6 +1684,7 @@
                     
                     this.crashWinAmount = Math.floor(this.crashBet * this.crashMultiplier);
                     this.user.balance += this.crashWinAmount; // Выдаем выигрыш
+                    this.syncUserData();
                 },
                 openRoulette() {
                     if(!this.rouletteStrip.length) this.setupRoulette();
@@ -1704,7 +1728,8 @@
                             // Блокируем на 24 часа (в миллисекундах)
                             this.rouletteNextSpinTime = Date.now() + 24 * 60 * 60 * 1000;
                             this.rouletteResult = this.rouletteStrip[winIndex];
-                            
+                            this.syncUserData();
+
                             if(this.rouletteResult.type !== 'empty' && this.rouletteResult.name.includes('Баллов')) {
                                 const pts = parseInt(this.rouletteResult.name);
                                 this.user.balance += pts;
