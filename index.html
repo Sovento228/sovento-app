@@ -455,27 +455,26 @@
                             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
                                 Оформляй заказы и получай кешбек баллами которые сможешь приумножать в мини-игре от SOVENTO в Профиле.<br>
                                 <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red); font-weight: 900; text-shadow: 0 0 15px rgba(166, 63, 18, 0.6);">SPIN</span>:</b> Бесплатная ежедневная рулетка с ценными призами.</div>
-                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red); font-weight: 900; text-shadow: 0 0 15px rgba(166, 63, 18, 0.6);">X</span>:</b> Рискните накопленными баллами и умножьте их в нашей Crash-игре.</div>
+                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red); font-weight: 900; text-shadow: 0 0 15px rgba(149, 18, 44, 0.8);">SPIN</span>:</b> Бесплатная ежедневная рулетка с ценными призами.</div>
+                                    <div><b style="color: var(--text-main);">SOVENTO <span style="color: var(--brand-red); font-weight: 900; text-shadow: 0 0 15px rgba(149, 18, 44, 0.8);">X</span>:</b> Рискните накопленными баллами и умножьте их в нашей Crash-игре.</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Окошко 4 (Поддержка) -->
                         <div id="support-panel" class="reveal delay-1" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 30px 20px; width: 100%; box-sizing: border-box; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); position: relative; overflow: hidden;">
-                            <!-- Градиент в стиле предыдущих окон -->
+                            <!-- Бордовый градиент -->
                             <div style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: #95122C; filter: blur(60px); opacity: 0.3;"></div>
                             
-                            <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main); text-align: center;">ПОДДЕРЖКА</div>
+                            <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; margin-bottom: 15px; color: var(--text-main); text-align: center; position: relative; z-index: 1;">ПОДДЕРЖКА</div>
                             
-                            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; text-align: center;">
+                            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; text-align: center; position: relative; z-index: 1;">
                                 Возникли вопросы по товару, доставке или работе сервиса? Мы всегда на связи.<br>
                                 <div style="margin-top: 25px; display: flex; justify-content: center;">
-                                    <div @click="switchTab('support')" class="btn-cherry btn-pulse haptic-btn" style="padding: 14px 28px; border-radius: 20px; color: var(--text-main); font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;">Связаться с менеджером</div>
+                                    <div @click="switchTab('support')" class="btn-cherry btn-pulse haptic-btn" style="padding: 14px 28px; border-radius: 20px; color: var(--text-main); font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;">Связаться с поддержкой</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                     <!-- КАТАЛОГ И СЛАЙДЕР (Теперь всё внутри catalog-section для правильного скролла) -->
                     <div id="catalog-section">
