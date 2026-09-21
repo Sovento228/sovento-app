@@ -1607,46 +1607,57 @@
                     // Загружаем данные с нашего FastAPI
                     try {
                         const res = await fetch(`${API_BASE}/api/shop/init`, {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ tg_id: tg_id, first_name: first_name, username: username })
                         });
+                        
+                        if (!res.ok) {
+                            throw new Error(`Ошибка HTTP: ${res.status}`);
+                        }
+                        
                         const data = await res.json();
                         if (data.status === 'ok') {
-                            this.user.tg_id = data.user.tg_id;
-                            this.user.displayName = data.user.name;
-                            this.user.balance = data.user.balance || 0;
-                            this.user.xp = data.user.xp || 0;
-                            this.user.level = data.user.level || 1;
-                            this.user.maxXp = this.user.level * 600; // Логика прокачки
+                            this.user = {
+                                tg_id: data.user.tg_id,
+                                displayName: data.user.name || first_name,
+                                avatar: this.user.avatar || `https://placehold.co/100x100/100C08/95122C?text=S&font=Montserrat`,
+                                balance: Number(data.user.balance) || 0,
+                                xp: Number(data.user.xp) || 0,
+                                level: Number(data.user.level) || 1,
+                                maxXp: (Number(data.user.level) || 1) * 600
+                            };
                             this.favorites = data.user.favorites || {};
-                            
-                            // Восстанавливаем таймер рулетки
-                            if (data.user.last_spin && data.user.last_spin > Date.now()) {
-                                this.rouletteNextSpinTime = data.user.last_spin;
+
+                            if (data.user.last_spin && Number(data.user.last_spin) > Date.now()) {
+                                this.rouletteNextSpinTime = Number(data.user.last_spin);
                                 this.hasSpunRoulette = true;
                             }
 
-                            // Прямое реактивное присваивание
-                            this.citiesList = data.cities || [];
-                            this.couriersList = data.couriers || [];
-                            
-                            // Восстанавливаем город из кэша телефона
+                            this.citiesList = Array.isArray(data.cities) ? data.cities : [];
+                            this.couriersList = Array.isArray(data.couriers) ? data.couriers : [];
+
                             const savedCity = localStorage.getItem('sovento_saved_city');
                             if (savedCity && this.citiesList.includes(savedCity)) {
                                 this.currentCity = savedCity;
                             }
+
+                            if (Array.isArray(data.products)) {
+                                this.products = data.products.map(p => ({
+                                    id: p.id,
+                                    name: p.name,
+                                    price: Number(p.price) || 0,
+                                    category: p.category || 'Без категории',
+                                    photo: p.image || 'https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID',
+                                    desc: p.description || '',
+                                    city_stocks: p.city_stocks || {},
+                                    color: p.category === 'Жидкости' ? 'rgba(166, 63, 18, 0.35)' : (p.category === 'Картриджи' ? 'rgba(59, 130, 246, 0.35)' : 'rgba(139, 92, 246, 0.35)')
+                                }));
+                            }
                             
-                            // Маппим товары под визуал MiniApp
-                            this.products = data.products.map(p => ({
-                                id: p.id,
-                                name: p.name,
-                                price: p.price,
-                                category: p.category || 'Без категории',
-                                photo: p.image || 'https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID',
-                                desc: p.description,
-                                city_stocks: p.city_stocks || {}, // ВАЖНО: сохраняем остатки
-                                color: p.category === 'Жидкости' ? 'rgba(166, 63, 18, 0.35)' : (p.category === 'Картриджи' ? 'rgba(59, 130, 246, 0.35)' : 'rgba(139, 92, 246, 0.35)')
-                            }));
+                            this.$nextTick(() => {
+                                if (typeof this.initReveal === 'function') this.initReveal();
+                            });
                         }
                     } catch (e) { 
                         console.error("API Init Error:", e); 
