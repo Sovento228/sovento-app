@@ -1166,7 +1166,8 @@
 
     <script>
         const { createApp } = Vue;
-        const API_BASE = window.location.origin.includes('github.io') ? 'http://45.131.215.135:8000' : '';
+        // Указываем HTTPS-адрес туннеля сервера
+        const API_BASE = window.location.origin.includes('github.io') ? 'https://ТВОЙ-ТУННЕЛЬ.trycloudflare.com' : '';
 
         createApp({
             data() {
