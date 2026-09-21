@@ -150,9 +150,8 @@
         .toggle-btn.active { background: rgba(221, 136, 56, 0.2); color: var(--brand-red); }
         .toggle-btn.disabled { opacity: 0.4; pointer-events: none; }
         
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        /* Vue удаляет v-cloak после загрузки, поэтому анимируем все экраны напрямую (кроме липкой шапки) */
-        .app-content > div:not(:first-child) { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .app-content { min-height: 100vh; background-color: var(--dark); }
         @keyframes badgeBounce { 0%, 90%, 100% { transform: translateY(0); } 95% { transform: translateY(-4px); } }
         .bounce-badge { animation: badgeBounce 3s infinite ease-in-out; }
 
@@ -1384,7 +1383,7 @@
                 },
                 handleScroll() {
                     const slider = this.$refs.promoSlider;
-                    if(slider) {
+                    if(slider && slider.clientWidth > 0) {
                         this.activeSlide = Math.round(slider.scrollLeft / slider.clientWidth);
                     }
                 },
@@ -1712,13 +1711,12 @@
                 trackScrollPosition() {
                     if (this.currentTab !== 'main') return;
                     const el = document.getElementById('catalog-section');
-                    if (el) {
-                        // Если якорь каталога поднялся выше 40% экрана, считаем что мы в зоне Товаров
-                        if (el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-                            this.activeScrollSection = 'catalog';
-                        } else {
-                            this.activeScrollSection = 'home';
-                        }
+                    if (!el) return;
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight * 0.4) {
+                        this.activeScrollSection = 'catalog';
+                    } else {
+                        this.activeScrollSection = 'home';
                     }
                 },
 
