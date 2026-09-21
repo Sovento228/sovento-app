@@ -326,6 +326,9 @@
                 <p style="margin:0 0 20px 0; font-size:13px; color:var(--text-muted);">Чтобы мы показали актуальный склад</p>
                 <div style="display:flex; flex-direction:column; gap:10px; max-height:200px; overflow-y:auto;">
                     <div class="city-btn" style="justify-content:center;" v-for="city in citiesList" @click="selectCity(city)">{{ city }}</div>
+                    <div v-if="citiesList.length === 0" style="color: var(--brand-red); font-size: 13px; font-weight: bold; margin-top: 10px;">
+                        Доступных городов пока нет. Администратор скоро добавит их!
+                    </div>
                 </div>
             </div>
         </div>
@@ -590,7 +593,9 @@
 
                             </div>
                         </div>
-                        <div v-if="filteredProducts.length === 0" style="text-align:center; padding:30px 0; color:var(--text-muted); font-size:13px;">Товары не найдены</div>
+                        <div v-if="filteredProducts.length === 0" style="text-align:center; padding:40px 20px; color:var(--text-muted); font-size:14px; line-height:1.6; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.1);">
+                            На складе выбранного вами города нету товара, но он скоро появится.<br><br>Следите за новостями в <a href="https://t.me/YOUR_CHANNEL_LINK" style="color:var(--brand-red); text-decoration:none; font-weight:bold;">Telegram канале</a>
+                        </div>
                     
                     <!-- FOOTER (Дисклеймер и Навигация) -->
                     <div style="padding: 40px 20px 100px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
@@ -707,19 +712,25 @@
                 </div>
                 
                 <!-- Текстовая подпись для способов оплаты (ВНЕ карточки и по центру) -->
-                <div v-if="checkout.payment === 'cash'" style="text-align: center; margin-bottom: 25px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
+                <div v-if="checkout.payment === 'cash'" style="text-align: center; margin-bottom: 15px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
                     Оплатить сможете при встрече с курьером лично.
                 </div>
-                <div v-if="checkout.payment === 'card'" style="text-align: center; margin-bottom: 25px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
+                <div v-if="checkout.payment === 'card'" style="text-align: center; margin-bottom: 15px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
                     Безопасная оплата картой через шлюз. Ссылка на оплату будет выдана после подтверждения заказа.
                 </div>
-                <div v-if="checkout.payment === 'crypto'" style="text-align: center; margin-bottom: 25px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
+                <div v-if="checkout.payment === 'crypto'" style="text-align: center; margin-bottom: 15px; font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 15px;">
                     Быстрая оплата в USDT/BTC/ETH. Реквизиты будут выданы после подтверждения заказа.
+                </div>
+
+                <!-- Комментарий к заказу -->
+                <div class="mock-card" style="padding: 20px; margin-bottom: 100px;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 16px;">Комментарий</h3>
+                    <textarea class="checkout-input" style="height: 80px; resize: none; margin-top: 0; font-family: inherit;" v-model="checkout.comment" placeholder="Домофон, сдача, особые пожелания..."></textarea>
                 </div>
 
                 <!-- Плавающая кнопка подтверждения -->
                 <div style="position: fixed; bottom: 25px; left: 5%; width: 90%; z-index: 2000;">
-                    <button class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 20px; font-weight: 900; font-size: 15px; cursor: pointer; text-transform: uppercase; border: none; box-shadow: 0 15px 30px rgba(0,0,0,0.8);">
+                    <button @click="submitOrder" class="haptic-btn btn-cherry" style="width: 100%; padding: 18px; border-radius: 20px; font-weight: 900; font-size: 15px; cursor: pointer; text-transform: uppercase; border: none;">
                         Подтвердить заказ ({{ cartTotal }} €)
                     </button>
                 </div>
@@ -888,14 +899,24 @@
         </div> <!-- Конец app-content -->
 
         <!-- ЗАКРЕПЛЕННАЯ ПАНЕЛЬ ОФОРМЛЕНИЯ КОРЗИНЫ (Вынесена в корень, чтобы не ломалась от transform) -->
-        <div v-if="currentTab === 'cart' && Object.keys(cart).length > 0" style="position: fixed; bottom: 85px; left: 0; width: 100%; background: var(--dark); padding: 15px 20px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 2000; box-shadow: 0 -10px 20px rgba(0,0,0,0.5);">
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">К оплате</span>
-                <span style="font-size: 26px; font-weight: 900; color: white; line-height: 1.1;">{{ cartTotal }} €</span>
+        <div v-if="currentTab === 'cart' && Object.keys(cart).length > 0" style="position: fixed; bottom: 85px; left: 0; width: 100%; background: var(--dark); box-sizing: border-box; border-top: 1px solid rgba(255,255,255,0.05); z-index: 2000; box-shadow: 0 -10px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
+            
+            <!-- Поле промокода -->
+            <div style="padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.02); display: flex; gap: 10px; background: rgba(0,0,0,0.3);">
+                <input type="text" v-model="checkout.promo" placeholder="Промокод" class="checkout-input" style="margin: 0; flex: 1; padding: 10px 15px; text-transform: uppercase; font-weight: bold;">
+                <button class="haptic-btn btn-cherry" @click="applyPromo" style="border-radius: 12px; padding: 0 15px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; border: none;">Применить</button>
             </div>
-            <button class="haptic-btn btn-cherry" @click="switchTab('checkout')" style="border-radius: 20px; padding: 16px 30px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;">
-                Оформить
-            </button>
+
+            <!-- Итого и Оформить -->
+            <div style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">К оплате <span v-if="discount > 0" style="color: #4ade80;">(-{{discount}}%)</span></span>
+                    <span style="font-size: 26px; font-weight: 900; color: white; line-height: 1.1;">{{ cartTotal }} €</span>
+                </div>
+                <button class="haptic-btn btn-cherry" @click="switchTab('checkout')" style="border-radius: 20px; padding: 16px 30px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none;">
+                    Оформить
+                </button>
+            </div>
         </div>
 
         <!-- УМНАЯ ОЧЕРЕДЬ УВЕДОМЛЕНИЙ -->
@@ -1145,6 +1166,7 @@
 
     <script>
         const { createApp } = Vue;
+        const API_BASE = window.location.origin.includes('github.io') ? 'http://45.131.215.135:8000' : '';
 
         createApp({
             data() {
@@ -1189,8 +1211,11 @@
                         address: '',
                         zip: '',
                         city: '',
-                        telegram: ''
+                        telegram: '',
+                        comment: '',
+                        promo: ''
                     },
+                    discount: 0, // Хранит процент скидки
 
                     cart: {},
                     favorites: {}, // Хранилище лайкнутых товаров
@@ -1215,6 +1240,7 @@
 
                     citiesList: [], // Теперь грузим из БД
                     products: [], // Теперь грузим из БД
+                    couriersList: [], // Список курьеров для просчета рюкзаков
                     // Заглушка профиля до ответа сервера
                     user: { tg_id: null, displayName: 'Загрузка...', avatar: '', level: 1, xp: 0, maxXp: 600, balance: 0.0 },
                     favorites: {},
@@ -1229,8 +1255,13 @@
             },
             computed: {
                 filteredProducts() {
+                    if(!Array.isArray(this.products)) return [];
                     return this.products.filter(p => {
-                        // Если выбрана категория Избранное — показываем только лайкнутые товары
+                        // 1. Жесткая проверка: скрываем товар, если его нет ни в резерве города, ни у курьеров
+                        const stock = this.getCityTotalStock(p, this.currentCity);
+                        if (stock <= 0) return false;
+                        
+                        // 2. Стандартный поиск и фильтры
                         if (this.currentCategory === 'Избранное') {
                             return this.favorites[p.id] && p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
                         }
@@ -1244,6 +1275,9 @@
                     for (let id in this.cart) {
                         total += this.cart[id].price * this.cart[id].count;
                     }
+                    if (this.discount > 0) {
+                        total = total * (1 - (this.discount / 100));
+                    }
                     return total.toFixed(2);
                 },
                 cartItemsCount() {
@@ -1255,6 +1289,11 @@
                 }
             },
             mounted() {
+                // Восстанавливаем город из кэша, если он был выбран ранее
+                const savedCity = localStorage.getItem('sovento_saved_city');
+                if (savedCity) {
+                    this.currentCity = savedCity;
+                }
                 
                 // Таймер для рулетки
                 setInterval(() => {
@@ -1301,6 +1340,14 @@
                 clearInterval(this.sliderTimer);
             },
             methods: {
+                getCityTotalStock(product, cityName) {
+                    if(!product.city_stocks) return 0;
+                    let total = Number(product.city_stocks[cityName] || 0);
+                    // Прибавляем товары, которые лежат в рюкзаках у курьеров этого города
+                    let cityCouriers = this.couriersList.filter(c => c.city === cityName).map(c => 'Курьер: ' + c.name);
+                    cityCouriers.forEach(cKey => { total += Number(product.city_stocks[cKey] || 0); });
+                    return total;
+                },
                 generateNickname() {
                     const randomNum = Math.floor(Math.random() * 9000) + 1000;
                     this.user.displayName = 'Гость ' + randomNum;
@@ -1439,6 +1486,15 @@
                         this.closeProduct();
                     }
                 },
+                applyPromo() {
+                    if (this.checkout.promo.trim() === '') {
+                        this.discount = 0;
+                        return;
+                    }
+                    // Здесь в будущем будет реальный API запрос к БД (models.Promocode)
+                    alert("Промокод применен!");
+                    this.discount = 10; // Демо-скидка 10%
+                },
                 changeCartCount(id, delta) {
                     if (this.cart[id]) {
                         this.cart[id].count += delta;
@@ -1473,15 +1529,51 @@
                     if (this.checkout.delivery === 'courier' && type === 'cash') return;
                     this.checkout.payment = type;
                 },
+                async submitOrder() {
+                    if (this.checkout.delivery === 'courier' && (!this.checkout.address || !this.checkout.city)) {
+                        return alert("Пожалуйста, заполните адрес и город для доставки!");
+                    }
+                    
+                    const payload = {
+                        tg_id: this.user.tg_id,
+                        delivery: this.checkout.delivery,
+                        payment: this.checkout.payment,
+                        address: this.checkout.address,
+                        zip: this.checkout.zip,
+                        city: this.checkout.delivery === 'pickup' ? this.currentCity : this.checkout.city,
+                        telegram: this.checkout.telegram,
+                        comment: this.checkout.comment,
+                        promo: this.checkout.promo,
+                        cart: this.cart,
+                        total: parseFloat(this.cartTotal)
+                    };
+
+                    try {
+                        const res = await fetch(`${API_BASE}/api/shop/order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        
+                        if (data.status === 'ok') {
+                            alert(`Заказ #${data.order_id} успешно оформлен! Менеджер скоро свяжется с вами.`);
+                            this.cart = {}; // Очищаем корзину после заказа
+                            this.switchTab('main'); // Возвращаем на главную
+                        }
+                    } catch (e) {
+                        alert("Ошибка при оформлении заказа. Проверьте соединение с интернетом.");
+                    }
+                },
                 selectCity(city) {
                     this.currentCity = city;
+                    localStorage.setItem('sovento_saved_city', city); // Запоминаем выбор навсегда
                     this.isCityDropdownOpen = false;
                     this.$nextTick(() => {
                         const slider = this.$refs.promoSlider;
                         if (slider) {
                             this.totalSlides = slider.children.length;
                         }
-                        // Запускаем анимацию появления ровно тогда, когда DOM главной страницы реально отрисовался
                         this.initReveal();
                     });
                 },
@@ -1512,7 +1604,7 @@
 
                     // Загружаем данные с нашего FastAPI
                     try {
-                        const res = await fetch('/api/shop/init', {
+                        const res = await fetch(`${API_BASE}/api/shop/init`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ tg_id: tg_id, first_name: first_name, username: username })
                         });
@@ -1532,7 +1624,15 @@
                                 this.hasSpunRoulette = true;
                             }
 
-                            this.citiesList = data.cities || [];
+                            // Принудительно очищаем и заполняем массивы для реактивности Vue
+                            this.citiesList.splice(0, this.citiesList.length, ...(data.cities || []));
+                            this.couriersList.splice(0, this.couriersList.length, ...(data.couriers || []));
+                            
+                            // Восстанавливаем город из кэша телефона
+                            const savedCity = localStorage.getItem('sovento_saved_city');
+                            if (savedCity && this.citiesList.includes(savedCity)) {
+                                this.currentCity = savedCity;
+                            }
                             
                             // Маппим товары под визуал MiniApp
                             this.products = data.products.map(p => ({
@@ -1542,7 +1642,7 @@
                                 category: p.category || 'Без категории',
                                 photo: p.image || 'https://placehold.co/1200x1600/1A1A1E/FF3C00?text=LIQUID',
                                 desc: p.description,
-                                // Генерация цвета свечения на основе категории
+                                city_stocks: p.city_stocks || {}, // ВАЖНО: сохраняем остатки
                                 color: p.category === 'Жидкости' ? 'rgba(166, 63, 18, 0.35)' : (p.category === 'Картриджи' ? 'rgba(59, 130, 246, 0.35)' : 'rgba(139, 92, 246, 0.35)')
                             }));
                         }
@@ -1552,7 +1652,7 @@
                 // Функция отправки прогресса юзера на сервер
                 async syncUserData() {
                     if(!this.user.tg_id) return;
-                    await fetch('/api/shop/sync', {
+                    await fetch(`${API_BASE}/api/shop/sync`, {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             tg_id: this.user.tg_id, balance: this.user.balance, xp: this.user.xp, 
