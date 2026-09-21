@@ -1167,7 +1167,7 @@
     <script>
         const { createApp } = Vue;
         const API_BASE = window.location.origin.includes('github.io') 
-            ? 'https://oaks-citizenship-justin-horn.trycloudflare.com' 
+            ? 'https://protect-leg-unavailable-important.trycloudflare.com' 
             : '';
 
         createApp({
@@ -1626,9 +1626,9 @@
                                 this.hasSpunRoulette = true;
                             }
 
-                            // Принудительно очищаем и заполняем массивы для реактивности Vue
-                            this.citiesList.splice(0, this.citiesList.length, ...(data.cities || []));
-                            this.couriersList.splice(0, this.couriersList.length, ...(data.couriers || []));
+                            // Прямое реактивное присваивание
+                            this.citiesList = data.cities || [];
+                            this.couriersList = data.couriers || [];
                             
                             // Восстанавливаем город из кэша телефона
                             const savedCity = localStorage.getItem('sovento_saved_city');
