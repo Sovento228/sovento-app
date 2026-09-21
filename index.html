@@ -1172,7 +1172,7 @@
     <script>
         const { createApp } = Vue;
         const API_BASE = window.location.origin.includes('github.io') 
-            ? 'https://born-inspired-stores-trance.trycloudflare.com' 
+            ? 'https://45-131-215-135.sslip.io' 
             : '';
 
         createApp({
@@ -1582,12 +1582,12 @@
                     this.$nextTick(() => {
                         window.scrollTo(0, 0);
                         const slider = this.$refs.promoSlider;
-                        if (slider) {
+                        if (slider && slider.children) {
                             this.totalSlides = slider.children.length;
                         }
                         setTimeout(() => {
-                            this.initReveal();
-                        }, 100);
+                            if (typeof this.initReveal === 'function') this.initReveal();
+                        }, 50);
                     });
                 },
                 
