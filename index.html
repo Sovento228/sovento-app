@@ -56,7 +56,7 @@
             background-color: var(--dark);
         }
 
-        /* Фиксированная парящая плашка города */
+        /* Фиксированная плашка города с бесшовным темным фоном */
         .fixed-city-header {
             position: fixed;
             top: 0;
@@ -65,13 +65,12 @@
             width: 100%;
             max-width: 480px;
             z-index: 1200;
-            padding: 12px 20px;
+            padding: 14px 20px;
             display: flex;
             justify-content: flex-end;
-            background: linear-gradient(180deg, rgba(10, 7, 7, 0.95) 60%, transparent 100%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: var(--dark); /* Родной монолитный фон приложения */
             pointer-events: none;
+            box-sizing: border-box;
         }
         .fixed-city-header .city-btn,
         .fixed-city-header .city-dropdown {
@@ -479,12 +478,11 @@
                     <div style="width: 35%; height: 1px; background: linear-gradient(-90deg, transparent, rgba(255, 255, 255, 0.1));"></div>
                 </div>
 
-                <!-- БЛОК С СИНИМ ФОНОМ ДЛЯ ИНФО-КАРТОЧЕК -->
-                <!-- ДОБАВЛЕН id="about-section", чтобы кнопка "О нас" из футера могла сюда скроллить -->
-                <div id="about-section" style="background-color: var(--dark); padding: 40px 0 20px 0; position: relative; z-index: 1;">
+                <!-- БЛОК ИНФО-КАРТОЧЕК И КАТАЛОГА -->
+                <div id="about-section" style="background-color: var(--dark); padding: 30px 20px 20px 20px; box-sizing: border-box; position: relative; z-index: 1;">
                     
-                    <!-- ИНФО-БЛОК (Премиальные стеклянные карточки) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 50px; padding: 0 20px;">
+                    <!-- ИНФО-БЛОК (Премиальные карточки) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 40px;">
                         
                         <!-- Окошко 1 (Оформление) -->
                         <div class="reveal delay-1" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 30px 20px; width: 100%; box-sizing: border-box; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); position: relative; overflow: hidden;">
@@ -561,10 +559,10 @@
                         </div>
 
                     <!-- КАТАЛОГ И СЛАЙДЕР -->
-                    <div id="catalog-section" style="width: 100%; padding-top: 15px;">
+                    <div id="catalog-section" style="width: 100%; margin-top: 10px;">
                         
                         <!-- СЛАЙДЕР НОВИНОК -->
-                        <div style="margin-bottom: 30px; padding: 0 20px;">
+                        <div style="margin-bottom: 30px;">
                             <h3 style="margin: 0 0 15px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #FFF;">Новинки и Акции</h3>
                             <div class="slider-container" ref="promoSlider" @scroll="handleScroll">
                                 <div class="slide">
@@ -594,8 +592,8 @@
                             Каталог товаров: <b style="color:#FFF; font-size: 16px;">{{ currentCity }}</b>
                         </div>
 
-                        <!-- НОВАЯ СТЕКЛЯННАЯ ПАНЕЛЬ ДЛЯ ПОИСКА И ФИЛЬТРОВ -->
-                        <div style="margin: 0 20px 25px 20px; padding: 20px; background: rgba(3, 5, 11, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03);">
+                        <!-- ПАНЕЛЬ ПОИСКА И ФИЛЬТРОВ -->
+                        <div style="margin: 0 0 25px 0; padding: 20px; background: rgba(3, 5, 11, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03); box-sizing: border-box;">
                             
                             <!-- Внутреннее поле поиска -->
                             <div class="search-container" style="margin-bottom: 15px; margin-top: 0;">
@@ -614,8 +612,8 @@
                             
                         </div>
 
-                        <!-- СЕТКА ТОВАРОВ (Премиальная стеклянная концепция) -->
-                        <div class="products-grid" style="padding: 0 20px; display: flex; flex-direction: column; gap: 20px;">
+                        <!-- СЕТКА ТОВАРОВ -->
+                        <div class="products-grid" style="padding: 0; display: flex; flex-direction: column; gap: 20px;">
                             
                             <div class="product-card" v-for="(item, index) in filteredProducts" :key="item.id" @click="openProduct(item)" 
                                  style="background: rgba(255, 255, 255, 0.02); border-radius: 24px; padding: 20px 20px 15px 20px; position: relative; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 15px 35px rgba(0,0,0,0.4); overflow: hidden; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
@@ -679,7 +677,7 @@
                         </div>
                     
                     <!-- FOOTER (Дисклеймер и Навигация) -->
-                    <div style="padding: 40px 20px 120px 20px; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; width: 100%; max-width: 100%; box-sizing: border-box;">
+                    <div style="padding: 30px 0 120px 0; background-color: var(--dark); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; width: 100%; box-sizing: border-box;">
                         <div class="logo-font" style="font-size: 24px; letter-spacing: -1px; text-align: left; margin-bottom: 15px;">SOVENTO</div>
                         <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">Самовывоз доступен только в предложенные города. Доставка почтой по всей Германии. Только официальная продукция. Заказы и наличие в Miniapp SOVENTO.</p>
                         
