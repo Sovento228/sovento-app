@@ -34,14 +34,24 @@
             border: 1px solid rgba(202, 63, 22, 0.4) !important;
         }
 
-        body { 
+        html, body { 
             margin: 0; padding: 0; 
             background-color: var(--dark); 
             color: var(--text-main); 
             font-family: 'Segoe UI', Roboto, sans-serif; 
-            overflow-x: hidden; 
+            overflow-x: hidden;
+            width: 100%;
             user-select: none; 
             -webkit-tap-highlight-color: transparent;
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-color: var(--dark);
         }
 
         .logo-font {
@@ -71,7 +81,7 @@
 
         /* Парящая навигация (Floating Glass Nav - Cherry Theme) */
         .bottom-nav {
-            position: fixed; bottom: 25px; left: 5%; width: 90%;
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px;
             /* Теплый вишневый подтон для стекла */
             background: linear-gradient(180deg, rgba(20, 12, 14, 0.85) 0%, rgba(11, 8, 8, 0.95) 100%);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
@@ -364,7 +374,7 @@
                     <div class="ambient-orb orb-2"></div>
 
                     <!-- Свечение цвета вишни -->
-                    <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vw; max-width: 500px; max-height: 500px; background: radial-gradient(circle, rgba(149, 18, 44, 0.2) 0%, rgba(3, 5, 11, 0) 70%); z-index: 0; pointer-events: none;"></div>
+                    <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 340px; height: 340px; background: radial-gradient(circle, rgba(149, 18, 44, 0.2) 0%, rgba(3, 5, 11, 0) 70%); z-index: 0; pointer-events: none;"></div>
                     
                     <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 20px;">
                         
@@ -632,7 +642,7 @@
             </div> <!-- ВАЖНО: ЗАКРЫВАЕМ ЕДИНУЮ ЛЕНТУ MAIN ЗДЕСЬ! -->
 
             <!-- ЭКРАН 3: КОРЗИНА (PREMIUM REDESIGN) -->
-            <div v-if="currentTab === 'cart'" v-cloak style="padding: 20px 20px 150px 20px;">
+            <div v-show="currentTab === 'cart'" style="padding: 20px 20px 150px 20px; min-height: 80vh; box-sizing: border-box;">
                 <h1 style="margin-top:0; font-size: 26px; margin-bottom: 20px;">Корзина</h1>
                 
                 <!-- Центрированная пустая корзина -->
@@ -679,7 +689,7 @@
             </div>
 
             <!-- ЭКРАН 4: ОФОРМЛЕНИЕ ЗАКАЗА (Checkout) -->
-            <div v-if="currentTab === 'checkout'" v-cloak style="padding: 20px 20px 120px 20px;">
+            <div v-show="currentTab === 'checkout'" style="padding: 20px 20px 120px 20px; min-height: 80vh; box-sizing: border-box;">
                 
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
                     <div class="checkout-back-btn" @click="currentTab = 'cart'">
@@ -742,7 +752,7 @@
             </div>
 
             <!-- ЭКРАН 6: ПРОФИЛЬ (ГЕЙМИФИКАЦИЯ) -->
-            <div v-if="currentTab === 'profile'" v-cloak style="padding: 20px 20px 120px 20px;">
+            <div v-show="currentTab === 'profile'" style="padding: 20px 20px 120px 20px; min-height: 80vh; box-sizing: border-box;">
                 
                 <!-- Шапка профиля -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;">
@@ -864,7 +874,7 @@
                     </div>    
             
         <!-- НОВЫЙ ЭКРАН: СВЯЗЬ С МЕНЕДЖЕРОМ -->
-            <div v-if="currentTab === 'support'" v-cloak style="padding: 20px 20px 120px 20px;">
+            <div v-show="currentTab === 'support'" style="padding: 20px 20px 120px 20px; min-height: 80vh; box-sizing: border-box;">
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom: 25px;">
                     <div class="checkout-back-btn" @click="switchTab('main'); setTimeout(() => scrollToSection('about'), 100)">
                         <svg style="width:28px; height:28px; fill:currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
