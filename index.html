@@ -438,7 +438,7 @@
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- Фоновый градиент с темно-вишневым оттенком -->
-                <div id="home-section" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 100vh; height: 100dvh; min-height: 100vh; padding: 75px 20px 110px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 25%, rgba(38, 12, 18, 1) 0%, var(--dark) 75%);">
+                <div id="home-section" :style="{ height: tgViewportHeight ? tgViewportHeight + 'px' : '100dvh' }" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; min-height: 520px; padding: 75px 20px 145px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 25%, rgba(38, 12, 18, 1) 0%, var(--dark) 75%);">
                     
                     <!-- АБСТРАКТНЫЕ ПРЕМИАЛЬНЫЕ СВЕЧЕНИЯ (Ambient Orbs) -->
                     <div class="ambient-orb orb-1"></div>
@@ -469,7 +469,7 @@
                     </div>
 
                     <!-- Кнопка перехода в каталог -->
-                    <div style="margin-top: auto; width: 100%; display: flex; justify-content: center; position: relative; z-index: 1;">
+                    <div style="width: 100%; display: flex; justify-content: center; position: relative; z-index: 1; margin-bottom: 10px;">
                         <button @click="scrollToSection('catalog')" class="haptic-btn btn-cherry" style="padding: 16px 0; border-radius: 26px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; width: 100%; max-width: 280px;">
                             Перейти в каталог
                         </button>
@@ -1270,6 +1270,7 @@
                     crashWinAmount: 0,
                     currentTab: 'main', 
                     activeScrollSection: 'home',
+                    tgViewportHeight: 0,
                     activeFaq: null, // Для аккордеона поддержки
                     supportMessage: '', // Для текста в поддержку
                     sliderProgress: 0, 
@@ -1397,6 +1398,15 @@
                 }, 1000);
 
                 this.initTelegramUser(); // <-- Запускаем сбор данных из ТГ
+                
+                // Фиксация точной видимой высоты Telegram WebApp
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.viewportHeight) {
+                    this.tgViewportHeight = window.Telegram.WebApp.viewportHeight;
+                    window.Telegram.WebApp.onEvent('viewportChanged', () => {
+                        this.tgViewportHeight = window.Telegram.WebApp.viewportHeight;
+                    });
+                }
+                
                 window.addEventListener('scroll', this.trackScrollPosition);
                 this.startSlider(); 
                 
