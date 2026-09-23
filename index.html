@@ -438,7 +438,7 @@
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- Фоновый градиент с темно-вишневым оттенком -->
-                <div id="home-section" :style="{ height: tgViewportHeight ? tgViewportHeight + 'px' : '100dvh' }" style="position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 540px; padding: 0 20px 145px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 26%, rgba(149, 18, 44, 0.40) 0%, rgba(20, 10, 12, 0.9) 60%, var(--dark) 90%);">
+                <div id="home-section" :style="{ height: tgViewportHeight ? tgViewportHeight + 'px' : '100dvh' }" style="position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 540px; padding: 0 20px 170px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 26%, rgba(149, 18, 44, 0.40) 0%, rgba(20, 10, 12, 0.9) 60%, var(--dark) 90%);">
                     
                     <!-- АБСТРАКТНЫЕ ПРЕМИАЛЬНЫЕ СВЕЧЕНИЯ (Ambient Orbs) -->
                     <div class="ambient-orb orb-1" style="opacity: 0.55; filter: blur(75px); top: -45px; left: -60px;"></div>
@@ -469,10 +469,10 @@
                         </div>
                     </div>
 
-                    <!-- Кнопка перехода в каталог -->
+                    <!-- Кнопка перехода к товарам -->
                     <div style="width: 100%; display: flex; justify-content: center; position: relative; z-index: 1;">
                         <button @click="scrollToSection('catalog')" class="haptic-btn btn-cherry" style="padding: 17px 0; border-radius: 28px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px; cursor: pointer; width: 100%; max-width: 275px;">
-                            Перейти в каталог
+                            Перейти к товарам
                         </button>
                     </div>
 
