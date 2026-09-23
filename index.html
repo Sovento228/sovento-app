@@ -438,26 +438,26 @@
 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- ПЕРВЫЙ ЭКРАН (Главный) -->
                 <!-- Фоновый градиент с темно-вишневым оттенком -->
-                <div id="home-section" :style="{ height: tgViewportHeight ? tgViewportHeight + 'px' : '100dvh' }" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; min-height: 540px; padding: 70px 20px 135px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 28%, rgba(149, 18, 44, 0.42) 0%, rgba(20, 10, 12, 0.9) 55%, var(--dark) 85%);">
+                <div id="home-section" :style="{ height: tgViewportHeight ? tgViewportHeight + 'px' : '100dvh' }" style="position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 540px; padding: 0 20px 145px 20px; box-sizing: border-box; overflow: hidden; background: radial-gradient(circle at 50% 26%, rgba(149, 18, 44, 0.40) 0%, rgba(20, 10, 12, 0.9) 60%, var(--dark) 90%);">
                     
                     <!-- АБСТРАКТНЫЕ ПРЕМИАЛЬНЫЕ СВЕЧЕНИЯ (Ambient Orbs) -->
-                    <div class="ambient-orb orb-1" style="opacity: 0.55; filter: blur(75px); top: -40px; left: -60px;"></div>
-                    <div class="ambient-orb orb-2" style="opacity: 0.45; filter: blur(80px); bottom: 120px; right: -40px;"></div>
+                    <div class="ambient-orb orb-1" style="opacity: 0.55; filter: blur(75px); top: -45px; left: -60px;"></div>
+                    <div class="ambient-orb orb-2" style="opacity: 0.45; filter: blur(80px); bottom: 160px; right: -40px;"></div>
 
                     <!-- Глубокое центральное свечение темной вишни -->
                     <div style="position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 400px; background: radial-gradient(circle, rgba(202, 63, 22, 0.24) 0%, rgba(149, 18, 44, 0.12) 50%, transparent 75%); z-index: 0; pointer-events: none; filter: blur(50px);"></div>
                     
-                    <!-- Центральный блок (поднят вверх так, чтобы SOVENTO заняло прежнюю высоту бейджа) -->
-                    <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 15px;">
+                    <!-- Центральный блок (смещён вверх: SOVENTO на уровне бывшего бейджа) -->
+                    <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-bottom: 75px;">
                         
                         <!-- Премиальный бейдж -->
-                        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09); padding: 7px 18px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); margin-bottom: 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.45);">
-                            <span style="width: 7px; height: 7px; background: var(--brand-red); border-radius: 50%; box-shadow: 0 0 10px var(--brand-red);"></span>
+                        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09); padding: 6px 16px; border-radius: 30px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); margin-bottom: 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.45);">
+                            <span style="width: 6px; height: 6px; background: var(--brand-red); border-radius: 50%; box-shadow: 0 0 10px var(--brand-red);"></span>
                             Всегда на связи
                         </div>
 
-                        <!-- Заголовок цвета кремового металлика -->
-                        <div class="logo-font" style="font-size: 62px; line-height: 1.05; letter-spacing: -2.5px; text-align: center; background: linear-gradient(180deg, #FFFFFF 0%, #E8E0E1 45%, #9E9394 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 18px; filter: drop-shadow(0 14px 28px rgba(0,0,0,0.8));">
+                        <!-- Заголовок SOVENTO -->
+                        <div class="logo-font" style="font-size: 62px; line-height: 1.05; letter-spacing: -2.5px; text-align: center; background: linear-gradient(180deg, #FFFFFF 0%, #E8E0E1 45%, #9E9394 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; filter: drop-shadow(0 14px 28px rgba(0,0,0,0.8));">
                             SOVENTO
                         </div>
 
