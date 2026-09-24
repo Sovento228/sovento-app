@@ -380,6 +380,21 @@
         .delay-1 { transition-delay: 0.08s; }
         .delay-2 { transition-delay: 0.16s; }
 
+        /* =========================================
+           АНТИ-ФРИЗ: АППАРАТНОЕ УСКОРЕНИЕ (GPU ACCELERATION)
+           Заставляет телефон рендерить стекло и анимации видеокартой
+           ========================================= */
+        .product-card, .ambient-orb, .modal-sheet, .mock-card, .faq-item {
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        .reveal {
+            will-change: opacity, transform; /* Подсказка браузеру заранее подготовить ресурсы */
+        }
+
         /* Премиальная пульсация (дыхание) кнопки */
         @keyframes premiumPulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(149,18,44,0.7); }
@@ -1465,10 +1480,13 @@
             methods: {
                 getCityTotalStock(product, cityName) {
                     if(!product.city_stocks) return 0;
-                    let total = Number(product.city_stocks[cityName] || 0);
-                    // Прибавляем товары, которые лежат в рюкзаках у курьеров этого города
+                    
+                    let total = 0; // СТРОГО 0. Транзит города (product.city_stocks[cityName]) игнорируем!
+                    
+                    // Считаем ТОЛЬКО то, что реально находится в рюкзаках у курьеров этого города
                     let cityCouriers = this.couriersList.filter(c => c.city === cityName).map(c => 'Курьер: ' + c.name);
                     cityCouriers.forEach(cKey => { total += Number(product.city_stocks[cKey] || 0); });
+                    
                     return total;
                 },
                 generateNickname() {
@@ -1515,11 +1533,17 @@
                 },
                 switchTab(tab) {
                     this.currentTab = tab;
-                    if (tab === 'cart') this.toasts = [];
-                    window.scrollTo({ top: 0, behavior: 'instant' });
+                    if (tab === 'cart') this.toasts = []; 
+                    
+                    // 1. Мгновенный сброс скролла окна
+                    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                    
                     this.$nextTick(() => {
-                        const appEl = document.getElementById('app');
-                        if (appEl) appEl.scrollTop = 0;
+                        // 2. Жесткая фиксация скролла для мобильных WebKit/Chrome
+                        window.scrollTo(0, 0);
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        
                         if (typeof this.initReveal === 'function') {
                             this.initReveal();
                         }
