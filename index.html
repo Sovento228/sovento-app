@@ -380,19 +380,34 @@
         .delay-1 { transition-delay: 0.08s; }
         .delay-2 { transition-delay: 0.16s; }
 
-        /* =========================================
-           АНТИ-ФРИЗ: АППАРАТНОЕ УСКОРЕНИЕ (GPU ACCELERATION)
-           Заставляет телефон рендерить стекло и анимации видеокартой
-           ========================================= */
+        /* Плавное мягкое появление экранов */
+        .tab-fade-enter-active, .tab-fade-leave-active {
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .tab-fade-enter-from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        .tab-fade-leave-to {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        /* Анимация карточек при скролле */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .product-card, .ambient-orb, .modal-sheet, .mock-card, .faq-item {
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            perspective: 1000px;
-        }
-        .reveal {
-            will-change: opacity, transform; /* Подсказка браузеру заранее подготовить ресурсы */
         }
 
         /* Премиальная пульсация (дыхание) кнопки */
@@ -1535,18 +1550,18 @@
                     this.currentTab = tab;
                     if (tab === 'cart') this.toasts = []; 
                     
-                    // 1. Мгновенный сброс скролла окна
                     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
                     
                     this.$nextTick(() => {
-                        // 2. Жесткая фиксация скролла для мобильных WebKit/Chrome
                         window.scrollTo(0, 0);
                         document.documentElement.scrollTop = 0;
                         document.body.scrollTop = 0;
                         
-                        if (typeof this.initReveal === 'function') {
-                            this.initReveal();
-                        }
+                        // Сбрасываем и повторно активируем анимацию элементов
+                        setTimeout(() => {
+                            const reveals = document.querySelectorAll('.reveal');
+                            reveals.forEach(el => el.classList.add('active'));
+                        }, 50);
                     });
                 },
                 scrollToSection(section) {
