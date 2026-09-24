@@ -380,6 +380,21 @@
         .delay-1 { transition-delay: 0.08s; }
         .delay-2 { transition-delay: 0.16s; }
 
+        /* =========================================
+           АНТИ-ФРИЗ: АППАРАТНОЕ УСКОРЕНИЕ (GPU ACCELERATION)
+           Заставляет телефон рендерить стекло и анимации видеокартой
+           ========================================= */
+        .product-card, .ambient-orb, .modal-sheet, .mock-card, .faq-item {
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        .reveal {
+            will-change: opacity, transform; /* Подсказка браузеру заранее подготовить ресурсы */
+        }
+
         /* Премиальная пульсация (дыхание) кнопки */
         @keyframes premiumPulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(149,18,44,0.7); }
