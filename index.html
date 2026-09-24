@@ -618,66 +618,68 @@
                             
                         </div>
 
-                        <!-- СЕТКА ТОВАРОВ (Премиальные карточки 3/4) -->
-                        <div class="products-grid" style="padding: 0; display: flex; flex-direction: column; gap: 22px;">
+                        <!-- СЕТКА ТОВАРОВ (Премиальные увеличенные карточки 3/4) -->
+                        <div class="products-grid" style="padding: 0; display: flex; flex-direction: column; gap: 24px;">
                             
                             <div class="product-card haptic-btn" v-for="(item, index) in filteredProducts" :key="item.id" @click="openProduct(item)" 
-                                 style="background: linear-gradient(145deg, rgba(255, 255, 255, 0.035) 0%, rgba(18, 12, 14, 0.6) 100%); border-radius: 26px; padding: 18px; position: relative; border: 1px solid rgba(255, 255, 255, 0.07); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 18px 38px rgba(0,0,0,0.55); overflow: hidden; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);">
+                                 style="background: linear-gradient(150deg, rgba(255, 255, 255, 0.04) 0%, rgba(15, 10, 12, 0.75) 100%); border-radius: 28px; padding: 18px; position: relative; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 20px 42px rgba(0,0,0,0.6); overflow: hidden; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);">
                                 
-                                <!-- Фоновый градиентный ореол товара -->
+                                <!-- Фоновый градиентный ореол под цвет товара -->
                                 <div :style="{ 
-                                        background: item.color || 'rgba(149, 18, 44, 0.35)',
-                                        left: index % 2 === 0 ? '-30px' : 'auto',
-                                        right: index % 2 !== 0 ? '-30px' : 'auto'
+                                        background: item.color || 'rgba(149, 18, 44, 0.4)',
+                                        left: index % 2 === 0 ? '-35px' : 'auto',
+                                        right: index % 2 !== 0 ? '-35px' : 'auto'
                                      }" 
-                                     style="position: absolute; top: 10px; width: 160px; height: 160px; filter: blur(55px); opacity: 0.35; border-radius: 50%; pointer-events: none; z-index: 0;">
+                                     style="position: absolute; top: 15px; width: 170px; height: 170px; filter: blur(55px); opacity: 0.35; border-radius: 50%; pointer-events: none; z-index: 0;">
                                 </div>
 
                                 <!-- Кнопка Избранное -->
-                                <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)" style="position: absolute; top: 14px; right: 14px; z-index: 10; background: rgba(10, 7, 7, 0.6); border: 1px solid rgba(255,255,255,0.08); width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; border-radius: 50%; backdrop-filter: blur(8px);">
+                                <div class="fav-btn" :class="{active: favorites[item.id]}" @click.stop="toggleFav(item)" style="position: absolute; top: 14px; right: 14px; z-index: 10; background: rgba(10, 7, 7, 0.65); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 50%; backdrop-filter: blur(10px);">
                                     <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                 </div>
 
-                                <!-- ВЕРХНЯЯ ЧАСТЬ: ШАХМАТКА 3/4 + ИНФО -->
-                                <div :style="{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }" style="display: flex; gap: 16px; align-items: center; position: relative; z-index: 1;">
+                                <!-- ВЕРХНЯЯ ЧАСТЬ: УВЕЛИЧЕННАЯ ШАХМАТКА 3/4 + ТЕКСТ -->
+                                <div :style="{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }" style="display: flex; gap: 18px; align-items: center; position: relative; z-index: 1;">
                                     
-                                    <!-- ПРЕМИАЛЬНЫЙ ФОТО-БОКС СТРОГО 3/4 -->
-                                    <div style="flex: 0 0 42%; max-width: 42%; aspect-ratio: 3 / 4; position: relative; border-radius: 18px; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.5) 100%); border: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; align-items: center; padding: 8px; box-sizing: border-box; overflow: hidden; box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);">
-                                        <img :src="item.photo" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 14px 16px rgba(0,0,0,0.7)); transform: scale(1.05); transition: transform 0.3s ease;">
+                                    <!-- УВЕЛИЧЕННЫЙ ФОТО-БОКС СТРОГО 3/4 -->
+                                    <div style="flex: 0 0 48%; max-width: 48%; aspect-ratio: 3 / 4; position: relative; border-radius: 20px; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.6) 100%); border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; overflow: hidden; box-shadow: inset 0 3px 12px rgba(0,0,0,0.5);">
+                                        <img :src="item.photo" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 16px 20px rgba(0,0,0,0.8)); transform: scale(1.08); transition: transform 0.3s ease;">
                                     </div>
 
                                     <!-- ИНФОРМАЦИОННЫЙ БЛОК -->
                                     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                                        <span style="color: var(--brand-red); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
-                                            {{ item.category }}
-                                        </span>
-                                        <h3 style="font-size: 17px; font-weight: 800; line-height: 1.25; margin: 0 0 6px 0; color: var(--text-main); letter-spacing: -0.2px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
+                                        <h3 style="font-size: 18px; font-weight: 900; line-height: 1.25; margin: 0 0 8px 0; color: #FFFFFF; letter-spacing: -0.3px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                                             {{ item.name }}
                                         </h3>
-                                        <div style="font-size: 22px; font-weight: 900; color: #FFFFFF; margin-bottom: 6px; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.6);">
+                                        <div style="font-size: 24px; font-weight: 900; color: #FFFFFF; margin-bottom: 8px; letter-spacing: -0.5px; text-shadow: 0 2px 12px rgba(0,0,0,0.65);">
                                             {{ item.price.toFixed(2) }} €
                                         </div>
-                                        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.45; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                                             {{ item.desc }}
                                         </p>
                                     </div>
 
                                 </div>
 
-                                <!-- НИЖНЯЯ ПАНЕЛЬ С ДЕЙСТВИЯМИ -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); position: relative; z-index: 1;">
+                                <!-- НИЖНЯЯ ПАНЕЛЬ С КАТЕГОРИЕЙ, СТАТУСОМ И ДЕЙСТВИЕМ -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); position: relative; z-index: 1;">
                                     
-                                    <!-- Диодный индикатор статуса -->
-                                    <div style="display: flex; align-items: center; gap: 7px;">
-                                        <span style="width: 7px; height: 7px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80;"></span>
-                                        <span style="font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.6px;">В наличии</span>
+                                    <!-- Статус и Категория в один ряд -->
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="background: rgba(149, 18, 44, 0.25); border: 1px solid rgba(149, 18, 44, 0.45); color: #F3F4F5; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 8px; border-radius: 8px;">
+                                            {{ item.category }}
+                                        </span>
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <span style="width: 6px; height: 6px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80;"></span>
+                                            <span style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.4px;">В наличии</span>
+                                        </div>
                                     </div>
                                     
                                     <!-- Кнопка корзины / Счётчик -->
-                                    <div v-if="!cart[item.id]" @click.stop="addToCart(item)" class="haptic-btn btn-cherry" style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 18px; border-radius: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                    <div v-if="!cart[item.id]" @click.stop="addToCart(item)" class="haptic-btn btn-cherry" style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 18px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                                         В корзину
                                     </div>
-                                    <div v-else style="display:flex; align-items:center; gap: 10px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 4px 6px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);" @click.stop>
+                                    <div v-else style="display:flex; align-items:center; gap: 10px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 4px 6px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);" @click.stop>
                                         <div @click.stop="changeCartCount(item.id, -1)" style="width: 26px; height: 26px; display:flex; justify-content:center; align-items:center; background: rgba(255,255,255,0.06); border-radius: 50%; font-weight: bold; color: var(--text-main); cursor: pointer;">-</div>
                                         <div style="font-size: 13px; font-weight: 900; min-width: 18px; text-align: center; color: white;">{{ cart[item.id].count }}</div>
                                         <div @click.stop="changeCartCount(item.id, 1)" style="width: 26px; height: 26px; display:flex; justify-content:center; align-items:center; background: var(--brand-red); border-radius: 50%; font-weight: bold; color: white; cursor: pointer; box-shadow: 0 2px 8px var(--brand-red-glow);">+</div>
@@ -1438,9 +1440,8 @@
                     setTimeout(() => this.scrollToSection('catalog'), 500);
                 } else if (tab === 'cart') {
                     this.switchTab('cart');
-                } else if (tab === 'profile') {
+                } else if (tab === 'profile' || tab === 'profile_only') {
                     this.switchTab('profile');
-                    setTimeout(() => this.openRoulette(), 600);
                 }
 
                 // Запускаем маппинг анимаций при первой загрузке
