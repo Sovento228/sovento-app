@@ -1721,11 +1721,20 @@
                     delete newCart[id];
                     this.cart = newCart;
                 },
-                sendSupportMessage() {
+                async sendSupportMessage() {
                     if(this.supportMessage.trim().length > 0) {
-                        alert("Сообщение отправлено! Менеджер ответит вам в ближайшее время.");
-                        this.supportMessage = '';
-                        this.switchTab('main');
+                        try {
+                            await fetch(`${API_BASE}/api/shop/support`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tg_id: this.user.tg_id, message: this.supportMessage })
+                            });
+                            alert("✅ Обращение отправлено!\n\nМенеджер скоро ответит вам. Ответ придет в этот же чат от лица нашего бота.");
+                            this.supportMessage = '';
+                            this.switchTab('main');
+                        } catch (e) {
+                            alert("Ошибка при отправке сообщения. Попробуйте позже.");
+                        }
                     }
                 },
                 setDelivery(type) {
