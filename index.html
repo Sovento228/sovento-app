@@ -1765,15 +1765,24 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        const data = await res.json();
+                        
+                        const text = await res.text();
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch(err) {
+                            throw new Error("Сбой сервера (HTML вместо JSON): " + text.substring(0, 100));
+                        }
                         
                         if (data.status === 'ok') {
-                            alert(`Заказ #${data.order_id} успешно оформлен! Менеджер скоро свяжется с вами.`);
-                            this.cart = {}; // Очищаем корзину после заказа
-                            this.switchTab('main'); // Возвращаем на главную
+                            alert(`Заказ #${data.order_id} успешно оформлен! Чек отправлен вам в личные сообщения.`);
+                            this.cart = {}; 
+                            this.switchTab('main'); 
+                        } else {
+                            alert("Отказ сервера: " + (data.message || data.detail || "Неизвестная ошибка"));
                         }
                     } catch (e) {
-                        alert("Ошибка при оформлении заказа. Проверьте соединение с интернетом.");
+                        alert(`Ошибка при оформлении заказа:\n${e.message}\nСвяжитесь с поддержкой.`);
                     }
                 },
                 selectCity(city) {
